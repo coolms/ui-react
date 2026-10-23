@@ -29,6 +29,7 @@
     "src/kit.css",
     "src/tokens",
     "kit.contract.json",
+    "design-tokens.lock.json",
     "CHANGELOG.md"
   ],
   "scripts": {
