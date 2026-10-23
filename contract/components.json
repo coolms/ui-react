@@ -1,0 +1,144 @@
+{
+  "$comment": "The components every CoolMS UI kit provides, by name, and the states each must render. A kit declares which of its components implements each entry (kit.contract.json); tools/check-kit.mjs fails when one is missing, or a state is. Names follow ui-angular's where it has one.",
+  "version": "0.1.0",
+  "components": {
+    "button": {
+      "purpose": "An action. Primary, secondary, danger; an icon may lead.",
+      "states": [
+        "default",
+        "primary",
+        "danger",
+        "disabled",
+        "busy",
+        "locked"
+      ],
+      "notes": "locked = allowed once elevated (the server answered `elevate`): drawn with a lock, choosing it asks for elevation. In a client that never elevates an `elevate` answer is not offered at all."
+    },
+    "text-field": {
+      "purpose": "One line of text, with a label, help and an error.",
+      "states": [
+        "default",
+        "focused",
+        "disabled",
+        "read-only",
+        "invalid",
+        "pinned"
+      ],
+      "notes": "pinned = set by the environment and not editable here; the help names what pins it."
+    },
+    "select": {
+      "purpose": "One choice from a list, with a label, help and an error.",
+      "states": [
+        "default",
+        "disabled",
+        "read-only",
+        "invalid",
+        "empty-list"
+      ]
+    },
+    "toggle": {
+      "purpose": "On or off, with a label on the same baseline.",
+      "states": [
+        "on",
+        "off",
+        "disabled",
+        "read-only"
+      ]
+    },
+    "modal": {
+      "purpose": "A dialog over the page; Escape and the scrim close it unless it holds unsaved work.",
+      "states": [
+        "open",
+        "closing",
+        "dirty"
+      ]
+    },
+    "confirm-dialog": {
+      "purpose": "A question before a destructive or irreversible action; the labels name the outcomes.",
+      "states": [
+        "default",
+        "danger",
+        "discard-changes"
+      ]
+    },
+    "toast": {
+      "purpose": "A short, transient report of what happened.",
+      "states": [
+        "success",
+        "error",
+        "info",
+        "with-action"
+      ]
+    },
+    "loading": {
+      "purpose": "Something is being read; says what.",
+      "states": [
+        "inline",
+        "block"
+      ]
+    },
+    "empty-state": {
+      "purpose": "Nothing to show, and why; optionally what to do.",
+      "states": [
+        "default",
+        "with-action"
+      ]
+    },
+    "error-banner": {
+      "purpose": "A read failed; says why, offers retry when retrying can help.",
+      "states": [
+        "default",
+        "with-retry"
+      ]
+    },
+    "page-header": {
+      "purpose": "The page's title, its scope line and its actions.",
+      "states": [
+        "default",
+        "with-actions",
+        "with-back-link"
+      ]
+    },
+    "tab-strip": {
+      "purpose": "Sections of one object, one at a time.",
+      "states": [
+        "default",
+        "active",
+        "with-count"
+      ]
+    },
+    "list": {
+      "purpose": "Rows of objects, each opened by a press; a row's other actions in its menu.",
+      "states": [
+        "loading",
+        "empty",
+        "populated",
+        "selected",
+        "error"
+      ]
+    },
+    "avatar": {
+      "purpose": "A person or an account, by picture or initials.",
+      "states": [
+        "picture",
+        "initials",
+        "presence"
+      ]
+    },
+    "elevation-required": {
+      "purpose": "Says that an action needs elevation, and offers it (theme-admin); never shown in a client that does not elevate.",
+      "states": [
+        "default"
+      ]
+    },
+    "context-menu": {
+      "purpose": "The selected object's actions, exactly the action bar's for it; only on the client's own objects.",
+      "states": [
+        "open",
+        "item-danger",
+        "item-locked",
+        "item-refused"
+      ]
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "$comment": "The checkable list of every server-decided state a client can reach, where it is read, how every client reacts, and what no client may do. A kit or a client declares, per row, where it implements the reaction (kit.contract.json); tools/check-kit.mjs fails on a row with none. Rows follow the platform's server-state decisions (2026-10-13); reactions R1-R6 are written once here.",
+  "version": "0.1.0",
+  "reactions": {
+    "R1-reread": "State that expires is re-read, not remembered: a client re-fetches on the events that can have changed it (an elevation granted or ended, a refusal, focus after being away) and treats its own copy as stale.",
+    "R2-refusal-last-word": "A 403 stamped X-Elevation-Required asks for elevation (a client that never elevates says it cannot here); any other 403 is a refusal, quoted as the server gave it. `allowed` is the permission answer only: a content rule may still refuse.",
+    "R3-capability-map": "An action is offered from the subject's capabilities map: `allowed` offered, `elevate` offered locked (or not offered by a client that never elevates), `denied` not offered or offered with its refusal. Never computed from mode, owner, membership or role.",
+    "R4-unknown": "A state or an answer the client does not recognise is treated as `denied` and said, never as permission.",
+    "R5-conflict": "A write naming a version (If-Match) that answers 412 changed nothing: say so, and offer to read again; never resend over it.",
+    "R6-client-update": "/errors/client-update-required (any status), or a discovery minimumVersion above the client's: stop using that server and say an update is needed."
+  },
+  "states": [
+    {
+      "id": "node-rwx",
+      "state": "read / write / execute on a node",
+      "readFrom": "the listing's capability flags",
+      "never": "compute it from mode bits, owner or group membership",
+      "reactions": [
+        "R1-reread",
+        "R3-capability-map"
+      ]
+    },
+    {
+      "id": "action-now",
+      "state": "whether an action is allowed now",
+      "readFrom": "the action's own response (a 403 is the signal)",
+      "never": "infer it from a flag fetched earlier",
+      "reactions": [
+        "R2-refusal-last-word"
+      ]
+    },
+    {
+      "id": "elevation",
+      "state": "whether a session is elevated, and until when",
+      "readFrom": "GET /api/v1/auth/elevation",
+      "never": "run its own clock, or infer it from isAdmin",
+      "reactions": [
+        "R1-reread"
+      ]
+    },
+    {
+      "id": "space-writable",
+      "state": "whether a space is writable, and its badge",
+      "readFrom": "Space.isWritable, Space.badge",
+      "never": "decide from the path or the user's roles",
+      "reactions": [
+        "R1-reread"
+      ]
+    },
+    {
+      "id": "consent",
+      "state": "which consent rung is granted",
+      "readFrom": "the consent record",
+      "never": "assume from a cookie or a previous answer",
+      "reactions": [
+        "R1-reread",
+        "R4-unknown"
+      ]
+    },
+    {
+      "id": "capability",
+      "state": "what a declared action comes to for this caller on this subject: allowed, elevate or denied",
+      "readFrom": "the subject's capabilities map; or GET /api/v1/capabilities?subject=...&actions=...",
+      "never": "compute it from mode, owner, membership or role; or read allowed as a promise",
+      "reactions": [
+        "R3-capability-map",
+        "R2-refusal-last-word",
+        "R4-unknown"
+      ]
+    },
+    {
+      "id": "navi-offered",
+      "state": "whether a navi node is offered at all",
+      "readFrom": "the node's presence in the navi graph",
+      "never": "show a node the graph withheld",
+      "reactions": [
+        "R1-reread"
+      ]
+    },
+    {
+      "id": "versioned-write",
+      "state": "whether a write went over what the client read",
+      "readFrom": "the 412 a versioned write answers",
+      "never": "resend the write without reading again",
+      "reactions": [
+        "R5-conflict"
+      ]
+    },
+    {
+      "id": "client-version",
+      "state": "whether this client's version is still supported",
+      "readFrom": "discovery clients.<id>.minimumVersion; /errors/client-update-required",
+      "never": "keep using a server that refused the version",
+      "reactions": [
+        "R6-client-update"
+      ]
+    }
+  ]
+}

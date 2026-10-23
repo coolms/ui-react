@@ -1,0 +1,8 @@
+{
+  "kit": "a kit that lacks things (the checker's own control)",
+  "components": {
+    "button": { "implementedBy": "Button", "states": ["default", "primary", "danger", "disabled", "busy"] },
+    "invented": { "implementedBy": "Invented", "states": [] }
+  },
+  "serverStates": { "capability": { "where": "src/capability.ts" } }
+}

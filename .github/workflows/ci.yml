@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22', '24', '26']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      # The pinned files, the contract coverage, the types, the tests, the published build and the demo.
+      - run: npm run verify
+
+  # The lock says which files came from coolms/design-tokens, at which tag and commit. The copies are checked by
+  # `verify`; this checks the lock against the source: the tag names the lock's commit, and each file there hashes
+  # to the lock's sha256.
+  lock-against-source:
+    name: The lock, against coolms/design-tokens
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Fetch the tag the lock names
+        run: |
+          set -euo pipefail
+          tag=$(node -p 'require("./design-tokens.lock.json").tag')
+          git clone --quiet --depth 1 --branch "$tag" https://github.com/coolms/design-tokens.git "$RUNNER_TEMP/design-tokens"
+      - name: The tag's commit and files are the lock's
+        run: |
+          node -e '
+            const { createHash } = require("crypto");
+            const { readFileSync } = require("fs");
+            const { execFileSync } = require("child_process");
+            const src = process.env.RUNNER_TEMP + "/design-tokens";
+            const lock = JSON.parse(readFileSync("design-tokens.lock.json", "utf8"));
+            const commit = execFileSync("git", ["-C", src, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+            const found = [];
+            if (commit !== lock.commit) found.push(`tag ${lock.tag} is ${commit}, the lock says ${lock.commit}`);
+            for (const [from, { sha256 }] of Object.entries(lock.files)) {
+              const actual = createHash("sha256").update(readFileSync(src + "/" + from)).digest("hex");
+              if (actual !== sha256) found.push(`${from} at ${lock.tag} hashes ${actual.slice(0, 12)}, the lock says ${sha256.slice(0, 12)}`);
+            }
+            if (found.length) { console.log("FOUND -- " + found.join("; ")); process.exit(1); }
+            console.log(`CLEAR -- ${lock.tag} is ${commit.slice(0, 12)}, and ${Object.keys(lock.files).length} file(s) there hash as the lock says`);
+          '
+
+  # README, a LICENSE matching the manifest, and CHANGELOG (coolms/.github's basic-files.yml), pinned to a commit.
+  basic-files:
+    uses: coolms/.github/.github/workflows/basic-files.yml@595d36957a135e7d753abe34ca1ce90a0a6f2215

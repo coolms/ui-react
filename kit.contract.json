@@ -1,0 +1,34 @@
+{
+  "kit": "@coolms/ui-react",
+  "components": {
+    "button": { "implementedBy": "Button", "states": ["default", "primary", "danger", "disabled", "busy", "locked"] },
+    "text-field": { "implementedBy": "TextField", "states": ["default", "focused", "disabled", "read-only", "invalid", "pinned"] },
+    "select": { "implementedBy": "Select", "states": ["default", "disabled", "read-only", "invalid", "empty-list"] },
+    "toggle": { "implementedBy": "Toggle", "states": ["on", "off", "disabled", "read-only"] },
+    "modal": { "implementedBy": "Modal", "states": ["open", "closing", "dirty"] },
+    "confirm-dialog": { "implementedBy": "ConfirmDialog", "states": ["default", "danger", "discard-changes"] },
+    "toast": { "implementedBy": "Toast", "states": ["success", "error", "info", "with-action"] },
+    "loading": { "implementedBy": "Loading", "states": ["inline", "block"] },
+    "empty-state": { "implementedBy": "EmptyState", "states": ["default", "with-action"] },
+    "error-banner": { "implementedBy": "ErrorBanner", "states": ["default", "with-retry"] },
+    "page-header": { "implementedBy": "PageHeader", "states": ["default", "with-actions", "with-back-link"] },
+    "tab-strip": { "implementedBy": "TabStrip", "states": ["default", "active", "with-count"] },
+    "list": { "implementedBy": "List", "states": ["loading", "empty", "populated", "selected", "error"] },
+    "avatar": { "implementedBy": "Avatar", "states": ["picture", "initials", "presence"] },
+    "context-menu": { "implementedBy": "ContextMenu", "states": ["open", "item-danger", "item-locked", "item-refused"] }
+  },
+  "serverStates": {
+    "node-rwx": { "where": "src/server/capability.ts" },
+    "action-now": { "where": "src/server/refusal.ts" },
+    "elevation": { "where": "src/server/reread.ts" },
+    "space-writable": { "where": "src/server/reread.ts" },
+    "consent": { "where": "src/server/reread.ts" },
+    "capability": { "where": "src/server/capability.ts" },
+    "navi-offered": { "where": "src/server/reread.ts" },
+    "versioned-write": { "where": "src/server/conflict.ts" },
+    "client-version": { "where": "src/server/client-update.ts" }
+  },
+  "notOffered": {
+    "elevation-required": "this kit's clients never elevate: an `elevate` answer is not offered at all (offerFor with elevates: false)"
+  }
+}
