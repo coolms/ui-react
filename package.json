@@ -1,6 +1,6 @@
 {
   "name": "@coolms/ui-react",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "The CoolMS UI kit for React: the components of the CoolMS UI contract, styled by the CoolMS design tokens",
   "license": "MIT",
   "type": "module",
@@ -36,7 +36,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "check": "node tools/check-kit.mjs kit.contract.json && node tools/check-kit-sources.mjs kit.contract.json",
-    "tokens:check": "node tools/tokens-lock.mjs && node tools/check-css-tokens.mjs",
+    "tokens:check": "node tools/tokens-lock.mjs && node tools/check-css.mjs src/tokens/coolms-tokens.css && node tools/check-css-teeth.mjs && node tools/check-css-tokens.mjs",
     "demo": "vite --config demo/vite.config.ts",
     "demo:build": "vite build --config demo/vite.config.ts",
     "verify": "npm run tokens:check && npm run check && npm run typecheck && npm test && npm run build && npm run check:built && npm run demo:build",
