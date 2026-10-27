@@ -22,12 +22,14 @@
       "import": "./dist/index.js"
     },
     "./kit.css": "./src/kit.css",
-    "./tokens.css": "./src/tokens/coolms-tokens.css"
+    "./tokens.css": "./src/tokens/coolms-tokens.css",
+    "./fonts.css": "./src/fonts/inter.css"
   },
   "files": [
     "dist",
     "src/kit.css",
     "src/tokens",
+    "src/fonts",
     "kit.contract.json",
     "design-tokens.lock.json",
     "CHANGELOG.md"
