@@ -16,7 +16,8 @@ The token file is CSS a browser keeps whole.
 
 ## 0.1.0-alpha.1 (2026-10-23)
 
-The first pre-release.
+The first pre-release. Published from `develop` at 91f0db3, which has no tag; the package already carries
+`design-tokens.lock.json` (#1).
 
 - The 15 components of the CoolMS UI contract, each in every state the contract names. `elevation-required` is not
   offered.
