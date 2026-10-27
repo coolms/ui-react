@@ -415,7 +415,7 @@
 .cms-composer__send-round:disabled, .cms-composer__send:disabled { opacity: 0.55; cursor: not-allowed; }
 
 /* Call */
-.cms-call-incoming { display: flex; flex-direction: column; align-items: center; gap: var(--cms-space-2); width: 420px; max-width: 100%; padding: var(--cms-space-10) var(--cms-space-8); border-radius: var(--cms-radius-dialog); background: var(--cms-sidebar-bg); color: var(--cms-on-chrome); box-shadow: var(--cms-shadow-lg); }
+.cms-call-incoming { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: var(--cms-space-2); width: 420px; max-width: 100%; padding: var(--cms-space-10) var(--cms-space-8); border-radius: var(--cms-radius-dialog); background: var(--cms-sidebar-bg); color: var(--cms-on-chrome); box-shadow: var(--cms-shadow-lg); }
 .cms-call-incoming__ring { padding: var(--cms-space-3); border: 2px solid var(--cms-accent); border-radius: 50%; box-shadow: 0 0 0 var(--cms-space-3) var(--cms-sidebar-bg), 0 0 0 calc(var(--cms-space-3) + 1px) var(--cms-accent-text); }
 .cms-call-incoming__name { margin: var(--cms-space-4) 0 0; font-size: var(--cms-font-size-title-lg); font-weight: var(--cms-font-weight-bold); }
 .cms-call-incoming__what { margin: 0; color: var(--cms-sidebar-text); }
@@ -428,7 +428,7 @@
 .cms-call-button--hang-up .cms-call-button__label { color: var(--cms-danger); }
 .cms-call-incoming .cms-call-button__label { color: var(--cms-on-chrome); }
 .cms-call-button__label { font-size: var(--cms-font-size-meta); }
-.cms-call-panel { display: flex; flex-direction: column; gap: var(--cms-space-6); padding: var(--cms-space-6); border-radius: var(--cms-radius-dialog); background: var(--cms-surface); color: var(--cms-text); box-shadow: var(--cms-shadow-md); }
+.cms-call-panel { box-sizing: border-box; display: flex; flex-direction: column; gap: var(--cms-space-6); padding: var(--cms-space-6); border-radius: var(--cms-radius-dialog); background: var(--cms-surface); color: var(--cms-text); box-shadow: var(--cms-shadow-md); }
 .cms-call-panel__head { display: flex; align-items: center; gap: var(--cms-space-4); }
 .cms-call-panel__who { flex: 1; }
 .cms-call-panel__name { margin: 0; font-size: var(--cms-font-size-title-lg); font-weight: var(--cms-font-weight-semibold); }
@@ -464,9 +464,9 @@
 .cms-signin-form__label { margin-top: var(--cms-space-2); font-weight: var(--cms-font-weight-medium); }
 .cms-field { height: 44px; padding: 0 var(--cms-space-4); border: 1px solid var(--cms-border-input); border-radius: var(--cms-radius-field); background: var(--cms-input-bg); color: var(--cms-text); font: inherit; font-size: var(--cms-font-size-body-lg); }
 .cms-field:focus { outline: 2px solid var(--cms-focus-ring); outline-offset: 1px; }
-.cms-signin-form__password { position: relative; display: flex; }
+.cms-signin-form__password { position: relative; display: flex; align-items: center; }
 .cms-signin-form__password .cms-field { flex: 1; padding-right: 64px; }
-.cms-signin-form__show { position: absolute; top: 50%; right: var(--cms-space-3); transform: translateY(-50%); border: 0; background: transparent; color: var(--cms-text-body); font: inherit; cursor: pointer; }
+.cms-signin-form__show { position: absolute; top: 50%; line-height: 1; right: var(--cms-space-3); transform: translateY(-50%); border: 0; background: transparent; color: var(--cms-text-body); font: inherit; cursor: pointer; }
 .cms-signin-form__forgot { align-self: flex-end; color: var(--cms-text); }
 .cms-signin-form__error { margin: 0; color: var(--cms-danger-text); }
 .cms-signin-form__submit { justify-content: center; height: 48px; margin-top: var(--cms-space-4); font-size: var(--cms-font-size-body-lg); }
