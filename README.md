@@ -13,8 +13,12 @@ server helpers are how a React client reads it.
 ## Install
 
 ```bash
-npm install @coolms/ui-react@0.1.0-alpha.1
+npm install @coolms/ui-react@<version>
 ```
+
+Pin the exact version you test with; the versions are listed on npm. Use `0.1.0-alpha.2` or later: in
+`0.1.0-alpha.1` the token file's first line is not CSS, so a browser drops its light theme and the components lose
+their colours, spacing and radii.
 
 React 19.2 or later is a peer dependency.
 
@@ -77,8 +81,9 @@ npm run verify
 
 runs, in order:
 
-- `tokens:check`: the token file, the contract and its checker are the copies `design-tokens.lock.json` pins, and
-  every token `kit.css` reads is defined.
+- `tokens:check`: the token file, the contract and the checkers are the copies `design-tokens.lock.json` pins; the
+  token file is CSS a browser keeps whole, and the check still fails a `//` header; and every token `kit.css` reads is
+  defined.
 - `check`: `kit.contract.json` covers the contract, and the components and files it names exist.
 - `typecheck` and `test`.
 - `build`, then `check:built`: the published module loads, exports every declared component, and every target the

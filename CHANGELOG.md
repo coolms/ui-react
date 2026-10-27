@@ -13,6 +13,8 @@ The token file is CSS a browser keeps whole.
   `design-tokens.lock.json` with the tag's commit.
 - Added: `tools/check-css.mjs`, copied from v0.5.0 and pinned the same way, runs on the token file in
   `tokens:check`; `tools/check-css-teeth.mjs` makes sure it still fails a `//` header and a missing file.
+- Changed: the README's install line names no version (it named 0.1.0-alpha.1), and says to use 0.1.0-alpha.2 or
+  later.
 
 ## 0.1.0-alpha.1 (2026-10-23)
 
