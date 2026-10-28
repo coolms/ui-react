@@ -286,7 +286,7 @@
     outline-offset: 2px;
 }
 
-.cms-button--chrome { background: var(--cms-sidebar-bg); border-color: var(--cms-sidebar-bg); color: var(--cms-on-chrome); border-radius: var(--cms-radius-control); font-weight: var(--cms-font-weight-semibold); }
+.cms-button--chrome { background: var(--cms-button-chrome-bg); border-color: var(--cms-button-chrome-bg); color: var(--cms-on-chrome); border-radius: var(--cms-radius-control); font-weight: var(--cms-font-weight-semibold); }
 .cms-button--chrome:hover:not(:disabled) { background: var(--cms-sidebar-hover); border-color: var(--cms-sidebar-hover); }
 
 /* Badge, pill */
@@ -356,7 +356,7 @@
 .cms-chips { display: flex; flex-wrap: wrap; gap: var(--cms-space-2); }
 .cms-chip { height: 32px; padding: 0 var(--cms-space-4); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-pill); background: var(--cms-surface); color: var(--cms-text-body); font: inherit; font-size: var(--cms-font-size-meta); cursor: pointer; }
 .cms-chip:hover { background: var(--cms-surface-muted); }
-.cms-chip.is-on { border-color: var(--cms-sidebar-bg); background: var(--cms-sidebar-bg); color: var(--cms-on-chrome); font-weight: var(--cms-font-weight-semibold); }
+.cms-chip.is-on { border-color: var(--cms-button-chrome-bg); background: var(--cms-button-chrome-bg); color: var(--cms-on-chrome); font-weight: var(--cms-font-weight-semibold); }
 
 /* Panes */
 .cms-panes { display: grid; height: 100%; min-height: 0; }
@@ -398,7 +398,7 @@
 .cms-bubble--out { align-self: flex-end; align-items: flex-end; }
 .cms-bubble__text { padding: var(--cms-space-3) var(--cms-space-4); border-radius: var(--cms-radius-bubble); font-size: var(--cms-font-size-body-lg); line-height: var(--cms-line-height-body); }
 .cms-bubble--in .cms-bubble__text { border: 1px solid var(--cms-border); border-top-left-radius: var(--cms-radius-bubble-tail); background: var(--cms-surface); color: var(--cms-text); }
-.cms-bubble--out .cms-bubble__text { border-top-right-radius: var(--cms-radius-bubble-tail); background: var(--cms-sidebar-bg); color: var(--cms-on-chrome); }
+.cms-bubble--out .cms-bubble__text { border-top-right-radius: var(--cms-radius-bubble-tail); background: var(--cms-button-chrome-bg); color: var(--cms-on-chrome); }
 .cms-bubble__meta { padding: 0 var(--cms-space-1); color: var(--cms-text-muted); font-size: var(--cms-font-size-label); }
 
 /* Composer */

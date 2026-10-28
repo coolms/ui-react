@@ -14,6 +14,7 @@
     --cms-sidebar-bg: #1a2332;
     --cms-sidebar-hover: #243044;
     --cms-sidebar-active: #2d3f57;
+    --cms-button-chrome-bg: #1a2332;
     --cms-sidebar-text: #c9d3e0;
     --cms-sidebar-text-muted: #6b7f96;
     --cms-sidebar-accent: var(--cms-accent);
@@ -164,6 +165,7 @@
     --cms-sidebar-bg: #131c28;
     --cms-sidebar-hover: #1f2b3d;
     --cms-sidebar-active: #2d3f57;
+    --cms-button-chrome-bg: #2d3f57;
     --cms-bg: #0f1722;
     --cms-surface: #1a2332;
     --cms-surface-muted: #243044;
@@ -179,7 +181,7 @@
     --cms-success: #22c55e;
     --cms-success-light: #0f2a18;
     --cms-success-text: #86efac;
-    --cms-danger: #ef4444;
+    --cms-danger: #f87171;
     --cms-danger-light: #2c1416;
     --cms-danger-text: #fca5a5;
     --cms-danger-border: #7f3a40;
