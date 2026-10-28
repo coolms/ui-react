@@ -174,6 +174,7 @@ export function FilterChips({ options, value, onChange, label }: FilterChipsProp
                         onClick={() => onChange(o.id)}
                         onKeyDown={e => onKey(e, i)}
                     >
+                        {on ? <Icon name="check" size={16} /> : null}
                         {o.label}
                     </button>
                 );

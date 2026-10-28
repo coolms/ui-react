@@ -354,7 +354,7 @@
 
 /* Filter chips */
 .cms-chips { display: flex; flex-wrap: wrap; gap: var(--cms-space-2); }
-.cms-chip { height: 32px; padding: 0 var(--cms-space-4); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-pill); background: var(--cms-surface); color: var(--cms-text-body); font: inherit; font-size: var(--cms-font-size-meta); cursor: pointer; }
+.cms-chip { display: inline-flex; align-items: center; gap: var(--cms-space-1); height: 32px; padding: 0 var(--cms-space-4); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-pill); background: var(--cms-surface); color: var(--cms-text-body); font: inherit; font-size: var(--cms-font-size-meta); cursor: pointer; }
 .cms-chip:hover { background: var(--cms-surface-muted); }
 .cms-chip.is-on { border-color: var(--cms-button-chrome-bg); background: var(--cms-button-chrome-bg); color: var(--cms-on-chrome); font-weight: var(--cms-font-weight-semibold); }
 

@@ -119,6 +119,18 @@ describe('FilterChips', () => {
         await userEvent.keyboard('{ArrowRight}');
         expect(screen.getByRole('radio', { name: 'All' })).toBeChecked();
     });
+
+    it('marks the selected chip with a check as well as its fill, and only that one', async () => {
+        function Controlled() {
+            const [v, setV] = useState('all');
+            return <FilterChips label="Show" value={v} onChange={setV} options={[{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }]} />;
+        }
+        render(<Controlled />);
+        const marks = () => screen.getAllByRole('radio').map(r => r.querySelector('svg') !== null);
+        expect(marks()).toEqual([true, false]);
+        await userEvent.click(screen.getByRole('radio', { name: 'Unread' }));
+        expect(marks()).toEqual([false, true]);
+    });
 });
 
 describe('SplitPanes', () => {
