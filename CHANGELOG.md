@@ -2,7 +2,7 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.3 (2026-10-30)
 
 The Workspace's components, on design-tokens 0.6.0.
 
