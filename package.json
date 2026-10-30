@@ -22,12 +22,14 @@
       "import": "./dist/index.js"
     },
     "./kit.css": "./src/kit.css",
-    "./tokens.css": "./src/tokens/coolms-tokens.css"
+    "./tokens.css": "./src/tokens/coolms-tokens.css",
+    "./fonts.css": "./src/fonts/inter.css"
   },
   "files": [
     "dist",
     "src/kit.css",
     "src/tokens",
+    "src/fonts",
     "kit.contract.json",
     "design-tokens.lock.json",
     "CHANGELOG.md"
@@ -36,10 +38,11 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "check": "node tools/check-kit.mjs kit.contract.json && node tools/check-kit-sources.mjs kit.contract.json",
-    "tokens:check": "node tools/tokens-lock.mjs && node tools/check-css.mjs src/tokens/coolms-tokens.css && node tools/check-css-teeth.mjs && node tools/check-css-tokens.mjs",
+    "tokens:check": "node tools/tokens-lock.mjs && node tools/check-css.mjs src/tokens/coolms-tokens.css && node tools/check-css-teeth.mjs && node tools/check-css-tokens.mjs && node tools/check-breakpoints.mjs",
     "demo": "vite --config demo/vite.config.ts",
     "demo:build": "vite build --config demo/vite.config.ts",
-    "verify": "npm run tokens:check && npm run check && npm run typecheck && npm test && npm run build && npm run check:built && npm run demo:build",
+    "check:layout": "node tools/check-layout.mjs",
+    "verify": "npm run tokens:check && npm run check && npm run typecheck && npm test && npm run build && npm run check:built && npm run demo:build && npm run check:layout",
     "build": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json",
     "check:built": "node tools/check-built.mjs",
     "prepack": "npm run build"

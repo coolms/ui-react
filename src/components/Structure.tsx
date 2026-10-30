@@ -119,11 +119,20 @@ export function initialsOf(name: string): string {
     return letters.filter(Boolean).join('').toUpperCase();
 }
 
+/** Which of the six avatar tints a name takes: the same name always the same tint. */
+export function tintOf(name: string): number {
+    let hash = 0;
+    for (const ch of name.trim().toLowerCase()) {
+        hash = (hash * 31 + (ch.codePointAt(0) ?? 0)) >>> 0;
+    }
+    return (hash % 6) + 1;
+}
+
 /** A person or an account, by picture or initials (contract component `avatar`: picture, initials, presence). */
 export function Avatar({ name, pictureUrl, presence, size = 32 }: AvatarProps): ReactNode {
     return (
         <span
-            className="cms-avatar"
+            className={`cms-avatar cms-avatar--tint-${tintOf(name)}`}
             style={{ width: size, height: size, fontSize: Math.round(size * 0.4) }}
             role="img"
             aria-label={presence ? `${name}, ${presence}` : name}

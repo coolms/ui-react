@@ -2,6 +2,30 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+The Workspace's components, on design-tokens 0.6.0.
+
+- Added: `AppShell` (the dark rail of sections with counts, the top bar with the server, search and account),
+  `SearchField`, `Badge`, `FilterChips` (a radio group of pills), `SplitPanes` (two or three labelled panes),
+  `MailRow`, `ChatBubble`, `Composer` (chat and quick reply), `IncomingCall`, `CallPanel`, `CallBar`, `SignInLayout`
+  and `SignInForm`, and `Icon` with its set of 29 icons.
+- Responsive by design, on the layout's tokens: desktop from 1200px (the full rail, three panes), tablet from 600px
+  (an icons-only rail with each section's name as its tooltip, two panes), phone below 600px (a bottom tab bar, one
+  pane at a time). `SplitPanes` takes `active`, the pane the person is in, and `back`, a link to the pane before
+  it, shown where that pane is hidden; with the selection in the address, the browser's Back agrees. Sign-in fits
+  every width, and every control is at least 44px at tablet and phone widths.
+- A navy button keeps a visible 1px edge in dark (`button-chrome-border`).
+- Changed: `Avatar` takes one of six tints from the name (`tintOf`), the same name always the same tint.
+- Added: Inter (`./fonts.css`, SIL Open Font License 1.1) and the token file with the Workspace tokens, both from
+  design-tokens 0.6.0, as the lock records.
+- The demo gains a Workspace page per screen (Mail, Chat, Calls, Sign in), light and dark: `demo/workspace.html`.
+  Mail shows the mailbox's folders as a tree, never labels. Each screen's place is in its address (`#mail/2` is
+  Mail with its third message open).
+- Checks: `check-breakpoints` (every media query width is a breakpoint token) and `check-layout` (every demo screen
+  at 1440, 1024, 768 and 390px, light and dark, in headless Chrome: nothing passes the edge or scrolls sideways,
+  and no control at touch widths is under 44px).
+
 ## 0.1.0-alpha.2 (2026-10-28)
 
 The token file is CSS a browser keeps whole.
