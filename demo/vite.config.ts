@@ -6,5 +6,9 @@ export default defineConfig({
     root: 'demo',
     base: './',
     plugins: [react()],
-    build: { outDir: 'dist', emptyOutDir: true },
+    build: {
+        outDir: 'dist',
+        emptyOutDir: true,
+        rollupOptions: { input: { index: 'demo/index.html', workspace: 'demo/workspace.html' } },
+    },
 });

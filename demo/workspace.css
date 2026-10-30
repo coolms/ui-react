@@ -1,0 +1,71 @@
+/* The Workspace demo pages' own layout: what is not a kit component yet. The components' look is kit.css. */
+body { margin: 0; background: var(--cms-bg); color: var(--cms-text); font-family: var(--cms-font-sans); font-size: var(--cms-font-size-body); }
+
+.ws-theme { position: fixed; left: var(--cms-space-2); bottom: var(--cms-space-2); z-index: 10; width: calc(var(--cms-rail-width) - 2 * var(--cms-space-2)); justify-content: center; padding: 0; font-size: var(--cms-font-size-label); }
+
+/* Mail: folders */
+.ws-folders { display: flex; flex-direction: column; gap: var(--cms-space-4); padding: var(--cms-space-5) var(--cms-space-4); }
+.ws-compose { justify-content: center; height: 48px; font-size: var(--cms-font-size-body-lg); }
+.ws-mailbox { display: flex; align-items: center; gap: var(--cms-space-3); padding: var(--cms-space-3); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-card); background: var(--cms-surface); }
+.ws-mailbox__name { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.ws-mailbox__address { overflow: hidden; text-overflow: ellipsis; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.ws-navlist { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.ws-navlist a { display: flex; align-items: center; gap: var(--cms-space-3); padding: var(--cms-space-2) var(--cms-space-3); border-radius: var(--cms-radius-control); color: var(--cms-text-body); text-decoration: none; font-size: var(--cms-font-size-body-lg); }
+.ws-navlist a:hover { background: var(--cms-surface-muted); }
+.ws-navlist a[aria-current='page'] { background: var(--cms-row-selected); color: var(--cms-text); font-weight: var(--cms-font-weight-semibold); }
+.ws-navlist--nested { padding-left: var(--cms-space-6); }
+.ws-divider { margin: var(--cms-space-2) var(--cms-space-3); border: 0; border-top: 1px solid var(--cms-border); }
+.ws-navlist__count { margin-left: auto; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+
+/* Mail: list and reader */
+.ws-listhead { display: flex; align-items: center; justify-content: space-between; gap: var(--cms-space-3); padding: var(--cms-space-5); }
+.ws-listhead h1 { margin: 0; font-size: var(--cms-font-size-title-lg); }
+.ws-reader { display: flex; flex-direction: column; min-height: 100%; }
+.ws-toolbar { display: flex; align-items: center; gap: var(--cms-space-2); padding: var(--cms-space-3) var(--cms-space-6); border-bottom: 1px solid var(--cms-border); }
+.ws-toolbar__count { margin-left: auto; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.ws-toolbar .cms-icon-button { width: 36px; height: 36px; border-radius: var(--cms-radius-control); color: var(--cms-text-body); }
+.ws-message { display: flex; flex-direction: column; gap: var(--cms-space-5); flex: 1; padding: var(--cms-space-6) var(--cms-space-8); }
+.ws-message h1 { display: flex; align-items: center; gap: var(--cms-space-3); margin: 0; font-size: var(--cms-font-size-title-lg); }
+.ws-sender { display: flex; align-items: center; gap: var(--cms-space-3); }
+.ws-sender__who { flex: 1; }
+.ws-sender__to { color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.ws-sender__time { color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.ws-body { margin: 0; font-size: var(--cms-font-size-body-lg); line-height: var(--cms-line-height-body); }
+.ws-file { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: var(--cms-space-3); align-self: flex-start; padding: var(--cms-space-3) var(--cms-space-4); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-card); }
+.ws-file__type { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--cms-radius-control); background: var(--cms-danger-light); color: var(--cms-danger-text); font-size: var(--cms-font-size-label); font-weight: var(--cms-font-weight-bold); }
+.ws-file__meta { color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.ws-reply { margin-top: auto; }
+
+/* Chat */
+.ws-chatrow { display: flex; gap: var(--cms-space-3); width: 100%; padding: var(--cms-space-3) var(--cms-space-4); border: 0; border-radius: var(--cms-radius-control); background: transparent; color: var(--cms-text-body); font: inherit; text-align: left; cursor: pointer; }
+.ws-chatrow:hover { background: var(--cms-surface-muted); }
+.ws-chatrow[aria-current='true'] { background: var(--cms-row-selected); }
+.ws-chatrow__body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.ws-chatrow__line { display: flex; align-items: center; gap: var(--cms-space-2); }
+.ws-chatrow__name { flex: 1; color: var(--cms-text); font-size: var(--cms-font-size-body-lg); font-weight: var(--cms-font-weight-medium); }
+.ws-chatrow__last { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cms-text-muted); }
+.ws-chatrow__time { color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.ws-chatlist { display: flex; flex-direction: column; gap: 2px; padding: 0 var(--cms-space-2); }
+.ws-convo { display: flex; flex-direction: column; height: 100%; background: var(--cms-bg); }
+.ws-convo__head { display: flex; align-items: center; gap: var(--cms-space-3); padding: var(--cms-space-3) var(--cms-space-6); border-bottom: 1px solid var(--cms-border); background: var(--cms-surface); }
+.ws-convo__who { flex: 1; }
+.ws-online { color: var(--cms-success-strong); font-size: var(--cms-font-size-meta); }
+.ws-convo__messages { display: flex; flex-direction: column; gap: var(--cms-space-4); flex: 1; overflow: auto; padding: var(--cms-space-6); }
+.ws-day { align-self: center; padding: var(--cms-space-1) var(--cms-space-3); border-radius: var(--cms-radius-pill); background: var(--cms-surface-muted); color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.ws-square { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--cms-border); border-radius: var(--cms-radius-control); background: var(--cms-surface); color: var(--cms-text-body); cursor: pointer; }
+
+/* Calls */
+.ws-calls { display: grid; grid-template-columns: 420px 1fr; gap: var(--cms-space-8); align-items: start; padding: var(--cms-space-10) var(--cms-space-12); background: var(--cms-canvas); min-height: 100vh; box-sizing: border-box; }
+.ws-calls h2 { margin: 0 0 var(--cms-space-4); color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); font-weight: var(--cms-font-weight-semibold); letter-spacing: 0.08em; text-transform: uppercase; }
+.ws-calls__bar { grid-column: 1 / 3; }
+
+/* The demo at the layout's widths: tablet and phone below 1200px, phone below 600px (design-tokens). */
+@media (max-width: 1199.98px) {
+    .ws-navlist a { min-height: var(--cms-touch-target-min); box-sizing: border-box; }
+    .ws-calls { grid-template-columns: minmax(0, 1fr); padding: var(--cms-space-6); }
+    .ws-calls__bar { grid-column: auto; }
+}
+@media (max-width: 599.98px) {
+    .ws-calls { padding: var(--cms-space-4); }
+    .ws-theme { bottom: calc(var(--cms-tabbar-height) + var(--cms-space-2)); }
+}

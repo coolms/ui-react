@@ -1,11 +1,11 @@
 {
   "repository": "coolms/design-tokens",
-  "tag": "v0.5.0",
-  "commit": "9e18a14ca2b5549ab217beab007a9f480dd3b12c",
+  "tag": "v0.6.0",
+  "commit": "0dd27d145de67936bde4b6dd4d904a9d8df63211",
   "files": {
     "dist/coolms-tokens.css": {
       "to": "src/tokens/coolms-tokens.css",
-      "sha256": "bb89703ab55784b538c18a3dd82f95769980b2c83fa0733a81f628ae3d6ad1c3"
+      "sha256": "670c856f8473924fe07b735b39ddd0d14afa0f648373bd4d8b906309fd49a08e"
     },
     "contract/components.json": {
       "to": "contract/components.json",
@@ -22,6 +22,26 @@
     "tools/check-css.mjs": {
       "to": "tools/check-css.mjs",
       "sha256": "231ca006b6e949f9882c98186527e2a974efb5acd60bfb8d05a37d82eae6a678"
+    },
+    "fonts/inter.css": {
+      "to": "src/fonts/inter.css",
+      "sha256": "78bea3ce5f8e0209ec80162fd692c138a5628ae37c69b2362a49ba755540b2b1"
+    },
+    "fonts/inter-latin.woff2": {
+      "to": "src/fonts/inter-latin.woff2",
+      "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
+    },
+    "fonts/inter-latin-ext.woff2": {
+      "to": "src/fonts/inter-latin-ext.woff2",
+      "sha256": "34b9c504cab7a73e37b746343a449132e56cf7b5481af2cb81dc74dcff25c956"
+    },
+    "fonts/inter-cyrillic.woff2": {
+      "to": "src/fonts/inter-cyrillic.woff2",
+      "sha256": "71d5ee93cc1e9f1d520a3a8b66456de18c7879d8df09d57fcd2eaff75fef0075"
+    },
+    "fonts/OFL.txt": {
+      "to": "src/fonts/OFL.txt",
+      "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"
     }
   }
 }
