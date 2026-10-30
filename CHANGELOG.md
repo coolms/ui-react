@@ -4,7 +4,7 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
 
 ## Unreleased
 
-The Workspace's components, on design-tokens' Workspace tokens (not yet tagged).
+The Workspace's components, on design-tokens 0.6.0.
 
 - Added: `AppShell` (the dark rail of sections with counts, the top bar with the server, search and account),
   `SearchField`, `Badge`, `FilterChips` (a radio group of pills), `SplitPanes` (two or three labelled panes),
@@ -18,7 +18,7 @@ The Workspace's components, on design-tokens' Workspace tokens (not yet tagged).
 - A navy button keeps a visible 1px edge in dark (`button-chrome-border`).
 - Changed: `Avatar` takes one of six tints from the name (`tintOf`), the same name always the same tint.
 - Added: Inter (`./fonts.css`, SIL Open Font License 1.1) and the token file with the Workspace tokens, both from
-  design-tokens at an untagged commit; the lock says `unreleased` until that version is tagged.
+  design-tokens 0.6.0, as the lock records.
 - The demo gains a Workspace page per screen (Mail, Chat, Calls, Sign in), light and dark: `demo/workspace.html`.
   Mail shows the mailbox's folders as a tree, never labels. Each screen's place is in its address (`#mail/2` is
   Mail with its third message open).

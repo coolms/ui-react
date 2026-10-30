@@ -1,7 +1,7 @@
 {
   "repository": "coolms/design-tokens",
-  "tag": "unreleased",
-  "commit": "94292192c6405b40c3c092a52dc1133a035ace6c",
+  "tag": "v0.6.0",
+  "commit": "0dd27d145de67936bde4b6dd4d904a9d8df63211",
   "files": {
     "dist/coolms-tokens.css": {
       "to": "src/tokens/coolms-tokens.css",
