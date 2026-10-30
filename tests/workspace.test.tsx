@@ -86,6 +86,12 @@ describe('AppShell', () => {
         await userEvent.click(screen.getByRole('link', { name: /Chat/ }));
         expect(onNavigate).toHaveBeenCalledWith('chat');
     });
+
+    it("names each section on its link as well, for the icons-only rail's tooltip", () => {
+        render(<AppShell product="P" mark="C" rail={rail} active="mail">x</AppShell>);
+        expect(screen.getByRole('link', { name: /Mail/ })).toHaveAttribute('title', 'Mail');
+        expect(screen.getByRole('link', { name: /Chat/ })).toHaveAttribute('title', 'Chat');
+    });
 });
 
 describe('SearchField', () => {
@@ -137,6 +143,36 @@ describe('SplitPanes', () => {
     it('labels each pane', () => {
         render(<SplitPanes panes={[{ label: 'Folders', content: 'f' }, { label: 'Messages', content: 'm' }, { label: 'Message', content: 'r' }]} />);
         expect(screen.getAllByRole('region').map(r => r.getAttribute('aria-label'))).toEqual(['Folders', 'Messages', 'Message']);
+    });
+
+    const three = [{ label: 'Folders', content: 'f' }, { label: 'Messages', content: 'm' }, { label: 'Message', content: 'r' }] as const;
+    const offsets = () => screen.getAllByRole('region').map(r => r.getAttribute('data-offset'));
+
+    it('marks how far each pane is from the active one, the last pane by default', () => {
+        const { container, unmount } = render(<SplitPanes panes={three} />);
+        expect(container.firstElementChild).toHaveAttribute('data-active', '2');
+        expect(offsets()).toEqual(['2', '1', '0']);
+        unmount();
+        render(<SplitPanes panes={three} active={1} />);
+        expect(offsets()).toEqual(['1', '0', '-1']);
+    });
+
+    it('keeps the active index within the panes', () => {
+        const { container } = render(<SplitPanes panes={three} active={7} />);
+        expect(container.firstElementChild).toHaveAttribute('data-active', '2');
+    });
+
+    it('puts Back, a link to the pane before, in the active pane only', () => {
+        render(<SplitPanes panes={three} active={2} back={{ label: 'Inbox', href: '#mail' }} />);
+        const back = screen.getByRole('link', { name: 'Inbox' });
+        expect(back).toHaveAttribute('href', '#mail');
+        expect(screen.getByRole('region', { name: 'Message' })).toContainElement(back);
+        expect(screen.getAllByRole('link')).toHaveLength(1);
+    });
+
+    it('draws no Back without one given', () => {
+        render(<SplitPanes panes={three} active={1} />);
+        expect(screen.queryByRole('link')).toBeNull();
     });
 });
 

@@ -12,6 +12,7 @@ import {
     CallPanel,
     ChatBubble,
     Composer,
+    EmptyState,
     FilterChips,
     Icon,
     IncomingCall,
@@ -61,15 +62,18 @@ const MAIL = [
     { from: 'Marek Nowak', subject: 'Lunch next week?', preview: 'I will be in Warsaw on Tuesday and Wednesday.', time: 'Mon' },
 ];
 
-function MailPage(): ReactNode {
+/** Mail's place, from the address: the folders, the list (`#mail`), or one message (`#mail/<n>`). */
+function MailPage({ sub }: { readonly sub: string }): ReactNode {
     const [filter, setFilter] = useState('all');
-    const [open, setOpen] = useState(0);
     const [reply, setReply] = useState('');
+    const opened = /^\d+$/.test(sub) && Number(sub) < MAIL.length ? Number(sub) : null;
+    const active = sub === 'folders' ? 0 : opened === null ? 1 : 2;
+    const back = active === 2 ? { label: 'Inbox', href: '#mail' } : active === 1 ? { label: 'Folders', href: '#mail/folders' } : undefined;
     const folders: Array<[string, string, number?]> = [['inbox', 'Inbox', 12], ['star', 'Starred'], ['send', 'Sent'], ['file', 'Drafts', 2], ['archive', 'Archive'], ['info', 'Spam'], ['trash', 'Trash']];
-    const message = MAIL[open]!;
+    const message = opened === null ? null : MAIL[opened]!;
     return (
         <Shell active="mail">
-            <SplitPanes panes={[
+            <SplitPanes active={active} {...(back ? { back } : {})} panes={[
                 {
                     label: 'Folders',
                     content: (
@@ -117,13 +121,13 @@ function MailPage(): ReactNode {
                                 <h1>Inbox</h1>
                                 <FilterChips label="Show" value={filter} onChange={setFilter} options={[{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }, { id: 'files', label: 'Attachments' }]} />
                             </div>
-                            {MAIL.map((m, i) => <MailRow key={m.subject} {...m} selected={i === open} onOpen={() => setOpen(i)} />)}
+                            {MAIL.map((m, i) => <MailRow key={m.subject} {...m} selected={i === opened} onOpen={() => { location.hash = `mail/${String(i)}`; }} />)}
                         </>
                     ),
                 },
                 {
                     label: 'Message',
-                    content: (
+                    content: message === null ? <EmptyState title="No message open" hint="Choose a message in the list to read it." /> : (
                         <article className="ws-reader">
                             <div className="ws-toolbar" role="toolbar" aria-label="Message actions">
                                 <button type="button" className="cms-icon-button" aria-label="Archive"><Icon name="archive" /></button>
@@ -166,12 +170,14 @@ const CHATS = [
     { name: 'Olga Lis', last: 'I will share the mockups tonight', time: 'Mon' },
 ];
 
-function ChatPage(): ReactNode {
+/** Chat's place, from the address: the conversations (`#chat`) or one of them (`#chat/<n>`). */
+function ChatPage({ sub }: { readonly sub: string }): ReactNode {
     const [filter, setFilter] = useState('all');
     const [text, setText] = useState('');
+    const opened = /^\d+$/.test(sub) && Number(sub) < CHATS.length ? Number(sub) : null;
     return (
         <Shell active="chat">
-            <SplitPanes panes={[
+            <SplitPanes active={opened === null ? 0 : 1} {...(opened === null ? {} : { back: { label: 'Chats', href: '#chat' } })} panes={[
                 {
                     label: 'Conversations',
                     content: (
@@ -185,7 +191,7 @@ function ChatPage(): ReactNode {
                             </div>
                             <div className="ws-chatlist">
                                 {CHATS.map((c, i) => (
-                                    <button key={c.name} type="button" className="ws-chatrow" aria-current={i === 0 ? 'true' : undefined}>
+                                    <button key={c.name} type="button" className="ws-chatrow" aria-current={i === opened ? 'true' : undefined} onClick={() => { location.hash = `chat/${String(i)}`; }}>
                                         <Avatar name={c.name} size={44} presence={c.online ? 'online' : undefined} />
                                         <span className="ws-chatrow__body">
                                             <span className="ws-chatrow__line"><span className="ws-chatrow__name">{c.name}</span><span className="ws-chatrow__time">{c.time}</span></span>
@@ -199,11 +205,11 @@ function ChatPage(): ReactNode {
                 },
                 {
                     label: 'Conversation',
-                    content: (
+                    content: opened === null ? <EmptyState title="No conversation open" hint="Choose a conversation to read and reply." /> : (
                         <div className="ws-convo">
                             <div className="ws-convo__head">
-                                <Avatar name="Anna Kowalska" size={44} presence="online" />
-                                <div className="ws-convo__who"><strong>Anna Kowalska</strong><br /><span className="ws-online">Online</span></div>
+                                <Avatar name={CHATS[opened]!.name} size={44} presence={CHATS[opened]!.online ? 'online' : undefined} />
+                                <div className="ws-convo__who"><strong>{CHATS[opened]!.name}</strong><br />{CHATS[opened]!.online ? <span className="ws-online">Online</span> : null}</div>
                                 <button type="button" className="cms-button cms-button--chrome"><Icon name="phone" size={18} />Call</button>
                                 <button type="button" className="ws-square" aria-label="Video call"><Icon name="video" /></button>
                                 <button type="button" className="ws-square" aria-label="About this conversation"><Icon name="info" /></button>
@@ -216,7 +222,7 @@ function ChatPage(): ReactNode {
                                 <ChatBubble direction="out" time="09:57" read>Sure, that works on the demo now.</ChatBubble>
                                 <ChatBubble direction="in" time="10:05">See you on Thursday then.</ChatBubble>
                             </div>
-                            <Composer label="Message Anna" placeholder="Message Anna" value={text} onChange={setText} onSend={() => setText('')} onAttach={() => undefined} />
+                            <Composer label={`Message ${CHATS[opened]!.name}`} placeholder={`Message ${CHATS[opened]!.name}`} value={text} onChange={setText} onSend={() => setText('')} onAttach={() => undefined} />
                         </div>
                     ),
                 },
@@ -253,16 +259,17 @@ function SignInPage(): ReactNode {
     );
 }
 
-function pageOf(hash: string): Page {
-    const h = hash.replace('#', '');
-    return h === 'chat' || h === 'calls' || h === 'signin' ? h : 'mail';
+/** The page and the place within it, from the address: `#mail/2` is Mail with its third message open. */
+function routeOf(hash: string): { readonly page: Page; readonly sub: string } {
+    const [h = '', sub = ''] = hash.replace('#', '').split('/');
+    return { page: h === 'chat' || h === 'calls' || h === 'signin' ? h : 'mail', sub };
 }
 
 function Demo(): ReactNode {
-    const [page, setPage] = useState<Page>(pageOf(location.hash));
+    const [route, setRoute] = useState(routeOf(location.hash));
     const [dark, setDark] = useState(new URLSearchParams(location.search).get('theme') === 'dark');
     useEffect(() => {
-        const on = () => setPage(pageOf(location.hash));
+        const on = () => setRoute(routeOf(location.hash));
         addEventListener('hashchange', on);
         return () => removeEventListener('hashchange', on);
     }, []);
@@ -272,10 +279,61 @@ function Demo(): ReactNode {
     }, [dark]);
     return (
         <>
-            {page === 'mail' ? <MailPage /> : page === 'chat' ? <ChatPage /> : page === 'calls' ? <CallsPage /> : <SignInPage />}
+            {route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
             <button type="button" className="cms-button ws-theme" aria-pressed={dark} onClick={() => setDark(d => !d)}>Dark</button>
         </>
     );
 }
 
+/**
+ * The layout probe (tools/check-layout.mjs): with `?probe=layout`, once the page and its fonts are drawn, it writes
+ * what overflows the viewport, what scrolls sideways, and, below the desktop width, every control smaller than the
+ * touch target, as JSON in `#layout-probe` for the headless browser to read. Framed at an exact width by the check's
+ * harness, it writes the answer into the page that frames it, which is the page the browser dumps.
+ */
+function probeLayout(): void {
+    const width = window.innerWidth;
+    const touch = width < 1200;
+    const min = 44;
+    const name = (el: Element) => {
+        const id = el.id ? `#${el.id}` : '';
+        const cls = typeof el.className === 'string' && el.className ? `.${el.className.trim().split(/\s+/).join('.')}` : '';
+        const label = el.getAttribute('aria-label') ?? (el.textContent ?? '').trim().slice(0, 40);
+        return `${el.tagName.toLowerCase()}${id}${cls}${label ? ` "${label}"` : ''}`;
+    };
+    const visible = (el: Element) => {
+        const r = el.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        return r.width > 0 && r.height > 0 && style.visibility !== 'hidden' && style.display !== 'none';
+    };
+    const overflow: string[] = [];
+    const scrolls: string[] = [];
+    for (const el of Array.from(document.body.querySelectorAll('*'))) {
+        if (el.id === 'layout-probe' || !visible(el)) continue;
+        const r = el.getBoundingClientRect();
+        if (r.right > width + 0.5 || r.left < -0.5) overflow.push(`${name(el)} [${Math.round(r.left)}..${Math.round(r.right)}]`);
+        const style = getComputedStyle(el);
+        if ((style.overflowX === 'auto' || style.overflowX === 'scroll') && el.scrollWidth > el.clientWidth + 1) scrolls.push(name(el));
+    }
+    const small: string[] = [];
+    if (touch) {
+        const controls = document.body.querySelectorAll('a[href], button, input, select, textarea, [role="button"], [role="radio"], [role="tab"]');
+        for (const el of Array.from(controls)) {
+            if (!visible(el) || el.closest('.ws-theme')) continue;
+            const r = el.getBoundingClientRect();
+            if (r.width < min - 0.5 || r.height < min - 0.5) small.push(`${name(el)} ${Math.round(r.width)}x${Math.round(r.height)}`);
+        }
+    }
+    const host = window.top !== null && window.top !== window ? window.top.document : document;
+    const out = host.createElement('pre');
+    out.id = 'layout-probe';
+    out.textContent = JSON.stringify({ width, scrollWidth: document.documentElement.scrollWidth, overflow, scrolls, small });
+    host.body.appendChild(out);
+}
+
 createRoot(document.getElementById('root')!).render(<StrictMode><Demo /></StrictMode>);
+
+if (new URLSearchParams(location.search).get('probe') === 'layout') {
+    // A timer, not an animation frame: a headless browser's virtual time runs timers, and the fonts are in by then.
+    void document.fonts.ready.then(() => setTimeout(probeLayout, 500));
+}

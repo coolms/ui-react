@@ -66,6 +66,7 @@ export function AppShell({ product, mark, rail, active, onNavigate, server, sear
                                     href={item.href}
                                     className={cx('cms-shell__item', on && 'is-active')}
                                     aria-current={on ? 'page' : undefined}
+                                    title={item.label}
                                     onClick={e => {
                                         if (onNavigate) {
                                             e.preventDefault();
@@ -192,14 +193,34 @@ export interface Pane {
 export interface SplitPanesProps {
     /** Two panes (a list and what is open) or three (navigation, a list, what is open). */
     readonly panes: readonly [Pane, Pane] | readonly [Pane, Pane, Pane];
+    /**
+     * The pane the person is in, by its index: where the selection has got to (the folders, a list, a message). At
+     * phone width only this pane shows; at tablet width it and the one before it. The last pane by default.
+     */
+    readonly active?: number;
+    /**
+     * Where Back goes from the active pane: the address of the pane before it, so the browser's own Back agrees. Shown
+     * only where that pane is hidden (phone, or tablet with three panes and the last one active).
+     */
+    readonly back?: { readonly label: string; readonly href: string };
 }
 
-/** A section's panes side by side; the last one takes the rest of the width. */
-export function SplitPanes({ panes }: SplitPanesProps): ReactNode {
+/**
+ * A section's panes: side by side on desktop, the active pane and the one before it on tablet, the active pane alone
+ * on phone, with Back to the one before it. The last visible pane takes the rest of the width.
+ */
+export function SplitPanes({ panes, active, back }: SplitPanesProps): ReactNode {
+    const at = Math.min(Math.max(active ?? panes.length - 1, 0), panes.length - 1);
     return (
-        <div className={cx('cms-panes', panes.length === 3 ? 'cms-panes--three' : 'cms-panes--two')}>
-            {panes.map(p => (
-                <section key={p.label} className="cms-panes__pane" aria-label={p.label}>
+        <div className={cx('cms-panes', panes.length === 3 ? 'cms-panes--three' : 'cms-panes--two')} data-active={at}>
+            {panes.map((p, i) => (
+                <section key={p.label} className="cms-panes__pane" aria-label={p.label} data-offset={at - i}>
+                    {i === at && back ? (
+                        <a className="cms-panes__back" href={back.href}>
+                            <Icon name="chevron-left" size={18} />
+                            {back.label}
+                        </a>
+                    ) : null}
                     {p.content}
                 </section>
             ))}

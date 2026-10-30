@@ -52,9 +52,20 @@ body { margin: 0; background: var(--cms-bg); color: var(--cms-text); font-family
 .ws-online { color: var(--cms-success-strong); font-size: var(--cms-font-size-meta); }
 .ws-convo__messages { display: flex; flex-direction: column; gap: var(--cms-space-4); flex: 1; overflow: auto; padding: var(--cms-space-6); }
 .ws-day { align-self: center; padding: var(--cms-space-1) var(--cms-space-3); border-radius: var(--cms-radius-pill); background: var(--cms-surface-muted); color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
-.ws-square { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--cms-border); border-radius: var(--cms-radius-control); background: var(--cms-surface); color: var(--cms-text-body); cursor: pointer; }
+.ws-square { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--cms-border); border-radius: var(--cms-radius-control); background: var(--cms-surface); color: var(--cms-text-body); cursor: pointer; }
 
 /* Calls */
 .ws-calls { display: grid; grid-template-columns: 420px 1fr; gap: var(--cms-space-8); align-items: start; padding: var(--cms-space-10) var(--cms-space-12); background: var(--cms-canvas); min-height: 100vh; box-sizing: border-box; }
 .ws-calls h2 { margin: 0 0 var(--cms-space-4); color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); font-weight: var(--cms-font-weight-semibold); letter-spacing: 0.08em; text-transform: uppercase; }
 .ws-calls__bar { grid-column: 1 / 3; }
+
+/* The demo at the layout's widths: tablet and phone below 1200px, phone below 600px (design-tokens). */
+@media (max-width: 1199.98px) {
+    .ws-navlist a { min-height: var(--cms-touch-target-min); box-sizing: border-box; }
+    .ws-calls { grid-template-columns: minmax(0, 1fr); padding: var(--cms-space-6); }
+    .ws-calls__bar { grid-column: auto; }
+}
+@media (max-width: 599.98px) {
+    .ws-calls { padding: var(--cms-space-4); }
+    .ws-theme { bottom: calc(var(--cms-tabbar-height) + var(--cms-space-2)); }
+}

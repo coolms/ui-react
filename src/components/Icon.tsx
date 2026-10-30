@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 export type IconName =
     | 'mail' | 'chat' | 'phone' | 'calendar' | 'file' | 'image' | 'search' | 'bell' | 'pencil' | 'star' | 'send'
     | 'inbox' | 'archive' | 'trash' | 'paperclip' | 'mic' | 'speaker' | 'user-plus' | 'phone-off' | 'video' | 'info'
-    | 'chevron-down' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more';
+    | 'chevron-down' | 'chevron-left' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more';
 
 const PATHS: Readonly<Record<IconName, ReactNode>> = {
     mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
@@ -29,6 +29,7 @@ const PATHS: Readonly<Record<IconName, ReactNode>> = {
     video: <><rect x="3" y="6" width="13" height="12" rx="2" /><path d="m16 10 5-3v10l-5-3" /></>,
     info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5v.5" /></>,
     'chevron-down': <path d="m6 9 6 6 6-6" />,
+    'chevron-left': <path d="m15 18-6-6 6-6" />,
     plus: <path d="M12 5v14M5 12h14" />,
     folder: <path d="M3 6a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />,
     check: <path d="m5 12 5 5 9-10" />,

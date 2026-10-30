@@ -15,6 +15,7 @@
     --cms-sidebar-hover: #243044;
     --cms-sidebar-active: #2d3f57;
     --cms-button-chrome-bg: #1a2332;
+    --cms-button-chrome-border: #1a2332;
     --cms-sidebar-text: #c9d3e0;
     --cms-sidebar-text-muted: #6b7f96;
     --cms-sidebar-accent: var(--cms-accent);
@@ -156,6 +157,11 @@
     --cms-space-10: 40px;
     --cms-space-12: 48px;
     --cms-rail-width: 80px;
+    --cms-breakpoint-tablet: 600px;
+    --cms-breakpoint-desktop: 1200px;
+    --cms-rail-width-compact: 64px;
+    --cms-tabbar-height: 56px;
+    --cms-touch-target-min: 44px;
     --cms-topbar-height: 64px;
 }
 
@@ -166,6 +172,7 @@
     --cms-sidebar-hover: #1f2b3d;
     --cms-sidebar-active: #2d3f57;
     --cms-button-chrome-bg: #2d3f57;
+    --cms-button-chrome-border: #6b7f96;
     --cms-bg: #0f1722;
     --cms-surface: #1a2332;
     --cms-surface-muted: #243044;
