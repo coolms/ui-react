@@ -1,6 +1,6 @@
 {
   "name": "@coolms/ui-react",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "The CoolMS UI kit for React: the components of the CoolMS UI contract, styled by the CoolMS design tokens",
   "license": "MIT",
   "type": "module",
