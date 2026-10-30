@@ -89,15 +89,22 @@ function MailPage(): ReactNode {
                                     </li>
                                 ))}
                             </ul>
-                            <p className="ws-group">Mailboxes</p>
-                            <ul className="ws-navlist">
-                                <li><a href="#mail"><span className="ws-dot" style={{ background: 'var(--cms-text)' }} />Notifications<span className="ws-shared">Shared</span></a></li>
-                                <li><a href="#mail"><span className="ws-dot" style={{ background: 'var(--cms-info)' }} />Outlook</a></li>
-                            </ul>
-                            <p className="ws-group">Labels</p>
-                            <ul className="ws-navlist">
-                                <li><a href="#mail"><span className="ws-dot" style={{ background: 'var(--cms-accent)' }} />Partners</a></li>
-                                <li><a href="#mail"><span className="ws-dot" style={{ background: 'var(--cms-success)' }} />Finance</a></li>
+                            <hr className="ws-divider" />
+                            <ul className="ws-navlist" aria-label="Folders">
+                                <li>
+                                    <a href="#mail"><Icon name="folder" />Partners<span className="ws-navlist__count">3</span></a>
+                                    <ul className="ws-navlist ws-navlist--nested">
+                                        <li><a href="#mail"><Icon name="folder" size={18} />Demo requests</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#mail"><Icon name="folder" />Finance</a>
+                                    <ul className="ws-navlist ws-navlist--nested">
+                                        <li><a href="#mail"><Icon name="folder" size={18} />Invoices</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#mail"><Icon name="folder" />Projects</a></li>
+                                <li><a href="#mail"><Icon name="plus" />New folder</a></li>
                             </ul>
                         </div>
                     ),
@@ -127,7 +134,7 @@ function MailPage(): ReactNode {
                                 <button type="button" className="cms-icon-button" aria-label="More actions"><Icon name="more" /></button>
                             </div>
                             <div className="ws-message">
-                                <h1>{message.subject}<span className="ws-label">Partners</span></h1>
+                                <h1>{message.subject}</h1>
                                 <div className="ws-sender">
                                     <Avatar name={message.from} size={48} />
                                     <div className="ws-sender__who"><strong>{message.from}</strong> <span className="ws-sender__to">&lt;anna@example.com&gt;</span><br /><span className="ws-sender__to">to me, Tomasz Wójcik</span></div>

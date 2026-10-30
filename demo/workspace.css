@@ -13,10 +13,9 @@ body { margin: 0; background: var(--cms-bg); color: var(--cms-text); font-family
 .ws-navlist a { display: flex; align-items: center; gap: var(--cms-space-3); padding: var(--cms-space-2) var(--cms-space-3); border-radius: var(--cms-radius-control); color: var(--cms-text-body); text-decoration: none; font-size: var(--cms-font-size-body-lg); }
 .ws-navlist a:hover { background: var(--cms-surface-muted); }
 .ws-navlist a[aria-current='page'] { background: var(--cms-row-selected); color: var(--cms-text); font-weight: var(--cms-font-weight-semibold); }
+.ws-navlist--nested { padding-left: var(--cms-space-6); }
+.ws-divider { margin: var(--cms-space-2) var(--cms-space-3); border: 0; border-top: 1px solid var(--cms-border); }
 .ws-navlist__count { margin-left: auto; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
-.ws-group { margin: var(--cms-space-2) 0 0; padding: 0 var(--cms-space-3); color: var(--cms-text-muted); font-size: var(--cms-font-size-label); font-weight: var(--cms-font-weight-semibold); letter-spacing: 0.08em; text-transform: uppercase; }
-.ws-dot { width: 8px; height: 8px; border-radius: 50%; }
-.ws-shared { margin-left: auto; padding: 0 var(--cms-space-2); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-pill); color: var(--cms-text-muted); font-size: var(--cms-font-size-label); }
 
 /* Mail: list and reader */
 .ws-listhead { display: flex; align-items: center; justify-content: space-between; gap: var(--cms-space-3); padding: var(--cms-space-5); }
@@ -27,7 +26,6 @@ body { margin: 0; background: var(--cms-bg); color: var(--cms-text); font-family
 .ws-toolbar .cms-icon-button { width: 36px; height: 36px; border-radius: var(--cms-radius-control); color: var(--cms-text-body); }
 .ws-message { display: flex; flex-direction: column; gap: var(--cms-space-5); flex: 1; padding: var(--cms-space-6) var(--cms-space-8); }
 .ws-message h1 { display: flex; align-items: center; gap: var(--cms-space-3); margin: 0; font-size: var(--cms-font-size-title-lg); }
-.ws-label { padding: var(--cms-space-1) var(--cms-space-2); border-radius: var(--cms-radius-sm); background: var(--cms-warning-subtle); color: var(--cms-warning-text); font-size: var(--cms-font-size-label); font-weight: var(--cms-font-weight-semibold); }
 .ws-sender { display: flex; align-items: center; gap: var(--cms-space-3); }
 .ws-sender__who { flex: 1; }
 .ws-sender__to { color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
