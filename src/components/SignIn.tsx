@@ -1,5 +1,6 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react';
 import { Icon, type IconName } from './Icon';
+import { withDefaults } from './internal';
 
 export interface SignInFeature {
     readonly icon: IconName;
@@ -82,7 +83,7 @@ export const SIGN_IN_LABELS: SignInLabels = {
 
 /** Signing in with an identifier and a password; the password can be shown while typed. */
 export function SignInForm({ server, onSubmit, forgotHref, createHref, error, busy, labels }: SignInFormProps): ReactNode {
-    const l = { ...SIGN_IN_LABELS, ...labels };
+    const l = withDefaults(SIGN_IN_LABELS, labels);
     const id = useId();
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');

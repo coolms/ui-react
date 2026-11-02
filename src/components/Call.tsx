@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Icon, type IconName } from './Icon';
-import { cx } from './internal';
+import { cx, withDefaults } from './internal';
 import { Avatar } from './Structure';
 
 /** The words a call's components say, in the app's language; English by default. */
@@ -61,7 +61,7 @@ export interface IncomingCallProps {
 
 /** A call ringing on this device: who, and Accept or Decline. An alert dialog, so a screen reader announces it. */
 export function IncomingCall({ name, media, onAccept, onDecline, labels }: IncomingCallProps): ReactNode {
-    const l = { ...CALL_LABELS, ...labels };
+    const l = withDefaults(CALL_LABELS, labels);
     const what = media === 'video' ? l.incomingVideo : l.incomingAudio;
     return (
         <div className="cms-call-incoming" role="alertdialog" aria-label={l.incomingFrom(what, name)}>
@@ -122,7 +122,7 @@ export interface CallPanelProps {
 
 /** A call in progress: who, how long, how the connection is, and its controls. */
 export function CallPanel({ name, duration, connection, you, muted, speaker, onToggleMute, onToggleSpeaker, onAddPerson, onChat, onHangUp, labels }: CallPanelProps): ReactNode {
-    const l = { ...CALL_LABELS, ...labels };
+    const l = withDefaults(CALL_LABELS, labels);
     return (
         <section className="cms-call-panel" aria-label={l.callWith(name)}>
             <div className="cms-call-panel__head">
@@ -164,7 +164,7 @@ export interface CallBarProps {
 
 /** The call, kept in view while another section is open: who, how long, mute, back to it, hang up. */
 export function CallBar({ name, duration, muted, onToggleMute, onReturn, onHangUp, labels }: CallBarProps): ReactNode {
-    const l = { ...CALL_LABELS, ...labels };
+    const l = withDefaults(CALL_LABELS, labels);
     return (
         <section className="cms-call-bar" aria-label={l.callWith(name)}>
             <span className="cms-call-bar__live" aria-hidden="true" />

@@ -124,18 +124,21 @@ export interface ConfirmDialogProps {
     /** The confirming button names the outcome ("Delete 3 messages"), never "OK". */
     readonly confirmLabel?: ReactNode;
     readonly cancelLabel?: ReactNode;
+    /** The close button's name for a screen reader, in the app's language; "Close" where none is given. */
+    readonly closeLabel?: string;
     readonly onConfirm: () => void;
     readonly onCancel: () => void;
 }
 
 /** A question before a destructive or irreversible action (contract component `confirm-dialog`: default, danger, discard-changes). */
-export function ConfirmDialog({ open, title, message, kind = 'default', confirmLabel, cancelLabel, onConfirm, onCancel }: ConfirmDialogProps): ReactNode {
+export function ConfirmDialog({ open, title, message, kind = 'default', confirmLabel, cancelLabel, closeLabel, onConfirm, onCancel }: ConfirmDialogProps): ReactNode {
     const discard = kind === 'discard-changes';
     return (
         <Modal
             open={open}
             title={title}
             onClose={onCancel}
+            {...(closeLabel === undefined ? {} : { closeLabel })}
             footer={
                 <>
                     <Button onClick={onCancel}>{cancelLabel ?? (discard ? 'Keep editing' : 'Cancel')}</Button>

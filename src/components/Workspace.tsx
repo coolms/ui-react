@@ -1,6 +1,6 @@
 import { useId, useRef, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { Icon, type IconName } from './Icon';
-import { cx } from './internal';
+import { cx, withDefaults } from './internal';
 import { Avatar } from './Structure';
 
 export interface BadgeProps {
@@ -253,7 +253,7 @@ export const MAIL_ROW_LABELS: MailRowLabels = { attachment: 'Has an attachment',
 
 /** One message in a mailbox's list: who, what, the start of it, when; unread in bold with its dot. */
 export function MailRow({ from, subject, preview, time, unread, hasAttachment, selected, onOpen, labels }: MailRowProps): ReactNode {
-    const l = { ...MAIL_ROW_LABELS, ...labels };
+    const l = withDefaults(MAIL_ROW_LABELS, labels);
     return (
         <button
             type="button"

@@ -10,6 +10,7 @@ import {
     CallPanel,
     ChatBubble,
     Composer,
+    ConfirmDialog,
     FilterChips,
     ICON_NAMES,
     Icon,
@@ -311,6 +312,20 @@ describe('the words, from the app', () => {
         expect(screen.getByLabelText('Password')).toBeInTheDocument();
         expect(screen.getByRole('alertdialog', { name: 'Incoming audio call from Anna' })).toBeInTheDocument();
         unmount();
+    });
+
+    it('a word given as undefined is the English one, never blank', () => {
+        render(<IncomingCall name="Anna" media="audio" onAccept={() => undefined} onDecline={() => undefined} labels={{ accept: undefined, decline: 'Отклонить' }} />);
+        expect(screen.getByRole('button', { name: 'Accept' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Отклонить' })).toBeInTheDocument();
+    });
+
+    it('a question\'s close button is named in the app\'s language, "Close" where none is given', () => {
+        const { unmount } = render(<ConfirmDialog open title="Удалить?" closeLabel="Закрыть" onConfirm={() => undefined} onCancel={() => undefined} />);
+        expect(screen.getByRole('button', { name: 'Закрыть' })).toBeInTheDocument();
+        unmount();
+        render(<ConfirmDialog open title="Delete?" onConfirm={() => undefined} onCancel={() => undefined} />);
+        expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
     });
 });
 
