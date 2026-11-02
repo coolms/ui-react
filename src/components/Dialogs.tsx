@@ -20,13 +20,15 @@ export interface ModalProps {
     readonly children: ReactNode;
     /** The dialog's actions, at its foot. */
     readonly footer?: ReactNode;
+    /** The close button's name, in the app's language ("Close"). */
+    readonly closeLabel?: string;
 }
 
 /**
  * A dialog over the page (contract component `modal`: open, closing, dirty). Focus moves into it on open and back to
  * where it was on close; Tab stays inside while it is open.
  */
-export function Modal({ open, title, onClose, dirty = false, onDirtyClose, children, footer }: ModalProps): ReactNode {
+export function Modal({ open, title, onClose, dirty = false, onDirtyClose, children, footer, closeLabel = 'Close' }: ModalProps): ReactNode {
     const [shown, setShown] = useState(open);
     const [closing, setClosing] = useState(false);
     const panel = useRef<HTMLDivElement>(null);
@@ -98,7 +100,7 @@ export function Modal({ open, title, onClose, dirty = false, onDirtyClose, child
             >
                 <header className="cms-modal__head">
                     <h2 className="cms-modal__title" id={titleId}>{title}</h2>
-                    <button type="button" className="cms-icon-button" aria-label="Close" onClick={askToClose}>
+                    <button type="button" className="cms-icon-button" aria-label={closeLabel} onClick={askToClose}>
                         <Glyph name="close" />
                     </button>
                 </header>
@@ -122,18 +124,21 @@ export interface ConfirmDialogProps {
     /** The confirming button names the outcome ("Delete 3 messages"), never "OK". */
     readonly confirmLabel?: ReactNode;
     readonly cancelLabel?: ReactNode;
+    /** The close button's name for a screen reader, in the app's language; "Close" where none is given. */
+    readonly closeLabel?: string;
     readonly onConfirm: () => void;
     readonly onCancel: () => void;
 }
 
 /** A question before a destructive or irreversible action (contract component `confirm-dialog`: default, danger, discard-changes). */
-export function ConfirmDialog({ open, title, message, kind = 'default', confirmLabel, cancelLabel, onConfirm, onCancel }: ConfirmDialogProps): ReactNode {
+export function ConfirmDialog({ open, title, message, kind = 'default', confirmLabel, cancelLabel, closeLabel, onConfirm, onCancel }: ConfirmDialogProps): ReactNode {
     const discard = kind === 'discard-changes';
     return (
         <Modal
             open={open}
             title={title}
             onClose={onCancel}
+            {...(closeLabel === undefined ? {} : { closeLabel })}
             footer={
                 <>
                     <Button onClick={onCancel}>{cancelLabel ?? (discard ? 'Keep editing' : 'Cancel')}</Button>
