@@ -2,6 +2,20 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.4 (2026-11-02)
+
+The kit's words come from the app, and the composer leaves an input method's Enter alone.
+
+- Added: every word a component says can be given in the app's language, English where it is not.
+  - `labels` on `IncomingCall`, `CallPanel` and `CallBar` (`CallLabels`, defaults `CALL_LABELS`);
+  - `labels` on `SignInForm` (`SignInLabels`, `SIGN_IN_LABELS`) and `MailRow` (`MailRowLabels`, `MAIL_ROW_LABELS`);
+  - `railLabel` on `AppShell`, `readLabel` on `ChatBubble`, `attachLabel` on `Composer`, `closeLabel` on `Modal`
+    and `ConfirmDialog`, `dismissLabel` on `Toast` and `retryLabel` on `ErrorBanner`.
+  The words that name someone or something take it as an argument (`onCallWith(name)`), so a language can place it.
+- Changed: `AppShell`'s main area is a column: a section in it can fill the height (`flex: 1`), and a lone child does.
+- Fixed: `Composer` no longer sends on Enter while an input method is composing (`isComposing`, or the composing key
+  229 on browsers that do not set it). Typing Chinese, Japanese or Korean, Enter confirms the text.
+
 ## 0.1.0-alpha.3 (2026-10-30)
 
 The Workspace's components, on design-tokens 0.6.0.

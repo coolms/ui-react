@@ -1,5 +1,15 @@
 import type { ReactNode } from 'react';
 
+/** A component's words: the app's where it gives them, the default where it does not, a word given as undefined included. */
+export function withDefaults<T extends object>(defaults: T, given: Partial<T> | undefined): T {
+    const words = { ...defaults };
+    for (const key of Object.keys(given ?? {}) as Array<keyof T>) {
+        const word = given?.[key];
+        if (word !== undefined) words[key] = word as T[keyof T];
+    }
+    return words;
+}
+
 /** Class names, the falsy ones left out. */
 export function cx(...names: ReadonlyArray<string | false | null | undefined>): string {
     return names.filter(Boolean).join(' ');

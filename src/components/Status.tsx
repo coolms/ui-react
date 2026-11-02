@@ -8,20 +8,22 @@ export interface ToastProps {
     /** One follow-up the person may want ("Undo", "Open"). */
     readonly action?: { readonly label: ReactNode; readonly onAction: () => void };
     readonly onDismiss?: () => void;
+    /** The dismiss button's name, in the app's language ("Dismiss"). */
+    readonly dismissLabel?: string;
 }
 
 /**
  * A short report of what happened (contract component `toast`: success, error, info, with-action). An error is said
  * assertively (role=alert); the others politely (role=status). Placement and timing are the page's (ToastRegion).
  */
-export function Toast({ kind, message, action, onDismiss }: ToastProps): ReactNode {
+export function Toast({ kind, message, action, onDismiss, dismissLabel = 'Dismiss' }: ToastProps): ReactNode {
     return (
         <div className={cx('cms-toast', `cms-toast--${kind}`)} role={kind === 'error' ? 'alert' : 'status'}>
             <Glyph name={kind === 'success' ? 'check' : kind === 'error' ? 'warning' : 'info'} />
             <span className="cms-toast__message">{message}</span>
             {action ? <Button className="cms-toast__action" onClick={action.onAction}>{action.label}</Button> : null}
             {onDismiss ? (
-                <button type="button" className="cms-icon-button" aria-label="Dismiss" onClick={onDismiss}><Glyph name="close" /></button>
+                <button type="button" className="cms-icon-button" aria-label={dismissLabel} onClick={onDismiss}><Glyph name="close" /></button>
             ) : null}
         </div>
     );
@@ -72,15 +74,17 @@ export interface ErrorBannerProps {
     readonly message: ReactNode;
     /** Offered only when trying again can help (a timeout, a network failure), never for a refusal. */
     readonly onRetry?: () => void;
+    /** The retry button's words, in the app's language ("Try again"). */
+    readonly retryLabel?: string;
 }
 
 /** A read failed; says why, offers retry when retrying can help (contract component `error-banner`: default, with-retry). */
-export function ErrorBanner({ message, onRetry }: ErrorBannerProps): ReactNode {
+export function ErrorBanner({ message, onRetry, retryLabel = 'Try again' }: ErrorBannerProps): ReactNode {
     return (
         <div className="cms-error-banner" role="alert">
             <Glyph name="warning" />
             <span className="cms-error-banner__message">{message}</span>
-            {onRetry ? <Button onClick={onRetry}>Try again</Button> : null}
+            {onRetry ? <Button onClick={onRetry}>{retryLabel}</Button> : null}
         </div>
     );
 }

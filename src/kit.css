@@ -342,7 +342,9 @@
 .cms-shell__product { font-size: var(--cms-font-size-title-md); font-weight: var(--cms-font-weight-bold); white-space: nowrap; }
 .cms-shell__search { flex: 1; max-width: 640px; }
 .cms-shell__account { display: flex; align-items: center; gap: var(--cms-space-4); margin-left: auto; }
-.cms-shell__main { min-height: 0; overflow: hidden; }
+/* The open section's area: a column, so a section given `flex: 1` fills the height under anything above it. */
+.cms-shell__main { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.cms-shell__main > :only-child { flex: 1; min-height: 0; }
 
 .cms-server-switch { display: inline-flex; align-items: center; gap: var(--cms-space-2); height: 36px; padding: 0 var(--cms-space-3); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-pill); background: var(--cms-surface); color: var(--cms-text); font: inherit; cursor: pointer; }
 
