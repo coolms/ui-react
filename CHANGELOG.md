@@ -2,7 +2,7 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.4 (2026-11-02)
 
 The kit's words come from the app, and the composer leaves an input method's Enter alone.
 
