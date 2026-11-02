@@ -46,16 +46,18 @@ export interface AppShellProps {
     /** Notifications and the account, at the right of the top bar. */
     readonly account?: ReactNode;
     readonly children: ReactNode;
+    /** The rail's name for assistive technology, in the app's language ("Sections"). */
+    readonly railLabel?: string;
 }
 
 /**
  * The Workspace's frame: a dark rail of sections, each an icon over its name with its count, and a light top bar with
  * the server, the search and the account. The open section is marked for assistive technology as the current page.
  */
-export function AppShell({ product, mark, rail, active, onNavigate, server, search, account, children }: AppShellProps): ReactNode {
+export function AppShell({ product, mark, rail, active, onNavigate, server, search, account, children, railLabel = 'Sections' }: AppShellProps): ReactNode {
     return (
         <div className="cms-shell">
-            <nav className="cms-shell__rail" aria-label="Sections">
+            <nav className="cms-shell__rail" aria-label={railLabel}>
                 <span className="cms-shell__mark" aria-hidden="true">{mark}</span>
                 <ul className="cms-shell__items">
                     {rail.map(item => {
@@ -238,10 +240,20 @@ export interface MailRowProps {
     readonly hasAttachment?: boolean;
     readonly selected?: boolean;
     readonly onOpen: () => void;
+    /** Its words for assistive technology, in the app's language; each left out is English. */
+    readonly labels?: Partial<MailRowLabels>;
 }
 
+export interface MailRowLabels {
+    readonly attachment: string;
+    readonly unread: string;
+}
+
+export const MAIL_ROW_LABELS: MailRowLabels = { attachment: 'Has an attachment', unread: 'Unread' };
+
 /** One message in a mailbox's list: who, what, the start of it, when; unread in bold with its dot. */
-export function MailRow({ from, subject, preview, time, unread, hasAttachment, selected, onOpen }: MailRowProps): ReactNode {
+export function MailRow({ from, subject, preview, time, unread, hasAttachment, selected, onOpen, labels }: MailRowProps): ReactNode {
+    const l = { ...MAIL_ROW_LABELS, ...labels };
     return (
         <button
             type="button"
@@ -253,12 +265,12 @@ export function MailRow({ from, subject, preview, time, unread, hasAttachment, s
             <span className="cms-mail-row__body">
                 <span className="cms-mail-row__line">
                     <span className="cms-mail-row__from">{from}</span>
-                    {hasAttachment ? <Icon name="paperclip" size={16} label="Has an attachment" /> : null}
+                    {hasAttachment ? <Icon name="paperclip" size={16} label={l.attachment} /> : null}
                     <span className="cms-mail-row__time">{time}</span>
                 </span>
                 <span className="cms-mail-row__line">
                     <span className="cms-mail-row__subject">{subject}</span>
-                    {unread ? <span className="cms-mail-row__dot" role="img" aria-label="Unread" /> : null}
+                    {unread ? <span className="cms-mail-row__dot" role="img" aria-label={l.unread} /> : null}
                 </span>
                 <span className="cms-mail-row__preview">{preview}</span>
             </span>
@@ -273,16 +285,18 @@ export interface ChatBubbleProps {
     readonly time: string;
     /** For a sent message: whether the other side has read it. */
     readonly read?: boolean;
+    /** What a read message says beside its time, in the app's language ("Read"). */
+    readonly readLabel?: string;
 }
 
 /** One chat message; the corner nearest its sender is the tail. */
-export function ChatBubble({ direction, children, time, read }: ChatBubbleProps): ReactNode {
+export function ChatBubble({ direction, children, time, read, readLabel = 'Read' }: ChatBubbleProps): ReactNode {
     return (
         <div className={cx('cms-bubble', `cms-bubble--${direction}`)}>
             <div className="cms-bubble__text">{children}</div>
             <div className="cms-bubble__meta">
                 {time}
-                {direction === 'out' && read ? <> · Read</> : null}
+                {direction === 'out' && read ? <> · {readLabel}</> : null}
             </div>
         </div>
     );
@@ -299,10 +313,15 @@ export interface ComposerProps {
     /** `chat`: one line beside its buttons; `reply`: a titled box under a message. */
     readonly variant?: 'chat' | 'reply';
     readonly sendLabel?: string;
+    /** The attach button's name, in the app's language ("Attach a file"). */
+    readonly attachLabel?: string;
 }
 
-/** Writing a message: the text, attaching a file, sending. Enter sends a chat message; Shift+Enter starts a new line. */
-export function Composer({ label, value, onChange, onSend, onAttach, placeholder, variant = 'chat', sendLabel = 'Send' }: ComposerProps): ReactNode {
+/**
+ * Writing a message: the text, attaching a file, sending. Enter sends a chat message; Shift+Enter starts a new line.
+ * Enter while an input method is composing (Chinese, Japanese, Korean...) belongs to the composition and never sends.
+ */
+export function Composer({ label, value, onChange, onSend, onAttach, placeholder, variant = 'chat', sendLabel = 'Send', attachLabel = 'Attach a file' }: ComposerProps): ReactNode {
     const id = useId();
     const empty = value.trim() === '';
     const submit = (e: FormEvent) => {
@@ -310,7 +329,7 @@ export function Composer({ label, value, onChange, onSend, onAttach, placeholder
         if (!empty) onSend();
     };
     const attach = onAttach ? (
-        <button type="button" className="cms-icon-button cms-composer__attach" aria-label="Attach a file" onClick={onAttach}>
+        <button type="button" className="cms-icon-button cms-composer__attach" aria-label={attachLabel} onClick={onAttach}>
             <Icon name="paperclip" />
         </button>
     ) : null;
@@ -326,6 +345,8 @@ export function Composer({ label, value, onChange, onSend, onAttach, placeholder
                 value={value}
                 onChange={e => onChange(e.target.value)}
                 onKeyDown={e => {
+                    // keyCode 229: the composing key, on browsers that do not set isComposing.
+                    if (e.nativeEvent.isComposing || e.keyCode === 229) return;
                     if (variant === 'chat' && e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
                         if (!empty) onSend();

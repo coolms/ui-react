@@ -49,10 +49,40 @@ export interface SignInFormProps {
     /** The server's refusal, in its words. */
     readonly error?: string;
     readonly busy?: boolean;
+    /** Its words, in the app's language; each left out is English. */
+    readonly labels?: Partial<SignInLabels>;
 }
 
+/** The words the sign-in form says, in the app's language; English by default. */
+export interface SignInLabels {
+    readonly title: string;
+    readonly identifier: string;
+    readonly identifierPlaceholder: string;
+    readonly password: string;
+    readonly show: string;
+    readonly hide: string;
+    readonly forgot: string;
+    readonly submit: string;
+    readonly newHere: string;
+    readonly create: string;
+}
+
+export const SIGN_IN_LABELS: SignInLabels = {
+    title: 'Sign in',
+    identifier: 'Email or username',
+    identifierPlaceholder: 'name@example.com',
+    password: 'Password',
+    show: 'Show',
+    hide: 'Hide',
+    forgot: 'Forgot password?',
+    submit: 'Sign in',
+    newHere: 'New here?',
+    create: 'Create an account',
+};
+
 /** Signing in with an identifier and a password; the password can be shown while typed. */
-export function SignInForm({ server, onSubmit, forgotHref, createHref, error, busy }: SignInFormProps): ReactNode {
+export function SignInForm({ server, onSubmit, forgotHref, createHref, error, busy, labels }: SignInFormProps): ReactNode {
+    const l = { ...SIGN_IN_LABELS, ...labels };
     const id = useId();
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
@@ -63,20 +93,20 @@ export function SignInForm({ server, onSubmit, forgotHref, createHref, error, bu
     };
     return (
         <form className="cms-signin-form" onSubmit={submit} aria-describedby={error ? `${id}-error` : undefined}>
-            <h1 className="cms-signin-form__title">Sign in</h1>
+            <h1 className="cms-signin-form__title">{l.title}</h1>
             <p className="cms-signin-form__server"><Icon name="server" size={18} />{server}</p>
-            <label className="cms-signin-form__label" htmlFor={`${id}-identifier`}>Email or username</label>
+            <label className="cms-signin-form__label" htmlFor={`${id}-identifier`}>{l.identifier}</label>
             <input
                 id={`${id}-identifier`}
                 className="cms-field"
                 type="text"
                 autoComplete="username"
-                placeholder="name@example.com"
+                placeholder={l.identifierPlaceholder}
                 value={identifier}
                 onChange={e => setIdentifier(e.target.value)}
                 required
             />
-            <label className="cms-signin-form__label" htmlFor={`${id}-password`}>Password</label>
+            <label className="cms-signin-form__label" htmlFor={`${id}-password`}>{l.password}</label>
             <span className="cms-signin-form__password">
                 <input
                     id={`${id}-password`}
@@ -88,18 +118,18 @@ export function SignInForm({ server, onSubmit, forgotHref, createHref, error, bu
                     required
                 />
                 <button type="button" className="cms-signin-form__show" aria-pressed={shown} onClick={() => setShown(s => !s)}>
-                    {shown ? 'Hide' : 'Show'}
+                    {shown ? l.hide : l.show}
                 </button>
             </span>
-            {forgotHref ? <a className="cms-signin-form__forgot" href={forgotHref}>Forgot password?</a> : null}
+            {forgotHref ? <a className="cms-signin-form__forgot" href={forgotHref}>{l.forgot}</a> : null}
             {error ? <p id={`${id}-error`} className="cms-signin-form__error" role="alert">{error}</p> : null}
             <button type="submit" className="cms-button cms-button--chrome cms-signin-form__submit" disabled={busy} aria-busy={busy || undefined}>
-                Sign in
+                {l.submit}
             </button>
             {createHref ? (
                 <>
-                    <p className="cms-signin-form__or"><span>New here?</span></p>
-                    <a className="cms-button cms-signin-form__create" href={createHref}>Create an account</a>
+                    <p className="cms-signin-form__or"><span>{l.newHere}</span></p>
+                    <a className="cms-button cms-signin-form__create" href={createHref}>{l.create}</a>
                 </>
             ) : null}
         </form>

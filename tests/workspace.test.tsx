@@ -290,3 +290,39 @@ describe('Sign-in', () => {
         expect(screen.getByRole('link', { name: 'Create an account' })).toBeInTheDocument();
     });
 });
+
+describe('the words, from the app', () => {
+    it('each component says the words it is given, English where none is', () => {
+        const { unmount } = render(
+            <>
+                <ChatBubble direction="out" time="09:53" read readLabel="Прочитано">Hi</ChatBubble>
+                <IncomingCall name="Anna" media="audio" onAccept={() => undefined} onDecline={() => undefined} labels={{ accept: 'Принять', decline: 'Отклонить' }} />
+                <CallBar name="Anna" duration="04:12" muted={false} onToggleMute={() => undefined} onReturn={() => undefined} onHangUp={() => undefined} labels={{ onCallWith: (name) => `Звонок: ${name}`, returnToCall: 'Вернуться' }} />
+                <SignInForm server="demo.coolms.com" onSubmit={() => undefined} labels={{ identifier: 'Логин' }} />
+            </>,
+        );
+        expect(screen.getByText(/Прочитано/)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Принять' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Отклонить' })).toBeInTheDocument();
+        expect(screen.getByText('Звонок: Anna')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Вернуться' })).toBeInTheDocument();
+        expect(screen.getByLabelText('Логин')).toBeInTheDocument();
+        // Not given: English.
+        expect(screen.getByLabelText('Password')).toBeInTheDocument();
+        expect(screen.getByRole('alertdialog', { name: 'Incoming audio call from Anna' })).toBeInTheDocument();
+        unmount();
+    });
+});
+
+describe('Composer and input methods', () => {
+    it('Enter while an input method composes is the composition\'s: nothing is sent', async () => {
+        const onSend = vi.fn();
+        render(<Composer label="Message Anna" value="你好" onChange={() => undefined} onSend={onSend} />);
+        const box = screen.getByLabelText('Message Anna');
+        box.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, isComposing: true }));
+        box.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 229, bubbles: true }));
+        expect(onSend).not.toHaveBeenCalled();
+        box.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        expect(onSend).toHaveBeenCalledTimes(1);
+    });
+});

@@ -20,13 +20,15 @@ export interface ModalProps {
     readonly children: ReactNode;
     /** The dialog's actions, at its foot. */
     readonly footer?: ReactNode;
+    /** The close button's name, in the app's language ("Close"). */
+    readonly closeLabel?: string;
 }
 
 /**
  * A dialog over the page (contract component `modal`: open, closing, dirty). Focus moves into it on open and back to
  * where it was on close; Tab stays inside while it is open.
  */
-export function Modal({ open, title, onClose, dirty = false, onDirtyClose, children, footer }: ModalProps): ReactNode {
+export function Modal({ open, title, onClose, dirty = false, onDirtyClose, children, footer, closeLabel = 'Close' }: ModalProps): ReactNode {
     const [shown, setShown] = useState(open);
     const [closing, setClosing] = useState(false);
     const panel = useRef<HTMLDivElement>(null);
@@ -98,7 +100,7 @@ export function Modal({ open, title, onClose, dirty = false, onDirtyClose, child
             >
                 <header className="cms-modal__head">
                     <h2 className="cms-modal__title" id={titleId}>{title}</h2>
-                    <button type="button" className="cms-icon-button" aria-label="Close" onClick={askToClose}>
+                    <button type="button" className="cms-icon-button" aria-label={closeLabel} onClick={askToClose}>
                         <Glyph name="close" />
                     </button>
                 </header>

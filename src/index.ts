@@ -4,9 +4,9 @@ export { Modal, ConfirmDialog, MODAL_CLOSE_MS, type ModalProps, type ConfirmDial
 export { Toast, ToastRegion, Loading, EmptyState, ErrorBanner, type ToastProps, type LoadingProps, type EmptyStateProps, type ErrorBannerProps } from './components/Status';
 export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps } from './components/Structure';
 export { Icon, ICON_NAMES, type IconName, type IconProps } from './components/Icon';
-export { AppShell, Badge, SearchField, FilterChips, SplitPanes, MailRow, ChatBubble, Composer, type AppShellProps, type RailItem, type BadgeProps, type SearchFieldProps, type FilterChipsProps, type FilterOption, type SplitPanesProps, type Pane, type MailRowProps, type ChatBubbleProps, type ComposerProps } from './components/Workspace';
-export { IncomingCall, CallPanel, CallBar, type IncomingCallProps, type CallPanelProps, type CallBarProps } from './components/Call';
-export { SignInLayout, SignInForm, type SignInLayoutProps, type SignInFormProps, type SignInFeature } from './components/SignIn';
+export { AppShell, Badge, SearchField, FilterChips, SplitPanes, MailRow, ChatBubble, Composer, MAIL_ROW_LABELS, type MailRowLabels, type AppShellProps, type RailItem, type BadgeProps, type SearchFieldProps, type FilterChipsProps, type FilterOption, type SplitPanesProps, type Pane, type MailRowProps, type ChatBubbleProps, type ComposerProps } from './components/Workspace';
+export { IncomingCall, CallPanel, CallBar, CALL_LABELS, type CallLabels, type IncomingCallProps, type CallPanelProps, type CallBarProps } from './components/Call';
+export { SignInLayout, SignInForm, SIGN_IN_LABELS, type SignInLabels, type SignInLayoutProps, type SignInFormProps, type SignInFeature } from './components/SignIn';
 export { List, ContextMenu, type ListRow, type ListProps, type MenuItem, type ContextMenuProps } from './components/Collections';
 
 export { offerFor, isCapability, type Capability, type Offer, type OfferOptions } from './server/capability';
