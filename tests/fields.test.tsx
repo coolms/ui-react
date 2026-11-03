@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { Button, Select, TextField, Toggle } from '../src';
+import { Button, Select, SignInForm, TextField, Toggle } from '../src';
+import css from '../src/kit.css?raw';
 
 describe('Button', () => {
     it('busy: keeps its place, says so, cannot be pressed twice', async () => {
@@ -46,6 +47,24 @@ describe('TextField', () => {
         expect(input).toHaveAccessibleDescription(/MAIL_HOST/);
         await userEvent.type(input, 'x');
         expect(onChange).not.toHaveBeenCalled();
+    });
+});
+
+describe('a field\'s frame', () => {
+    it('is a column of label, box and help: no rule of the kit draws a box on the frame itself', () => {
+        const onFrame = [...css.matchAll(/(^|\n)([^{}\n]*)\{([^}]*)\}/g)]
+            .filter((rule) => rule[2]!.split(',').some((selector: string) => /\.cms-field(:[\w-]+)?$/.test(selector.trim())))
+            .map((rule) => rule[3]!);
+        expect(onFrame.length).toBeGreaterThan(0);
+        for (const body of onFrame) expect(body).not.toMatch(/(^|;)\s*(height|border|padding|background)\s*:/);
+    });
+
+    it('the sign-in form\'s inputs are its own, not a field\'s frame', () => {
+        render(<SignInForm server="demo.example.test" onSubmit={() => undefined} />);
+        for (const input of [screen.getByLabelText('Email or username'), screen.getByLabelText('Password')]) {
+            expect(input).toHaveClass('cms-signin-form__input');
+            expect(input).not.toHaveClass('cms-field');
+        }
     });
 });
 
