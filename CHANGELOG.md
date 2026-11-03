@@ -2,7 +2,7 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## 0.1.0-alpha.5
+## 0.1.0-alpha.5 (2026-11-04)
 
 A field is drawn once.
 
