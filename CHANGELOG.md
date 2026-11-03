@@ -2,6 +2,16 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.5 (2026-11-04)
+
+A field is drawn once.
+
+- Fixed: `SignInForm`'s inputs carried the class of a field's frame, `cms-field`, so their box (a border, a fixed
+  44px height, padding and a background) fell on the frame of every `TextField`, `Select` and `Toggle` too: each field
+  drew two boxes, and its help text ran over the next label. The sign-in inputs are now `cms-signin-form__input`, and
+  the frame is a column of label, box and help only. A page that styled the sign-in inputs as `.cms-field` styles
+  them as `.cms-signin-form__input`.
+
 ## 0.1.0-alpha.4 (2026-11-02)
 
 The kit's words come from the app, and the composer leaves an input method's Enter alone.

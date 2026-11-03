@@ -99,7 +99,7 @@ export function SignInForm({ server, onSubmit, forgotHref, createHref, error, bu
             <label className="cms-signin-form__label" htmlFor={`${id}-identifier`}>{l.identifier}</label>
             <input
                 id={`${id}-identifier`}
-                className="cms-field"
+                className="cms-signin-form__input"
                 type="text"
                 autoComplete="username"
                 placeholder={l.identifierPlaceholder}
@@ -111,7 +111,7 @@ export function SignInForm({ server, onSubmit, forgotHref, createHref, error, bu
             <span className="cms-signin-form__password">
                 <input
                     id={`${id}-password`}
-                    className="cms-field"
+                    className="cms-signin-form__input"
                     type={shown ? 'text' : 'password'}
                     autoComplete="current-password"
                     value={password}

@@ -465,11 +465,11 @@
 .cms-signin-form__title { margin: 0; font-size: var(--cms-font-size-display-sm); font-weight: var(--cms-font-weight-bold); }
 .cms-signin-form__server { display: flex; align-items: center; gap: var(--cms-space-2); margin: 0 0 var(--cms-space-4); color: var(--cms-text-muted); }
 .cms-signin-form__label { margin-top: var(--cms-space-2); font-weight: var(--cms-font-weight-medium); }
-.cms-field { height: 44px; padding: 0 var(--cms-space-4); border: 1px solid var(--cms-border-input); border-radius: var(--cms-radius-field); background: var(--cms-input-bg); color: var(--cms-text); font: inherit; font-size: var(--cms-font-size-body-lg); }
-.cms-field:focus { outline: 2px solid var(--cms-focus-ring); outline-offset: 1px; }
+/* The sign-in form's own inputs: a field's frame (.cms-field) is a different thing, and none of this reaches it. */
+.cms-signin-form__input { height: 44px; margin-bottom: 12px; padding: 0 var(--cms-space-4); border: 1px solid var(--cms-border-input); border-radius: var(--cms-radius-field); background: var(--cms-input-bg); color: var(--cms-text); font: inherit; font-size: var(--cms-font-size-body-lg); }
+.cms-signin-form__input:focus { outline: 2px solid var(--cms-focus-ring); outline-offset: 1px; }
 .cms-signin-form__password { position: relative; display: flex; align-items: center; margin-bottom: 12px; }
-.cms-signin-form__password .cms-field { margin-bottom: 0; }
-.cms-signin-form__password .cms-field { flex: 1; padding-right: 64px; }
+.cms-signin-form__password .cms-signin-form__input { flex: 1; margin-bottom: 0; padding-right: 64px; }
 .cms-signin-form__show { position: absolute; top: 50%; line-height: 1; right: var(--cms-space-3); transform: translateY(-50%); border: 0; background: transparent; color: var(--cms-text-body); font: inherit; cursor: pointer; }
 .cms-signin-form__forgot { align-self: flex-end; color: var(--cms-text); }
 .cms-signin-form__error { margin: 0; color: var(--cms-danger-text); }
