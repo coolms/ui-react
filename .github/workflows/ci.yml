@@ -61,6 +61,12 @@ jobs:
             console.log(`CLEAR -- ${lock.tag} is ${commit.slice(0, 12)}, and ${Object.keys(lock.files).length} file(s) there hash as the lock says`);
           '
 
+  # The committed lockfile's advisories held to .github/advisories.txt, an empty list while there is no such file: a new
+  # one fails. The shared job, pinned to a commit of coolms/.github.
+  advisories:
+    name: advisories
+    uses: coolms/.github/.github/workflows/npm-advisories.yml@79b177b7e6d6ae711753e1adb64a4de1e515bfc3
+
   # README, a LICENSE matching the manifest, and CHANGELOG (coolms/.github's basic-files.yml), pinned to a commit.
   basic-files:
     uses: coolms/.github/.github/workflows/basic-files.yml@595d36957a135e7d753abe34ca1ce90a0a6f2215
