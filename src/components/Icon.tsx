@@ -4,7 +4,8 @@ import type { ReactNode } from 'react';
 export type IconName =
     | 'mail' | 'chat' | 'phone' | 'calendar' | 'file' | 'image' | 'search' | 'bell' | 'pencil' | 'star' | 'send'
     | 'inbox' | 'archive' | 'trash' | 'paperclip' | 'mic' | 'speaker' | 'user-plus' | 'phone-off' | 'video' | 'info'
-    | 'chevron-down' | 'chevron-left' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more';
+    | 'chevron-down' | 'chevron-left' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more'
+    | 'download' | 'print' | 'open-separately';
 
 const PATHS: Readonly<Record<IconName, ReactNode>> = {
     mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
@@ -16,6 +17,9 @@ const PATHS: Readonly<Record<IconName, ReactNode>> = {
     search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>,
     bell: <><path d="M6 9a6 6 0 1 1 12 0c0 6 2 8 2 8H4s2-2 2-8Z" /><path d="M10 20a2 2 0 0 0 4 0" /></>,
     pencil: <><path d="M4 20h4L19 9l-4-4L4 16Z" /><path d="m13 7 4 4" /></>,
+    download: <><path d="M12 4v11" /><path d="m7 11 5 5 5-5" /><path d="M4 20h16" /></>,
+    print: <><path d="M7 8V4h10v4" /><rect x="3" y="8" width="18" height="8" rx="2" /><path d="M7 14h10v6H7Z" /></>,
+    'open-separately': <><path d="M14 4h6v6" /><path d="m20 4-9 9" /><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></>,
     star: <path d="m12 3 2.8 5.8 6.2.9-4.5 4.4 1 6.2L12 17.4l-5.5 2.9 1-6.2L3 9.7l6.2-.9Z" />,
     send: <><path d="M21 3 10 14" /><path d="M21 3 14 21l-4-7-7-4Z" /></>,
     inbox: <><path d="M3 13h5l1 3h6l1-3h5" /><path d="M5 5h14l2 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6Z" /></>,

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FileViewer, type FileViewerSiblings } from '../src';
 
 const actions = [
@@ -13,6 +13,14 @@ const set = (over: Partial<FileViewerSiblings> = {}): FileViewerSiblings => ({
 });
 
 describe('FileViewer', () => {
+    // This test environment lays nothing out, so nothing has a box unless it is given one.
+    beforeEach(() => {
+        vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+    });
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     it('a dialog named by the file; focus starts on Close, stays inside, and returns to what opened it', async () => {
         render(<button>Open</button>);
         screen.getByRole('button', { name: 'Open' }).focus();
@@ -41,7 +49,7 @@ describe('FileViewer', () => {
     it('while editing, Escape belongs to the editor; Done returns to viewing; the file actions give way', async () => {
         const onClose = vi.fn();
         const onDone = vi.fn();
-        render(<FileViewer {...base} onClose={onClose} actions={actions} edit={{ label: 'Edit', icon: null, onEdit: vi.fn() }} editing={{ status: 'Saved 12:41', doneLabel: 'Done', onDone }}><textarea aria-label="Editor" /></FileViewer>);
+        render(<FileViewer {...base} onClose={onClose} actions={actions} edit={{ label: 'Edit', icon: null, onEdit: vi.fn() }} editing={{ status: 'Saved 12:41', doneLabel: 'Done', onDone, onDirtyClose: vi.fn() }}><textarea aria-label="Editor" /></FileViewer>);
         screen.getByLabelText('Editor').focus();
         await userEvent.keyboard('{Escape}');
         expect(onClose).not.toHaveBeenCalled();
@@ -108,6 +116,65 @@ describe('FileViewer', () => {
         swipe([200, 100], [100, 300]);
         swipe([200, 100], [100, 100], 2);
         expect(siblings.onNext).toHaveBeenCalledTimes(1);
+    });
+
+    it('Tab wraps within what is drawn: a control hidden at this width does not let focus out', () => {
+        vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(function (this: HTMLElement) {
+            return (this.closest('.cms-viewer__more') !== null ? [] : [{}]) as unknown as DOMRectList;
+        });
+        render(<FileViewer {...base} actions={actions}><p>Content</p></FileViewer>);
+        const last = screen.getAllByRole('button', { name: 'Open separately' })[0]!;
+        last.focus();
+        const notWrapped = !fireEvent.keyDown(last, { key: 'Tab' });
+        expect(notWrapped).toBe(true);
+        expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close' }));
+        screen.getByRole('button', { name: 'Close' }).focus();
+        fireEvent.keyDown(document.activeElement!, { key: 'Tab', shiftKey: true });
+        expect(document.activeElement).toBe(last);
+    });
+
+    it('a change of file is said politely', () => {
+        const view = render(<FileViewer {...base} siblings={set()}><p>Content</p></FileViewer>);
+        expect(screen.getByText('report.pdf, 2 of 3')).toHaveAttribute('role', 'status');
+        view.rerender(<FileViewer {...base} name="next.pdf" siblings={set({ position: '3 of 3' })}><p>Content</p></FileViewer>);
+        expect(screen.getByText('next.pdf, 3 of 3')).toHaveAttribute('role', 'status');
+    });
+
+    it('a single file says nothing of a set', () => {
+        render(<FileViewer {...base}><p>Content</p></FileViewer>);
+        expect(screen.queryByRole('status')).toBeNull();
+    });
+
+    it('an adapter that has taken the gesture keeps its swipe', () => {
+        const siblings = set();
+        render(<FileViewer {...base} siblings={siblings}><div data-viewer-gestures="" data-testid="picture">Picture</div></FileViewer>);
+        const picture = screen.getByTestId('picture');
+        fireEvent.touchStart(picture, { touches: [{ clientX: 200, clientY: 100 }] });
+        fireEvent.touchEnd(picture, { changedTouches: [{ clientX: 100, clientY: 100 }] });
+        expect(siblings.onNext).not.toHaveBeenCalled();
+    });
+
+    it('plus, minus and 0 zoom while viewing; not in a field, and not while editing', () => {
+        const onZoom = vi.fn();
+        const view = render(<FileViewer {...base} onZoom={onZoom}><input aria-label="Page" /></FileViewer>);
+        const close = screen.getByRole('button', { name: 'Close' });
+        fireEvent.keyDown(close, { key: '+' });
+        fireEvent.keyDown(close, { key: '=' });
+        fireEvent.keyDown(close, { key: '-' });
+        fireEvent.keyDown(close, { key: '0' });
+        expect(onZoom.mock.calls.map((call) => call[0])).toEqual(['in', 'in', 'out', 'reset']);
+        fireEvent.keyDown(screen.getByRole('textbox', { name: 'Page' }), { key: '-' });
+        expect(onZoom).toHaveBeenCalledTimes(4);
+        view.rerender(<FileViewer {...base} onZoom={onZoom} editing={{ status: 'Saved', doneLabel: 'Done', onDone: vi.fn(), onDirtyClose: vi.fn() }}><p>Editor</p></FileViewer>);
+        fireEvent.keyDown(screen.getByRole('button', { name: 'Close' }), { key: '+' });
+        expect(onZoom).toHaveBeenCalledTimes(4);
+    });
+
+    it('the strip takes its own row above the viewer bar, not a place over the file', () => {
+        render(<FileViewer {...base} siblings={set()} strip={<span>Files</span>} bar={<span>Bar</span>}><p>Content</p></FileViewer>);
+        const strip = document.querySelector('.cms-viewer__strip')!;
+        expect(strip.closest('.cms-viewer__content')).toBeNull();
+        expect(strip.nextElementSibling).toBe(document.querySelector('.cms-viewer__bar'));
     });
 
     it('the menu holds the actions, and Escape closes it before the viewer', async () => {

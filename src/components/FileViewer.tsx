@@ -28,7 +28,7 @@ export interface FileViewerEditing {
     readonly onDone: () => void;
     /** It holds unsaved work: Close calls onDirtyClose, which asks the person, rather than closing. */
     readonly dirty?: boolean;
-    readonly onDirtyClose?: () => void;
+    readonly onDirtyClose: () => void;
 }
 
 export interface FileViewerProps {
@@ -50,8 +50,10 @@ export interface FileViewerProps {
     readonly bar?: ReactNode;
     /** A paged file's pages, at a wide width. */
     readonly thumbnails?: ReactNode;
-    /** A set of attachments, along the foot at a wide width. */
+    /** A set of attachments, along the foot above the viewer bar at a wide width. */
     readonly strip?: ReactNode;
+    /** Plus, minus and 0, where the adapter has zoom. */
+    readonly onZoom?: (how: 'in' | 'out' | 'reset') => void;
     /** The adapter: it scrolls inside itself, and the overlay never scrolls as a document. */
     readonly children: ReactNode;
 }
@@ -60,9 +62,19 @@ const FOCUSABLE = 'input, select, textarea, button:not([disabled]), iframe, [hre
 /** How far a finger travels, more sideways than down, to move to another file. */
 const SWIPE_PX = 60;
 
-/** Whether a key press belongs to what has the focus: a field uses the arrows, and so does whatever says it does. */
-function usesArrows(target: EventTarget | null): boolean {
-    return target instanceof HTMLElement && target.closest('input, select, textarea, [contenteditable="true"], [data-viewer-keys]') !== null;
+/** Whether a key press belongs to what has the focus: a field uses the keys, and so does whatever says it does. */
+function usesKeys(target: EventTarget | null): boolean {
+    return target instanceof Element && target.closest('input, select, textarea, [contenteditable="true"], [data-viewer-keys]') !== null;
+}
+
+/** Whether an adapter has taken the gesture, as a picture being panned has. */
+function usesSwipe(target: EventTarget | null): boolean {
+    return target instanceof Element && target.closest('[data-viewer-gestures]') !== null;
+}
+
+/** What Tab can reach: a control hidden at this width is not drawn, and the browser passes over it. */
+function drawn(element: HTMLElement): boolean {
+    return element.getClientRects().length > 0;
 }
 
 /**
@@ -72,7 +84,7 @@ function usesArrows(target: EventTarget | null): boolean {
  * inside, and returns to what opened it.
  */
 export function FileViewer(props: FileViewerProps): ReactNode {
-    const { name, badge, closeLabel, onClose, actions = [], moreLabel = 'More', edit, editing, siblings, bar, thumbnails, strip, children } = props;
+    const { name, badge, closeLabel, onClose, actions = [], moreLabel = 'More', edit, editing, siblings, bar, thumbnails, strip, onZoom, children } = props;
     const panel = useRef<HTMLDivElement>(null);
     const close = useRef<HTMLButtonElement>(null);
     const nameId = useId();
@@ -91,13 +103,13 @@ export function FileViewer(props: FileViewerProps): ReactNode {
     }, []);
 
     const askToClose = () => {
-        if (editing?.dirty) editing.onDirtyClose?.();
+        if (editing?.dirty) editing.onDirtyClose();
         else onClose();
     };
 
     const onTouchStart = (event: TouchEvent) => {
         const touch = event.touches.length === 1 ? event.touches[0] : undefined;
-        swipe.current = touch === undefined || editing !== undefined ? null : { x: touch.clientX, y: touch.clientY };
+        swipe.current = touch === undefined || editing !== undefined || usesSwipe(event.target) ? null : { x: touch.clientX, y: touch.clientY };
     };
     const onTouchEnd = (event: TouchEvent) => {
         const from = swipe.current;
@@ -125,8 +137,8 @@ export function FileViewer(props: FileViewerProps): ReactNode {
                     if (menu) setMenu(false);
                     else onClose();
                 } else if (event.key === 'Tab') {
-                    const inside = panel.current?.querySelectorAll<HTMLElement>(FOCUSABLE);
-                    if (!inside || inside.length === 0) return;
+                    const inside = Array.from(panel.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(drawn);
+                    if (inside.length === 0) return;
                     const first = inside[0]!;
                     const last = inside[inside.length - 1]!;
                     if (event.shiftKey && document.activeElement === first) {
@@ -136,12 +148,16 @@ export function FileViewer(props: FileViewerProps): ReactNode {
                         event.preventDefault();
                         first.focus();
                     }
-                } else if (editing === undefined && !usesArrows(event.target)) {
+                } else if (editing === undefined && !usesKeys(event.target)) {
                     if (event.key === 'ArrowLeft') siblings?.onPrevious?.();
                     else if (event.key === 'ArrowRight') siblings?.onNext?.();
+                    else if (event.key === '+' || event.key === '=') onZoom?.('in');
+                    else if (event.key === '-') onZoom?.('out');
+                    else if (event.key === '0') onZoom?.('reset');
                 }
             }}
         >
+            {siblings !== undefined ? <span className="cms-visually-hidden" role="status">{`${name}, ${siblings.position}`}</span> : null}
             <header className="cms-viewer__top">
                 <button ref={close} type="button" className="cms-viewer__icon" aria-label={closeLabel} onClick={askToClose}>
                     <Glyph name="close" />
@@ -213,7 +229,6 @@ export function FileViewer(props: FileViewerProps): ReactNode {
                             <Glyph name="back" />
                         </button>
                     ) : null}
-                    {editing === undefined && strip != null ? <div className="cms-viewer__strip">{strip}</div> : null}
                     {editing === undefined && siblings !== undefined ? (
                         <div className="cms-viewer__dots" aria-hidden="true">
                             {Array.from({ length: Math.min(siblings.total, 7) }, (_, at) => (
@@ -223,6 +238,7 @@ export function FileViewer(props: FileViewerProps): ReactNode {
                     ) : null}
                 </div>
             </div>
+            {editing === undefined && strip != null ? <div className="cms-viewer__strip">{strip}</div> : null}
             {bar != null ? <footer className="cms-viewer__bar">{bar}</footer> : null}
         </div>,
         document.body,

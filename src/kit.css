@@ -479,7 +479,7 @@
 .cms-signin-form__create { justify-content: center; height: 48px; border-color: var(--cms-border-input); border-radius: var(--cms-radius-control); color: var(--cms-text); font-weight: var(--cms-font-weight-semibold); text-decoration: none; }
 
 /* The file viewer: dark whatever the scheme, covering the page. It never scrolls as a document; its content does. */
-.cms-viewer { position: fixed; inset: 0; z-index: 1000; display: grid; grid-template-rows: 56px minmax(0, 1fr) auto; background: #0e1116; color: #f4f5f7; }
+.cms-viewer { position: fixed; inset: 0; z-index: 1000; display: grid; grid-template-rows: 56px minmax(0, 1fr) auto auto; background: #0e1116; color: #f4f5f7; }
 .cms-viewer:focus { outline: none; }
 .cms-viewer__top { display: flex; align-items: center; gap: var(--cms-space-2); min-width: 0; padding: 0 var(--cms-space-3); border-bottom: 1px solid #2a2f38; }
 .cms-viewer__badge { flex: none; display: inline-flex; }
@@ -503,7 +503,7 @@
 .cms-viewer__side--previous { left: var(--cms-space-3); }
 .cms-viewer__side--next { right: var(--cms-space-3); }
 .cms-viewer__side--next svg { transform: scaleX(-1); }
-.cms-viewer__strip { position: absolute; left: 50%; bottom: var(--cms-space-3); z-index: 2; display: flex; gap: var(--cms-space-2); max-width: calc(100% - 32px); padding: var(--cms-space-2); overflow: auto; border-radius: var(--cms-radius-md); background: #1a1e25; transform: translateX(-50%); }
+.cms-viewer__strip { display: flex; justify-content: center; gap: var(--cms-space-2); min-width: 0; padding: var(--cms-space-2) var(--cms-space-3); overflow-x: auto; border-top: 1px solid #2a2f38; }
 .cms-viewer__dots { display: none; position: absolute; left: 0; right: 0; bottom: var(--cms-space-2); z-index: 2; justify-content: center; gap: 6px; }
 .cms-viewer__dots i { width: 7px; height: 7px; border-radius: 50%; background: #6c7482; }
 .cms-viewer__dots i.is-current { background: #f4f5f7; }

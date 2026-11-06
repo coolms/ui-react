@@ -268,7 +268,8 @@ function routeOf(hash: string): { readonly page: Page; readonly sub: string } {
 
 /** The file viewer's states, with sample content: what draws a file is the adapter's, so a plain page stands in here. */
 function ViewerPage({ sub }: { readonly sub: string | undefined }): ReactNode {
-    const actions = ['Download', 'Print', 'Open separately'].map((label) => ({ label, icon: null, onSelect: () => undefined }));
+    const action = (label: string, name: 'download' | 'print' | 'open-separately') => ({ label, icon: <Icon name={name} size={18} />, onSelect: () => undefined });
+    const actions = [action('Download', 'download'), action('Print', 'print'), action('Open separately', 'open-separately')];
     const pencil = <Icon name="pencil" size={18} />;
     const zoom = (
         <>
@@ -280,7 +281,7 @@ function ViewerPage({ sub }: { readonly sub: string | undefined }): ReactNode {
     const page = <div style={{ height: '100%', overflow: 'auto', padding: 24 }}><div style={{ background: '#fff', color: '#1a2230', maxWidth: 760, minHeight: 900, margin: '0 auto', padding: 48 }}>A page of the file, drawn by its adapter.</div></div>;
     const close = { closeLabel: 'Close', onClose: () => undefined, moreLabel: 'More' };
     if (sub === 'edit') {
-        return <FileViewer {...close} name="lease-agreement-warsaw.docx" badge="DOC" editing={{ status: 'Saved 12:41', doneLabel: 'Done', onDone: () => undefined }}>{page}</FileViewer>;
+        return <FileViewer {...close} name="lease-agreement-warsaw.docx" badge="DOC" editing={{ status: 'Saved 12:41', doneLabel: 'Done', onDone: () => undefined, onDirtyClose: () => undefined }}>{page}</FileViewer>;
     }
     if (sub === 'none') {
         return <FileViewer {...close} name="archive-october.zip" badge="ZIP" actions={actions.slice(0, 1)} bar={<span>Preview not available</span>}><EmptyState title="No preview for this file" /></FileViewer>;
