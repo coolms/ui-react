@@ -92,6 +92,13 @@ describe('FileViewer', () => {
         expect(screen.getByText('2 of 3')).toBeInTheDocument();
     });
 
+    it('with a modifier the arrows are the browser\'s', () => {
+        const siblings = set();
+        render(<FileViewer {...base} siblings={siblings}><p>Content</p></FileViewer>);
+        fireEvent.keyDown(screen.getByRole('button', { name: 'Close' }), { key: 'ArrowLeft', altKey: true });
+        expect(siblings.onPrevious).not.toHaveBeenCalled();
+    });
+
     it('the first file offers no previous', () => {
         const { onPrevious: _gone, ...first } = set();
         render(<FileViewer {...base} siblings={first}><p>Content</p></FileViewer>);
@@ -163,6 +170,9 @@ describe('FileViewer', () => {
         fireEvent.keyDown(close, { key: '-' });
         fireEvent.keyDown(close, { key: '0' });
         expect(onZoom.mock.calls.map((call) => call[0])).toEqual(['in', 'in', 'out', 'reset']);
+        fireEvent.keyDown(close, { key: '-', ctrlKey: true });
+        fireEvent.keyDown(close, { key: '0', metaKey: true });
+        expect(onZoom).toHaveBeenCalledTimes(4);
         fireEvent.keyDown(screen.getByRole('textbox', { name: 'Page' }), { key: '-' });
         expect(onZoom).toHaveBeenCalledTimes(4);
         view.rerender(<FileViewer {...base} onZoom={onZoom} editing={{ status: 'Saved', doneLabel: 'Done', onDone: vi.fn(), onDirtyClose: vi.fn() }}><p>Editor</p></FileViewer>);

@@ -148,7 +148,8 @@ export function FileViewer(props: FileViewerProps): ReactNode {
                         event.preventDefault();
                         first.focus();
                     }
-                } else if (editing === undefined && !usesKeys(event.target)) {
+                } else if (editing === undefined && !usesKeys(event.target) && !event.ctrlKey && !event.metaKey && !event.altKey) {
+                    // With a modifier the key is the browser's: its own zoom, or going back.
                     if (event.key === 'ArrowLeft') siblings?.onPrevious?.();
                     else if (event.key === 'ArrowRight') siblings?.onNext?.();
                     else if (event.key === '+' || event.key === '=') onZoom?.('in');
