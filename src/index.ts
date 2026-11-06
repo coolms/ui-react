@@ -2,6 +2,7 @@ export { Button, type ButtonProps } from './components/Button';
 export { TextField, Select, Toggle, type TextFieldProps, type SelectProps, type SelectOption, type ToggleProps } from './components/Fields';
 export { Modal, ConfirmDialog, MODAL_CLOSE_MS, type ModalProps, type ConfirmDialogProps } from './components/Dialogs';
 export { Toast, ToastRegion, Loading, EmptyState, ErrorBanner, type ToastProps, type LoadingProps, type EmptyStateProps, type ErrorBannerProps } from './components/Status';
+export { FileViewer, type FileViewerAction, type FileViewerEditing, type FileViewerProps, type FileViewerSiblings } from './components/FileViewer';
 export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps } from './components/Structure';
 export { Icon, ICON_NAMES, type IconName, type IconProps } from './components/Icon';
 export { AppShell, Badge, SearchField, FilterChips, SplitPanes, MailRow, ChatBubble, Composer, MAIL_ROW_LABELS, type MailRowLabels, type AppShellProps, type RailItem, type BadgeProps, type SearchFieldProps, type FilterChipsProps, type FilterOption, type SplitPanesProps, type Pane, type MailRowProps, type ChatBubbleProps, type ComposerProps } from './components/Workspace';
