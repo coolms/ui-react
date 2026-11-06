@@ -478,6 +478,51 @@
 .cms-signin-form__or::before, .cms-signin-form__or::after { content: ''; flex: 1; height: 1px; background: var(--cms-border); }
 .cms-signin-form__create { justify-content: center; height: 48px; border-color: var(--cms-border-input); border-radius: var(--cms-radius-control); color: var(--cms-text); font-weight: var(--cms-font-weight-semibold); text-decoration: none; }
 
+/* The file viewer: dark whatever the scheme, covering the page. It never scrolls as a document; its content does. */
+.cms-viewer { position: fixed; inset: 0; z-index: 1000; display: grid; grid-template-rows: 56px minmax(0, 1fr) auto; background: #0e1116; color: #f4f5f7; }
+.cms-viewer:focus { outline: none; }
+.cms-viewer__top { display: flex; align-items: center; gap: var(--cms-space-2); min-width: 0; padding: 0 var(--cms-space-3); border-bottom: 1px solid #2a2f38; }
+.cms-viewer__badge { flex: none; display: inline-flex; }
+.cms-viewer__name { margin: 0; min-width: 0; font-size: inherit; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cms-viewer__position, .cms-viewer__status { flex: none; color: #a8afbb; white-space: nowrap; }
+.cms-viewer__space { flex: 1 1 0; min-width: 0; }
+.cms-viewer__actions { display: inline-flex; gap: var(--cms-space-1); flex: none; }
+.cms-viewer__icon, .cms-viewer__button { display: inline-flex; align-items: center; justify-content: center; gap: var(--cms-space-2); height: 36px; border: 0; border-radius: var(--cms-radius-md); background: transparent; color: inherit; font: inherit; white-space: nowrap; cursor: pointer; }
+.cms-viewer__icon { flex: none; width: 36px; }
+.cms-viewer__button { flex: none; padding: 0 var(--cms-space-3); }
+.cms-viewer__icon:hover, .cms-viewer__button:hover { background: #262b34; }
+.cms-viewer :focus-visible { outline: 2px solid var(--cms-accent); outline-offset: 2px; }
+.cms-viewer__button--edit, .cms-viewer__button--edit:hover { background: var(--cms-accent); color: #1a1a1a; font-weight: 600; }
+.cms-viewer__more { display: none; position: relative; flex: none; }
+.cms-viewer__menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 3; display: flex; flex-direction: column; align-items: stretch; min-width: 200px; padding: var(--cms-space-1); border: 1px solid #2a2f38; border-radius: var(--cms-radius-md); background: #1a1e25; }
+.cms-viewer__menu .cms-viewer__button { justify-content: flex-start; min-height: var(--cms-touch-target-min); }
+.cms-viewer__body { display: flex; min-height: 0; }
+.cms-viewer__thumbnails { flex: none; width: 124px; padding: var(--cms-space-3); overflow: auto; border-right: 1px solid #2a2f38; }
+.cms-viewer__content { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; }
+.cms-viewer__side { position: absolute; top: 50%; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; margin-top: -22px; border: 0; border-radius: 50%; background: #262b34; color: inherit; cursor: pointer; }
+.cms-viewer__side--previous { left: var(--cms-space-3); }
+.cms-viewer__side--next { right: var(--cms-space-3); }
+.cms-viewer__side--next svg { transform: scaleX(-1); }
+.cms-viewer__strip { position: absolute; left: 50%; bottom: var(--cms-space-3); z-index: 2; display: flex; gap: var(--cms-space-2); max-width: calc(100% - 32px); padding: var(--cms-space-2); overflow: auto; border-radius: var(--cms-radius-md); background: #1a1e25; transform: translateX(-50%); }
+.cms-viewer__dots { display: none; position: absolute; left: 0; right: 0; bottom: var(--cms-space-2); z-index: 2; justify-content: center; gap: 6px; }
+.cms-viewer__dots i { width: 7px; height: 7px; border-radius: 50%; background: #6c7482; }
+.cms-viewer__dots i.is-current { background: #f4f5f7; }
+.cms-viewer__bar { display: flex; align-items: center; justify-content: center; gap: var(--cms-space-1); min-height: 48px; padding: 0 var(--cms-space-2); border-top: 1px solid #2a2f38; color: #d6dae1; white-space: nowrap; }
+@media (max-width: 1199.98px) {
+    .cms-viewer__icon, .cms-viewer__button { min-height: var(--cms-touch-target-min); min-width: var(--cms-touch-target-min); }
+}
+@media (max-width: 599.98px) {
+    .cms-viewer__top { padding: 0 var(--cms-space-1); gap: var(--cms-space-1); }
+    .cms-viewer__icon { width: var(--cms-touch-target-min); height: var(--cms-touch-target-min); }
+    .cms-viewer__position, .cms-viewer__actions, .cms-viewer__wide, .cms-viewer__thumbnails, .cms-viewer__side, .cms-viewer__strip { display: none; }
+    .cms-viewer__more { display: inline-flex; }
+    .cms-viewer__dots { display: flex; }
+    .cms-viewer__button--edit { width: var(--cms-touch-target-min); height: var(--cms-touch-target-min); padding: 0; }
+    .cms-viewer.is-editing .cms-viewer__button--edit { width: auto; padding: 0 var(--cms-space-3); }
+    .cms-viewer__status { max-width: 92px; white-space: normal; font-size: var(--cms-font-size-label); line-height: 1.15; }
+}
+@media (prefers-reduced-motion: reduce) { .cms-viewer * { transition: none; animation: none; } }
+
 /*
  * The layout's widths, from design-tokens: phone below breakpoint-tablet (600px), tablet from it, desktop from
  * breakpoint-desktop (1200px). A custom property cannot be read in a media query, so the numbers are written here and
