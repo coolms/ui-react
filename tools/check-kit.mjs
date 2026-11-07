@@ -11,7 +11,8 @@
 //     "serverStates": { "capability": { "where": "src/server/capability.ts" }, ... },
 //     "notOffered": { "elevation-required": "this kit's clients never elevate" } }
 //
-// `notOffered` names a component the kit does not provide ON PURPOSE, with the reason; it is not a gap.
+// `notOffered` names a component the kit does not provide ON PURPOSE, with the reason; it is not a gap, and neither is a
+// state another component has under that name.
 // Answers CLEAR (exit 0), FOUND naming each gap (exit 1), or UNEVALUABLE when a file cannot be read (exit 2): a
 // kit that could not be read is never reported as one that covers the contract.
 import { readFileSync } from 'node:fs';
@@ -49,6 +50,9 @@ for (const [name, spec] of Object.entries(components)) {
         continue;
     }
     for (const state of spec.states) {
+        if (state in notOffered) {
+            continue;
+        }
         if (!(mine.states ?? []).includes(state)) {
             gaps.push(`component ${name} (${mine.implementedBy}): state "${state}" not rendered`);
         }

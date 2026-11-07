@@ -1,6 +1,6 @@
 {
   "$comment": "The components every CoolMS UI kit provides, by name, and the states each must render. A kit declares which of its components implements each entry (kit.contract.json); tools/check-kit.mjs fails when one is missing, or a state is. Names follow ui-angular's where it has one.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "components": {
     "button": {
       "purpose": "An action. Primary, secondary, danger; an icon may lead.",
@@ -75,14 +75,16 @@
       "states": [
         "inline",
         "block"
-      ]
+      ],
+      "notes": "Superseded by state; leaves the contract once every kit implements state."
     },
     "empty-state": {
       "purpose": "Nothing to show, and why; optionally what to do.",
       "states": [
         "default",
         "with-action"
-      ]
+      ],
+      "notes": "Superseded by state; leaves the contract once every kit implements state."
     },
     "error-banner": {
       "purpose": "A read failed; says why, offers retry when retrying can help.",
@@ -129,7 +131,8 @@
       "purpose": "Says that an action needs elevation, and offers it (theme-admin); never shown in a client that does not elevate.",
       "states": [
         "default"
-      ]
+      ],
+      "notes": "Superseded by state; leaves the contract once every kit implements state."
     },
     "context-menu": {
       "purpose": "The selected object's actions, exactly the action bar's for it; only on the client's own objects.",
@@ -139,6 +142,35 @@
         "item-locked",
         "item-refused"
       ]
+    },
+    "state": {
+      "purpose": "One component for every state a page, a card or a line of text can be in instead of its content: being read, nothing to show, a read that failed, a refusal, or an elevation the content needs. The same API and the same look in every kit, from the tokens.",
+      "states": [
+        "loading",
+        "empty",
+        "error",
+        "denied",
+        "elevation-required",
+        "page",
+        "block",
+        "inline",
+        "with-action",
+        "delayed"
+      ],
+      "api": {
+        "kind": "loading | empty | error | denied | elevation-required",
+        "title": "string: what the state is, in the caller's words",
+        "description": "string, optional: why, or what to do",
+        "action": "optional: a label and a handler -- Retry for an error, or what an empty state suggests; for elevation-required the kit's own Elevate, the same flow the error banner offers. denied never offers an action: a refusal is the server's last word, and a retry or a request would only be refused again",
+        "placement": "page (centred in the content area) | block (centred in its card) | inline (small, beside text)"
+      },
+      "behaviour": [
+        "loading shows nothing at all -- neither spinner nor title -- until state-delay (300ms), then both together, so a read that answers sooner shows nothing; the spinner is drawn, never a glyph. A kit may have its title announced to assistive technology from the start, visually hidden until the delay",
+        "role=\"status\" with aria-live=\"polite\" on every kind. Every kind shows the caller's title and description as given, and adds no words of its own beyond its action's label (for elevation-required: Elevate, and the line saying elevation is not available here)",
+        "the spinner is spinner-color on spinner-track, spinner-size-<placement>, one turn per spinner-duration; with prefers-reduced-motion it pulses instead of turning",
+        "elevation-required is not offered by a kit whose clients never elevate (notOffered, with the reason)"
+      ],
+      "notes": "Supersedes loading, empty-state and elevation-required: those three stay in the contract until every kit implements state, then leave it in the next contract version. error-banner stays: a failed read above content that is still shown."
     }
   }
 }

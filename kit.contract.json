@@ -10,6 +10,7 @@
     "toast": { "implementedBy": "Toast", "states": ["success", "error", "info", "with-action"] },
     "loading": { "implementedBy": "Loading", "states": ["inline", "block"] },
     "empty-state": { "implementedBy": "EmptyState", "states": ["default", "with-action"] },
+    "state": { "implementedBy": "State", "states": ["loading", "empty", "error", "denied", "page", "block", "inline", "with-action", "delayed"] },
     "error-banner": { "implementedBy": "ErrorBanner", "states": ["default", "with-retry"] },
     "page-header": { "implementedBy": "PageHeader", "states": ["default", "with-actions", "with-back-link"] },
     "tab-strip": { "implementedBy": "TabStrip", "states": ["default", "active", "with-count"] },

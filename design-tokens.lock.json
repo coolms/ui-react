@@ -1,15 +1,15 @@
 {
   "repository": "coolms/design-tokens",
-  "tag": "v0.6.0",
-  "commit": "0dd27d145de67936bde4b6dd4d904a9d8df63211",
+  "tag": "v0.7.1",
+  "commit": "0167cfcaf665e4f785910e7c309ef18fedf61c52",
   "files": {
     "dist/coolms-tokens.css": {
       "to": "src/tokens/coolms-tokens.css",
-      "sha256": "670c856f8473924fe07b735b39ddd0d14afa0f648373bd4d8b906309fd49a08e"
+      "sha256": "e0b01973324f21b32dc89907d379f3380c47f740e152e471ea4287efee652cc0"
     },
     "contract/components.json": {
       "to": "contract/components.json",
-      "sha256": "3a21896076d70e96658033eb85173b1a0fc745151a7d4d5c070d882ec7605658"
+      "sha256": "61c8d3610cdf9a7685576d8ab891f3be8d3b55bc73716172da15e2ca8b889bd0"
     },
     "contract/server-states.json": {
       "to": "contract/server-states.json",
@@ -17,7 +17,7 @@
     },
     "tools/check-kit.mjs": {
       "to": "tools/check-kit.mjs",
-      "sha256": "f8407f6accd55eb666eb6bbfe629a10f959c3bf6c62fe8ef2f1fe06a48471a8c"
+      "sha256": "c48ac67d267aec11698ab362a8095a355eea8c8775c313d4261be2c60b65d0bb"
     },
     "tools/check-css.mjs": {
       "to": "tools/check-css.mjs",
