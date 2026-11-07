@@ -172,6 +172,27 @@
 .cms-empty__title { margin: 0 0 4px; color: var(--cms-text); font-weight: 600; }
 .cms-empty__hint { margin: 0; }
 .cms-empty__action { margin-top: 12px; }
+/* The state component: one look for every state instead of content. Each token carries its own value as a fallback
+   until the kit pins the design tokens that define it. */
+.cms-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cms-space-3, 12px); color: var(--cms-text-muted); text-align: center; transition: opacity 120ms; }
+.cms-state--page { flex: 1; min-height: 50vh; padding: var(--cms-space-8, 32px) var(--cms-space-4, 16px); }
+.cms-state--block { padding: var(--cms-space-8, 32px) var(--cms-space-4, 16px); }
+.cms-state--inline { display: inline-flex; flex-direction: row; gap: var(--cms-space-2, 8px); text-align: start; }
+.cms-state.is-waiting > :not(.cms-state__text) { visibility: hidden; }
+.cms-state.is-waiting > .cms-state__text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.cms-state__text { display: flex; flex-direction: column; gap: var(--cms-space-1, 4px); }
+.cms-state--inline .cms-state__text { flex-direction: row; }
+.cms-state__title { color: var(--cms-text); font-weight: 600; }
+.cms-state--inline .cms-state__title { color: inherit; font-weight: inherit; }
+.cms-state__description { max-width: 48ch; }
+.cms-state--error > svg { color: var(--cms-danger-text); }
+.cms-state__spinner { width: var(--cms-spinner-size-block, 24px); height: var(--cms-spinner-size-block, 24px); animation: cms-spin var(--cms-spinner-duration, 800ms) linear infinite; }
+.cms-state--page .cms-state__spinner { width: var(--cms-spinner-size-page, 32px); height: var(--cms-spinner-size-page, 32px); }
+.cms-state--inline .cms-state__spinner { width: var(--cms-spinner-size-inline, 16px); height: var(--cms-spinner-size-inline, 16px); }
+.cms-state__track { stroke: var(--cms-spinner-track, var(--cms-border)); stroke-width: var(--cms-spinner-stroke, 2px); vector-effect: non-scaling-stroke; }
+.cms-state__arc { stroke: var(--cms-spinner-color, var(--cms-accent-text)); stroke-width: var(--cms-spinner-stroke, 2px); stroke-linecap: round; vector-effect: non-scaling-stroke; }
+@keyframes cms-state-pulse { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .cms-state__spinner { animation: cms-state-pulse calc(2 * var(--cms-spinner-duration, 800ms)) ease-in-out infinite; } }
 .cms-error-banner {
     display: flex;
     align-items: center;
