@@ -22,10 +22,12 @@ import {
     SignInLayout,
     SplitPanes,
     type RailItem,
+    FileViewer,
+    State,
 } from '../src';
 
 /** The demo's pages, one per mockup, by the address's hash; the theme by `?theme=dark`. */
-type Page = 'mail' | 'chat' | 'calls' | 'signin';
+type Page = 'mail' | 'chat' | 'calls' | 'signin' | 'viewer' | 'state';
 
 const RAIL: readonly RailItem[] = [
     { id: 'mail', label: 'Mail', icon: 'mail', href: '#mail', badge: { count: 12, label: '12 unread' } },
@@ -262,7 +264,52 @@ function SignInPage(): ReactNode {
 /** The page and the place within it, from the address: `#mail/2` is Mail with its third message open. */
 function routeOf(hash: string): { readonly page: Page; readonly sub: string } {
     const [h = '', sub = ''] = hash.replace('#', '').split('/');
-    return { page: h === 'chat' || h === 'calls' || h === 'signin' ? h : 'mail', sub };
+    return { page: h === 'chat' || h === 'calls' || h === 'signin' || h === 'viewer' || h === 'state' ? h : 'mail', sub };
+}
+
+/** The one state component: each kind at a page's size, or all of them in a card and beside text. */
+function StatePage({ sub }: { readonly sub: string | undefined }): ReactNode {
+    const retry = { label: 'Try again', onAction: () => undefined };
+    if (sub === 'loading') return <State kind="loading" title="Reading the messages" placement="page" />;
+    if (sub === 'empty') return <State kind="empty" title="Nothing here yet" description="New messages appear in this folder." placement="page" />;
+    if (sub === 'error') return <State kind="error" title="The folder could not be read" description="Check the connection, then try again." action={retry} placement="page" />;
+    if (sub === 'denied') return <State kind="denied" title="This folder is not yours to read" description="Ask the mailbox's owner for access." placement="page" />;
+    return (
+        <div style={{ display: 'grid', gap: 16, padding: 16 }}>
+            <section style={{ border: '1px solid var(--cms-border)', minHeight: 180, display: 'flex', flexDirection: 'column' }}><State kind="empty" title="No attachments" placement="block" /></section>
+            <section style={{ border: '1px solid var(--cms-border)', minHeight: 180, display: 'flex', flexDirection: 'column' }}><State kind="error" title="The list could not be read" action={retry} placement="block" /></section>
+            <p>Synced at 12:41 <State kind="loading" title="Syncing" placement="inline" /></p>
+            <p>Mail <State kind="error" title="Not synced" description="The server did not answer." placement="inline" /></p>
+        </div>
+    );
+}
+
+/** The file viewer's states, with sample content: what draws a file is the adapter's, so a plain page stands in here. */
+function ViewerPage({ sub }: { readonly sub: string | undefined }): ReactNode {
+    const action = (label: string, name: 'download' | 'print' | 'open-separately') => ({ label, icon: <Icon name={name} size={18} />, onSelect: () => undefined });
+    const actions = [action('Download', 'download'), action('Print', 'print'), action('Open separately', 'open-separately')];
+    const pencil = <Icon name="pencil" size={18} />;
+    const zoom = (
+        <>
+            <button type="button" className="cms-viewer__icon" aria-label="Zoom out">−</button>
+            <span>100%</span>
+            <button type="button" className="cms-viewer__icon" aria-label="Zoom in">+</button>
+        </>
+    );
+    const page = <div style={{ height: '100%', overflow: 'auto', padding: 24 }}><div style={{ background: '#fff', color: '#1a2230', maxWidth: 760, minHeight: 900, margin: '0 auto', padding: 48 }}>A page of the file, drawn by its adapter.</div></div>;
+    const close = { closeLabel: 'Close', onClose: () => undefined, moreLabel: 'More' };
+    if (sub === 'edit') {
+        return <FileViewer {...close} name="lease-agreement-warsaw.docx" badge="DOC" editing={{ status: 'Saved 12:41', doneLabel: 'Done', onDone: () => undefined, onDirtyClose: () => undefined }}>{page}</FileViewer>;
+    }
+    if (sub === 'none') {
+        return <FileViewer {...close} name="archive-october.zip" badge="ZIP" actions={actions.slice(0, 1)} bar={<span>Preview not available</span>}><EmptyState title="No preview for this file" /></FileViewer>;
+    }
+    if (sub === 'set') {
+        const siblings = { position: '2 of 4', index: 1, total: 4, previousLabel: 'Previous file', nextLabel: 'Next file', onPrevious: () => undefined, onNext: () => undefined };
+        return <FileViewer {...close} name="invoice-october.xlsx" badge="XLS" actions={actions} siblings={siblings} bar={zoom} strip={<><span>quote-2026.pdf</span><b>invoice-october.xlsx</b><span>site-photo.jpg</span><span>archive-october.zip</span></>}>{page}</FileViewer>;
+    }
+    const thumbnails = [1, 2, 3].map((n) => <div key={n} style={{ height: 112, marginBottom: 12, background: '#fff' }} />);
+    return <FileViewer {...close} name="coolms2-adr-029-and-a-name-long-enough-to-give-way-first.pdf" badge="PDF" actions={actions} edit={{ label: 'Edit', icon: pencil, onEdit: () => undefined }} thumbnails={thumbnails} bar={zoom}>{page}</FileViewer>;
 }
 
 function Demo(): ReactNode {
@@ -279,7 +326,9 @@ function Demo(): ReactNode {
     }, [dark]);
     return (
         <>
-            {route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
+            {route.page === 'viewer' ? <ViewerPage sub={route.sub} /> : null}
+            {route.page === 'state' ? <StatePage sub={route.sub} /> : null}
+            {route.page === 'viewer' || route.page === 'state' ? null : route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
             <button type="button" className="cms-button ws-theme" aria-pressed={dark} onClick={() => setDark(d => !d)}>Dark</button>
         </>
     );

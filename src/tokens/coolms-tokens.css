@@ -163,6 +163,14 @@
     --cms-tabbar-height: 56px;
     --cms-touch-target-min: 44px;
     --cms-topbar-height: 64px;
+    --cms-spinner-color: var(--cms-accent-text);
+    --cms-spinner-track: var(--cms-border);
+    --cms-spinner-size-inline: 16px;
+    --cms-spinner-size-block: 24px;
+    --cms-spinner-size-page: 32px;
+    --cms-spinner-stroke: 2px;
+    --cms-spinner-duration: 800ms;
+    --cms-state-delay: 300ms;
 }
 
 :root[data-theme='dark'] {

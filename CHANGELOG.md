@@ -2,6 +2,28 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.6 (2026-11-08)
+
+A file opens over the page, and every place that waits, finds nothing or is refused says so in one way.
+
+- Added: `FileViewer`, the overlay a file's adapter goes inside. It draws no file itself.
+  - The top bar has Close, the type badge and the name, then the caller's actions (Download, Print, Open separately),
+    in a menu on a phone. Edit is there only when the caller passes it.
+  - Close leaves the viewer, asking the caller first when there is unsaved work; Done returns from editing.
+    Escape closes only while viewing.
+  - Focus starts on Close, stays among what is drawn, and returns to what opened the viewer. The page behind does not
+    scroll.
+  - Arrows, swipes and side buttons move through a set of files. A field, an editor, or anything marked
+    `data-viewer-keys` or `data-viewer-gestures` keeps its keys and gestures. A key held with Ctrl, Cmd or Alt is left
+    to the browser.
+  - Plus, minus and 0 call `onZoom`. The viewer bar, thumbnails and strip hold what the adapter gives.
+  - `download`, `print` and `open-separately` join the icons.
+  - `kit.contract.json` does not declare it yet: design-tokens v0.7.1 has no entry for it.
+- Added: `State`, for loading, empty, error and denied, at a page's, a card's or a line's size, with the caller's
+  title, description and action. Loading shows nothing until `STATE_DELAY_MS` (the `state-delay` token) has passed.
+  `elevation-required` is declared not offered, since this kit's clients never elevate.
+- Changed: the kit is checked against design-tokens v0.7.1, from v0.7.0.
+
 ## 0.1.0-alpha.5 (2026-11-04)
 
 A field is drawn once.

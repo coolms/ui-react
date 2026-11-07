@@ -1,6 +1,6 @@
 {
   "name": "@coolms/ui-react",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.6",
   "description": "The CoolMS UI kit for React: the components of the CoolMS UI contract, styled by the CoolMS design tokens",
   "license": "MIT",
   "type": "module",
@@ -62,7 +62,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "typescript": "6.0.3",
-    "vite": "6.4.4",
-    "vitest": "3.2.7"
+    "vite": "6.4.5",
+    "vitest": "5.1.0"
   }
 }
