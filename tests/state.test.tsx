@@ -51,13 +51,17 @@ describe('State', () => {
         expect(screen.queryByRole('button')).toBeNull();
     });
 
-    it('placement: page, block or inline; inline keeps to its title', () => {
+    it('placement: page, block or inline, each with the caller\'s title and description', () => {
         for (const placement of ['page', 'block', 'inline'] as const) {
             const { unmount } = render(<State kind="empty" title="Nothing here" description="Why" placement={placement} />);
             const status = screen.getByRole('status');
             expect(status).toHaveClass(`cms-state--${placement}`);
-            expect(status.textContent).toBe(placement === 'inline' ? 'Nothing here' : 'Nothing hereWhy');
+            expect(status.textContent).toBe('Nothing hereWhy');
             unmount();
         }
+    });
+    it('shows the caller\'s description in every placement, inline too', () => {
+        render(<State kind="error" title="Not synced" description="The server did not answer." placement="inline" />);
+        expect(screen.getByText('The server did not answer.')).toBeInTheDocument();
     });
 });

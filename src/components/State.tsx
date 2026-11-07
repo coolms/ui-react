@@ -73,7 +73,7 @@ export function State({ kind, title, description, action, placement = 'block' }:
             {kind === 'error' || kind === 'denied' ? <Glyph name={kind === 'error' ? 'warning' : 'lock'} /> : null}
             <span className="cms-state__text">
                 <span className="cms-state__title">{title}</span>
-                {description !== undefined && placement !== 'inline' ? <span className="cms-state__description">{description}</span> : null}
+                {description !== undefined ? <span className="cms-state__description">{description}</span> : null}
             </span>
             {action !== undefined && kind !== 'denied' ? <Button className="cms-state__action" onClick={action.onAction}>{action.label}</Button> : null}
         </div>

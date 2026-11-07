@@ -276,9 +276,10 @@ function StatePage({ sub }: { readonly sub: string | undefined }): ReactNode {
     if (sub === 'denied') return <State kind="denied" title="This folder is not yours to read" description="Ask the mailbox's owner for access." placement="page" />;
     return (
         <div style={{ display: 'grid', gap: 16, padding: 16 }}>
-            <section style={{ border: '1px solid var(--cms-border)', minHeight: 180 }}><State kind="empty" title="No attachments" placement="block" /></section>
-            <section style={{ border: '1px solid var(--cms-border)', minHeight: 180 }}><State kind="error" title="The list could not be read" action={retry} placement="block" /></section>
+            <section style={{ border: '1px solid var(--cms-border)', minHeight: 180, display: 'flex', flexDirection: 'column' }}><State kind="empty" title="No attachments" placement="block" /></section>
+            <section style={{ border: '1px solid var(--cms-border)', minHeight: 180, display: 'flex', flexDirection: 'column' }}><State kind="error" title="The list could not be read" action={retry} placement="block" /></section>
             <p>Synced at 12:41 <State kind="loading" title="Syncing" placement="inline" /></p>
+            <p>Mail <State kind="error" title="Not synced" description="The server did not answer." placement="inline" /></p>
         </div>
     );
 }
