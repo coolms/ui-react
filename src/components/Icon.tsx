@@ -5,7 +5,7 @@ export type IconName =
     | 'mail' | 'chat' | 'phone' | 'calendar' | 'file' | 'image' | 'search' | 'bell' | 'pencil' | 'star' | 'send'
     | 'inbox' | 'archive' | 'trash' | 'paperclip' | 'mic' | 'speaker' | 'user-plus' | 'phone-off' | 'video' | 'info'
     | 'chevron-down' | 'chevron-left' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more'
-    | 'download' | 'print' | 'open-separately';
+    | 'download' | 'print' | 'open-separately' | 'important';
 
 const PATHS: Readonly<Record<IconName, ReactNode>> = {
     mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
@@ -40,6 +40,7 @@ const PATHS: Readonly<Record<IconName, ReactNode>> = {
     server: <><rect x="3" y="4" width="18" height="7" rx="2" /><rect x="3" y="13" width="18" height="7" rx="2" /><path d="M7 7.5h.5M7 16.5h.5" /></>,
     reply: <path d="M10 8 4 13l6 5M4 13h11a5 5 0 0 1 5 5" />,
     more: <path d="M5 12h.5M12 12h.5M19 12h.5" />,
+    important: <path d="M4 6h11l5 6-5 6H4l4-6-4-6Z" />,
 };
 
 export interface IconProps {
