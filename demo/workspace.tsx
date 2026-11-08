@@ -71,7 +71,7 @@ function MailPage({ sub }: { readonly sub: string }): ReactNode {
     const opened = /^\d+$/.test(sub) && Number(sub) < MAIL.length ? Number(sub) : null;
     const active = sub === 'folders' ? 0 : opened === null ? 1 : 2;
     const back = active === 2 ? { label: 'Inbox', href: '#mail' } : active === 1 ? { label: 'Folders', href: '#mail/folders' } : undefined;
-    const folders: Array<[string, string, number?]> = [['inbox', 'Inbox', 12], ['star', 'Starred'], ['send', 'Sent'], ['file', 'Drafts', 2], ['archive', 'Archive'], ['info', 'Spam'], ['trash', 'Trash']];
+    const folders: Array<[string, string, number?]> = [['inbox', 'Inbox', 12], ['star', 'Starred'], ['important', 'Important'], ['send', 'Sent'], ['file', 'Drafts', 2], ['archive', 'Archive'], ['info', 'Spam'], ['trash', 'Trash']];
     const message = opened === null ? null : MAIL[opened]!;
     return (
         <Shell active="mail">
