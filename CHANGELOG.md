@@ -2,6 +2,13 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.7 (2026-11-08)
+
+An icon of its own for the important folder.
+
+- Added: the `important` icon, a marker shaped as a label's chevron, for a mail client's important folder. The bell
+  stays for notifications alone. The demo's mail folders show it after Starred.
+
 ## 0.1.0-alpha.6 (2026-11-08)
 
 A file opens over the page, and every place that waits, finds nothing or is refused says so in one way.
