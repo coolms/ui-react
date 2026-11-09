@@ -2,9 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.8 (2026-11-09)
 
-Choosing files a person already has.
+Choosing files a person already has, and a file viewer that keeps to the screen.
 
 - Added: `FilePicker`, for choosing files that already exist in the person's spaces, such as Drive, to attach them
   without downloading and uploading them again (contract component `file-picker`). The kit knows no API: the host
