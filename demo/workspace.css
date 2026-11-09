@@ -69,3 +69,7 @@ body { margin: 0; background: var(--cms-bg); color: var(--cms-text); font-family
     .ws-calls { padding: var(--cms-space-4); }
     .ws-theme { bottom: calc(var(--cms-tabbar-height) + var(--cms-space-2)); }
 }
+/* The panes' rows: the host draws their padding and the edge under them; the kit their height and content. */
+.ws-reader > .cms-pane-toolbar, .cms-panes__pane > .cms-pane-toolbar { padding: 0 var(--cms-space-6); border-bottom: 1px solid var(--cms-border); }
+@media (max-width: 599.98px) { .ws-reader > .cms-pane-toolbar, .cms-panes__pane > .cms-pane-toolbar { padding: 0 var(--cms-space-3); } }
+
