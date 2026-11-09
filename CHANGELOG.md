@@ -2,7 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.9 (2026-11-09)
+
+A quick reply that carries its own controls and decides when it may be sent.
 
 - `Composer` takes `leading`, a quick reply's own controls at the start of its last row before Send, and `canSend`,
   which decides whether Send sends in place of the text being non-empty.
