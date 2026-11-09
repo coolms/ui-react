@@ -106,6 +106,8 @@ export interface ContextMenuProps {
     readonly items: readonly MenuItem[];
     readonly onClose: () => void;
     readonly label?: string;
+    /** The item focused as it opens: the first, or the last (a menu button opened with Up). */
+    readonly focus?: 'first' | 'last';
 }
 
 /**
@@ -113,7 +115,7 @@ export interface ContextMenuProps {
  * An item the server withheld is not drawn; a locked one carries its lock; a refused one is shown disabled with the
  * server's refusal. Escape, a press outside, or a choice closes it, and focus goes back where it was.
  */
-export function ContextMenu({ at, items, onClose, label = 'Actions' }: ContextMenuProps): ReactNode {
+export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'first' }: ContextMenuProps): ReactNode {
     const menu = useRef<HTMLDivElement>(null);
     const returnTo = useRef<Element | null>(null);
     const [pos, setPos] = useState(at);
@@ -131,7 +133,8 @@ export function ContextMenu({ at, items, onClose, label = 'Actions' }: ContextMe
     useEffect(() => {
         if (!at) return;
         returnTo.current = document.activeElement;
-        menu.current?.querySelector<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')?.focus();
+        const enabled = Array.from(menu.current?.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])') ?? []);
+        (focus === 'last' ? enabled[enabled.length - 1] : enabled[0])?.focus();
         const outside = (e: MouseEvent) => {
             if (!menu.current?.contains(e.target as Node)) onClose();
         };
@@ -140,7 +143,7 @@ export function ContextMenu({ at, items, onClose, label = 'Actions' }: ContextMe
             document.removeEventListener('mousedown', outside);
             (returnTo.current as HTMLElement | null)?.focus?.();
         };
-    }, [at, onClose]);
+    }, [at, onClose, focus]);
 
     if (!at || shown.length === 0) return null;
 

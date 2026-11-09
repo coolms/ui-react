@@ -74,6 +74,7 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
     const measure = useRef<HTMLDivElement>(null);
     const [layout, setLayout] = useState<Layout>(FULL);
     const [menuAt, setMenuAt] = useState<{ x: number; y: number } | null>(null);
+    const [menuFocus, setMenuFocus] = useState<'first' | 'last'>('first');
     const [current, setCurrent] = useState<string | null>(null);
     const [tipOff, setTipOff] = useState<string | null>(null);
     const groups = groupsOf(actions);
@@ -212,6 +213,7 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                     onFocus={() => setCurrent('more')}
                     onClick={event => {
                         const r = event.currentTarget.getBoundingClientRect();
+                        setMenuFocus('first');
                         setMenuAt(menuAt === null ? { x: r.left, y: r.bottom } : null);
                     }}
                     onKeyDown={event => {
@@ -219,6 +221,8 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                             event.preventDefault();
                             event.stopPropagation();
                             const r = event.currentTarget.getBoundingClientRect();
+                            // Down opens it on its first item, Up on its last.
+                            setMenuFocus(event.key === 'ArrowUp' ? 'last' : 'first');
                             setMenuAt({ x: r.left, y: r.bottom });
                         }
                     }}
@@ -227,7 +231,7 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                 </button>
             ) : null}
             {status !== undefined ? <span className="cms-pane-toolbar__status" title={status}>{status}</span> : null}
-            <ContextMenu at={menuAt} items={menuItems} onClose={() => setMenuAt(null)} label={moreLabel} />
+            <ContextMenu at={menuAt} items={menuItems} onClose={() => setMenuAt(null)} label={moreLabel} focus={menuFocus} />
             {/* What each part takes, drawn out of sight: the row is fitted to these widths. */}
             <div ref={measure} className="cms-pane-toolbar__measure" aria-hidden="true">
                 {leading !== undefined ? <div data-measure="leading">{leading}</div> : null}
