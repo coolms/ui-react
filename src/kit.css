@@ -434,6 +434,7 @@
 .cms-composer--reply .cms-composer__title { flex-basis: 100%; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
 .cms-composer--reply .cms-composer__input { flex-basis: 100%; padding: var(--cms-space-2) var(--cms-space-3); border-color: transparent; }
 .cms-composer--reply .cms-composer__send { margin-left: auto; }
+.cms-composer--reply .cms-composer__leading { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cms-space-2); min-width: 0; }
 .cms-composer__input:focus { outline: 2px solid var(--cms-focus-ring); outline-offset: 1px; }
 .cms-composer__send-round { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--cms-accent); color: var(--cms-accent-fg); cursor: pointer; }
 .cms-composer__send-round:disabled, .cms-composer__send:disabled { opacity: 0.55; cursor: not-allowed; }
