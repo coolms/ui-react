@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
 import { cx, Glyph } from './internal';
@@ -22,13 +22,17 @@ export interface ModalProps {
     readonly footer?: ReactNode;
     /** The close button's name, in the app's language ("Close"). */
     readonly closeLabel?: string;
+    /** What takes the focus on opening, when it is not the body's first control (a list, say). */
+    readonly initialFocus?: RefObject<HTMLElement | null>;
+    /** A class for the dialog itself, for a component drawn in it that has a layout of its own. */
+    readonly className?: string;
 }
 
 /**
  * A dialog over the page (contract component `modal`: open, closing, dirty). Focus moves into it on open and back to
  * where it was on close; Tab stays inside while it is open.
  */
-export function Modal({ open, title, onClose, dirty = false, onDirtyClose, children, footer, closeLabel = 'Close' }: ModalProps): ReactNode {
+export function Modal({ open, title, onClose, dirty = false, onDirtyClose, children, footer, closeLabel = 'Close', initialFocus, className }: ModalProps): ReactNode {
     const [shown, setShown] = useState(open);
     const [closing, setClosing] = useState(false);
     const panel = useRef<HTMLDivElement>(null);
@@ -56,10 +60,10 @@ export function Modal({ open, title, onClose, dirty = false, onDirtyClose, child
         if (open && shown) {
             // The body's first control, not the header's close button: opening a dialog is for what is in it.
             const focusable = 'input, select, textarea, button, [href], [tabindex]:not([tabindex="-1"])';
-            const first = panel.current?.querySelector<HTMLElement>(`.cms-modal__body :is(${focusable}), .cms-modal__foot :is(${focusable})`);
+            const first = initialFocus?.current ?? panel.current?.querySelector<HTMLElement>(`.cms-modal__body :is(${focusable}), .cms-modal__foot :is(${focusable})`);
             (first ?? panel.current)?.focus();
         }
-    }, [open, shown]);
+    }, [open, shown, initialFocus]);
 
     if (!shown) return null;
 
@@ -74,7 +78,7 @@ export function Modal({ open, title, onClose, dirty = false, onDirtyClose, child
         }}>
             <div
                 ref={panel}
-                className={cx('cms-modal', closing && 'is-closing', dirty && 'is-dirty')}
+                className={cx('cms-modal', className, closing && 'is-closing', dirty && 'is-dirty')}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={titleId}

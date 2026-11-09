@@ -22,12 +22,17 @@ import {
     SignInLayout,
     SplitPanes,
     type RailItem,
+    FilePicker,
+    FilePickerDenied,
     FileViewer,
+    type FilePickerEntry,
+    type FilePickerLabels,
+    type FilePickerPage,
     State,
 } from '../src';
 
 /** The demo's pages, one per mockup, by the address's hash; the theme by `?theme=dark`. */
-type Page = 'mail' | 'chat' | 'calls' | 'signin' | 'viewer' | 'state';
+type Page = 'mail' | 'chat' | 'calls' | 'signin' | 'viewer' | 'state' | 'picker';
 
 const RAIL: readonly RailItem[] = [
     { id: 'mail', label: 'Mail', icon: 'mail', href: '#mail', badge: { count: 12, label: '12 unread' } },
@@ -264,7 +269,7 @@ function SignInPage(): ReactNode {
 /** The page and the place within it, from the address: `#mail/2` is Mail with its third message open. */
 function routeOf(hash: string): { readonly page: Page; readonly sub: string } {
     const [h = '', sub = ''] = hash.replace('#', '').split('/');
-    return { page: h === 'chat' || h === 'calls' || h === 'signin' || h === 'viewer' || h === 'state' ? h : 'mail', sub };
+    return { page: h === 'chat' || h === 'calls' || h === 'signin' || h === 'viewer' || h === 'state' || h === 'picker' ? h : 'mail', sub };
 }
 
 /** The one state component: each kind at a page's size, or all of them in a card and beside text. */
@@ -312,6 +317,46 @@ function ViewerPage({ sub }: { readonly sub: string | undefined }): ReactNode {
     return <FileViewer {...close} name="coolms2-adr-029-and-a-name-long-enough-to-give-way-first.pdf" badge="PDF" actions={actions} edit={{ label: 'Edit', icon: pencil, onEdit: () => undefined }} thumbnails={thumbnails} bar={zoom}>{page}</FileViewer>;
 }
 
+/** The file picker over a sample drive: two spaces, folders and files, a budget, and a folder that is not the person's. */
+function PickerPage({ sub }: { readonly sub: string | undefined }): ReactNode {
+    const file = (id: string, name: string, size: number, mimeType = 'application/pdf'): FilePickerEntry => ({ id, name, kind: 'file', size, mimeType });
+    const folders: Record<string, FilePickerEntry[]> = {
+        '': [
+            { id: 'f-1', name: 'Contracts', kind: 'folder' },
+            { id: 'f-2', name: 'Site photos', kind: 'folder' },
+            file('a-1', 'quote-2026.pdf', 182_000),
+            file('a-2', 'invoice-october.xlsx', 46_000, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            file('a-3', 'site-survey-full-resolution-scans.zip', 31_500_000, 'application/zip'),
+            file('a-4', 'lease-agreement-warsaw-signed-by-both-parties.docx', 92_000, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
+            file('a-5', 'notes.html', 4_000, 'text/html'),
+        ],
+    };
+    const list = async (_space: string, path: string): Promise<FilePickerPage> => {
+        if (sub === 'denied') throw new FilePickerDenied();
+        return { entries: folders[path] ?? [] };
+    };
+    const size = (bytes: number) => (bytes >= 1_000_000 ? `${(bytes / 1_000_000).toFixed(1)} MB` : `${String(Math.max(1, Math.round(bytes / 1000)))} KB`);
+    const labels: FilePickerLabels = {
+        title: 'Attach from Drive', close: 'Close', cancel: 'Cancel', confirm: (n) => (n === 1 ? 'Attach 1 file' : `Attach ${String(n)} files`), space: 'Space', path: 'Folder',
+        up: 'Up', files: 'Files', selected: (n) => `${String(n)} selected`, clear: 'Clear', remove: (name) => `Remove ${name}`, total: (n, s) => `${String(n)} files, ${s}`,
+        left: (l, limit) => `${l} of ${limit} left after these`, overBudget: 'Too big for this message', loading: 'Reading the folder', empty: 'Nothing in this folder',
+        error: 'The folder could not be read', retry: 'Try again', denied: 'You cannot open this folder',
+    };
+    return (
+        <FilePicker
+            open
+            spaces={[{ id: 'mine', name: 'My Drive' }, { id: 'shared', name: 'Shared documents' }]}
+            list={list}
+            disabledReason={(entry) => (entry.mimeType === 'text/html' ? 'Not sent as a file' : null)}
+            budget={{ usedBytes: 1_200_000, limitBytes: 25_000_000, cost: (entry) => Math.ceil((entry.size ?? 0) * 4 / 3) }}
+            formatSize={size}
+            labels={labels}
+            onConfirm={() => undefined}
+            onCancel={() => undefined}
+        />
+    );
+}
+
 function Demo(): ReactNode {
     const [route, setRoute] = useState(routeOf(location.hash));
     const [dark, setDark] = useState(new URLSearchParams(location.search).get('theme') === 'dark');
@@ -328,7 +373,8 @@ function Demo(): ReactNode {
         <>
             {route.page === 'viewer' ? <ViewerPage sub={route.sub} /> : null}
             {route.page === 'state' ? <StatePage sub={route.sub} /> : null}
-            {route.page === 'viewer' || route.page === 'state' ? null : route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
+            {route.page === 'picker' ? <PickerPage sub={route.sub} /> : null}
+            {route.page === 'viewer' || route.page === 'state' || route.page === 'picker' ? null : route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
             <button type="button" className="cms-button ws-theme" aria-pressed={dark} onClick={() => setDark(d => !d)}>Dark</button>
         </>
     );

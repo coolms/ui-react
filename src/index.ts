@@ -4,6 +4,7 @@ export { Modal, ConfirmDialog, MODAL_CLOSE_MS, type ModalProps, type ConfirmDial
 export { Toast, ToastRegion, Loading, EmptyState, ErrorBanner, type ToastProps, type LoadingProps, type EmptyStateProps, type ErrorBannerProps } from './components/Status';
 export { State, STATE_DELAY_MS, type StateKind, type StatePlacement, type StateProps } from './components/State';
 export { FileViewer, type FileViewerAction, type FileViewerEditing, type FileViewerProps, type FileViewerSiblings } from './components/FileViewer';
+export { FilePicker, FilePickerDenied, type FilePickerBudget, type FilePickerChoice, type FilePickerEntry, type FilePickerLabels, type FilePickerPage, type FilePickerProps, type FilePickerSpace } from './components/FilePicker';
 export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps } from './components/Structure';
 export { Icon, ICON_NAMES, type IconName, type IconProps } from './components/Icon';
 export { AppShell, Badge, SearchField, FilterChips, SplitPanes, MailRow, ChatBubble, Composer, MAIL_ROW_LABELS, type MailRowLabels, type AppShellProps, type RailItem, type BadgeProps, type SearchFieldProps, type FilterChipsProps, type FilterOption, type SplitPanesProps, type Pane, type MailRowProps, type ChatBubbleProps, type ComposerProps } from './components/Workspace';
