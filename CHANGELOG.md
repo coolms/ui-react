@@ -2,6 +2,29 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+Choosing files a person already has.
+
+- Added: `FilePicker`, for choosing files that already exist in the person's spaces, such as Drive, to attach them
+  without downloading and uploading them again (contract component `file-picker`). The kit knows no API: the host
+  gives the spaces, lists a folder page by page (`list(space, path, cursor?)`), and receives the chosen entries with
+  the space and path each was chosen in.
+  - The selection holds across folders and spaces; the footer counts all of it, and a chip lists it, with Remove and
+    Clear.
+  - An optional `budget` (`usedBytes`, `limitBytes`, `cost`) is counted here: what is left after the selection, and
+    a file that would go over is disabled with the host's words for it. `disabledReason` adds the host's own reasons.
+    Attach is disabled with nothing chosen and while over.
+  - A listbox with aria-multiselectable: Up, Down, Home and End move, Enter opens a folder, Space ticks a file,
+    Backspace goes up, Escape cancels. The breadcrumb is a navigation landmark. A page further is asked for near the
+    end of the list.
+  - Loading, empty and error with Retry through `State`; a folder the person may not open (`FilePickerDenied` from
+    `list`) is denied in place, the dialog staying open.
+  - A dialog of fixed height on a wide screen; the whole screen on a phone, its foot kept at the bottom.
+  - `kit.contract.json` does not declare it yet: no released design-tokens version has the entry.
+- `Modal` takes `initialFocus`, what takes the focus on opening when it is not the body's first control, and
+  `className`, for a component drawn in it that has a layout of its own.
+
 ## 0.1.0-alpha.7 (2026-11-08)
 
 An icon of its own for the important folder.
