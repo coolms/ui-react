@@ -5,7 +5,7 @@ export type IconName =
     | 'mail' | 'chat' | 'phone' | 'calendar' | 'file' | 'image' | 'search' | 'bell' | 'pencil' | 'star' | 'send'
     | 'inbox' | 'archive' | 'trash' | 'paperclip' | 'mic' | 'speaker' | 'user-plus' | 'phone-off' | 'video' | 'info'
     | 'chevron-down' | 'chevron-left' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more'
-    | 'download' | 'print' | 'open-separately' | 'important';
+    | 'download' | 'print' | 'open-separately' | 'important' | 'forward' | 'refresh';
 
 const PATHS: Readonly<Record<IconName, ReactNode>> = {
     mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
@@ -39,6 +39,9 @@ const PATHS: Readonly<Record<IconName, ReactNode>> = {
     check: <path d="m5 12 5 5 9-10" />,
     server: <><rect x="3" y="4" width="18" height="7" rx="2" /><rect x="3" y="13" width="18" height="7" rx="2" /><path d="M7 7.5h.5M7 16.5h.5" /></>,
     reply: <path d="M10 8 4 13l6 5M4 13h11a5 5 0 0 1 5 5" />,
+    // Reply's mirror: the arrow leaves to the right.
+    forward: <path d="m14 8 6 5-6 5M20 13H9a5 5 0 0 0-5 5" />,
+    refresh: <path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" />,
     more: <path d="M5 12h.5M12 12h.5M19 12h.5" />,
     important: <path d="M4 6h11l5 6-5 6H4l4-6-4-6Z" />,
 };
@@ -72,3 +75,30 @@ export function Icon({ name, size = 20, label }: IconProps): ReactNode {
 }
 
 export const ICON_NAMES = Object.keys(PATHS) as readonly IconName[];
+
+/**
+ * The server's action icons, named as Bootstrap Icons names them, to the kit's own: the one table that turns a node's
+ * icon into what the kit draws. A name not here has no icon, and its action shows its label alone.
+ */
+export const BOOTSTRAP_ICONS: Readonly<Record<string, IconName>> = {
+    reply: 'reply',
+    'reply-all': 'reply',
+    forward: 'forward',
+    envelope: 'mail',
+    'envelope-open': 'mail',
+    star: 'star',
+    'star-fill': 'star',
+    'folder-symlink': 'folder',
+    folder: 'folder',
+    trash: 'trash',
+    archive: 'archive',
+    'arrow-clockwise': 'refresh',
+    download: 'download',
+    printer: 'print',
+    'three-dots': 'more',
+};
+
+/** The kit's icon for a server's (Bootstrap Icons) name; null for a name the table does not hold. */
+export function iconForName(name: string): IconName | null {
+    return Object.prototype.hasOwnProperty.call(BOOTSTRAP_ICONS, name) ? BOOTSTRAP_ICONS[name]! : null;
+}

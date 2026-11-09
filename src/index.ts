@@ -6,11 +6,12 @@ export { State, STATE_DELAY_MS, type StateKind, type StatePlacement, type StateP
 export { FileViewer, type FileViewerAction, type FileViewerEditing, type FileViewerProps, type FileViewerSiblings } from './components/FileViewer';
 export { FilePicker, FilePickerDenied, type FilePickerBudget, type FilePickerChoice, type FilePickerEntry, type FilePickerLabels, type FilePickerPage, type FilePickerProps, type FilePickerSpace } from './components/FilePicker';
 export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps } from './components/Structure';
-export { Icon, ICON_NAMES, type IconName, type IconProps } from './components/Icon';
+export { Icon, ICON_NAMES, BOOTSTRAP_ICONS, iconForName, type IconName, type IconProps } from './components/Icon';
 export { AppShell, Badge, SearchField, FilterChips, SplitPanes, MailRow, ChatBubble, Composer, MAIL_ROW_LABELS, type MailRowLabels, type AppShellProps, type RailItem, type BadgeProps, type SearchFieldProps, type FilterChipsProps, type FilterOption, type SplitPanesProps, type Pane, type MailRowProps, type ChatBubbleProps, type ComposerProps } from './components/Workspace';
 export { IncomingCall, CallPanel, CallBar, CALL_LABELS, type CallLabels, type IncomingCallProps, type CallPanelProps, type CallBarProps } from './components/Call';
 export { SignInLayout, SignInForm, SIGN_IN_LABELS, type SignInLabels, type SignInLayoutProps, type SignInFormProps, type SignInFeature } from './components/SignIn';
 export { List, ContextMenu, type ListRow, type ListProps, type MenuItem, type ContextMenuProps } from './components/Collections';
+export { PaneToolbar, type PaneToolbarAction, type PaneToolbarProps } from './components/PaneToolbar';
 
 export { offerFor, isCapability, type Capability, type Offer, type OfferOptions } from './server/capability';
 export { readRefusal, refusalText, type Refusal } from './server/refusal';
