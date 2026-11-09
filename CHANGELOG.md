@@ -2,6 +2,18 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.10 (2026-11-10)
+
+The row of actions at the top of a pane, drawn from the server's action nodes.
+
+- `ContextMenu` takes `focus`, the item focused as it opens; `PaneToolbar`'s More opens its menu on the last item with Up.
+- `PaneToolbar`, the contract's `pane-toolbar` (design-tokens develop): the one row of actions at the top of a pane, the
+  same height in every pane. It draws the actions it is given, as the server's action nodes give them (id, label, icon,
+  group, overflow priority, danger, disabled), and says which was chosen by its id. As the pane narrows every label
+  hides at once, then actions go behind More by their overflow priority, never one alone, a priority's actions together.
+  One Tab stop, a status at the end.
+- Icons `forward` and `refresh`.
+
 ## 0.1.0-alpha.9 (2026-11-09)
 
 A quick reply that carries its own controls and decides when it may be sent.

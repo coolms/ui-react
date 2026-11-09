@@ -9,6 +9,7 @@ import {
     Avatar,
     Badge,
     Button,
+    PaneToolbar,
     CallBar,
     CallPanel,
     ChatBubble,
@@ -125,6 +126,13 @@ function MailPage({ sub }: { readonly sub: string }): ReactNode {
                     label: 'Messages',
                     content: (
                         <>
+                            <PaneToolbar
+                                label="Message list actions"
+                                moreLabel="More actions"
+                                actions={[{ id: 'refresh', icon: 'arrow-clockwise', label: 'Refresh', group: 'list' }]}
+                                onAction={() => undefined}
+                                status="Synced at 09:42"
+                            />
                             <div className="ws-listhead">
                                 <h1>Inbox</h1>
                                 <FilterChips label="Show" value={filter} onChange={setFilter} options={[{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }, { id: 'files', label: 'Attachments' }]} />
@@ -137,14 +145,20 @@ function MailPage({ sub }: { readonly sub: string }): ReactNode {
                     label: 'Message',
                     content: message === null ? <EmptyState title="No message open" hint="Choose a message in the list to read it." /> : (
                         <article className="ws-reader">
-                            <div className="ws-toolbar" role="toolbar" aria-label="Message actions">
-                                <button type="button" className="cms-icon-button" aria-label="Archive"><Icon name="archive" /></button>
-                                <button type="button" className="cms-icon-button" aria-label="Delete"><Icon name="trash" /></button>
-                                <button type="button" className="cms-icon-button" aria-label="Mark as unread"><Icon name="mail" /></button>
-                                <button type="button" className="cms-icon-button" aria-label="Move to folder"><Icon name="folder" /></button>
-                                <span className="ws-toolbar__count">1 of 248</span>
-                                <button type="button" className="cms-icon-button" aria-label="More actions"><Icon name="more" /></button>
-                            </div>
+                            <PaneToolbar
+                                label="Message actions"
+                                moreLabel="More actions"
+                                actions={[
+                                    { id: 'reply', icon: 'reply', label: 'Reply', group: 'answer' },
+                                    { id: 'forward', icon: 'forward', label: 'Forward', group: 'answer' },
+                                    { id: 'archive', icon: 'archive', label: 'Archive', group: 'remove' },
+                                    { id: 'delete', icon: 'trash', label: 'Delete', group: 'remove', danger: true },
+                                    { id: 'mark-unread', icon: 'envelope', label: 'Mark unread', group: 'mark', overflow: 3 },
+                                    { id: 'star', icon: 'star', label: 'Star', group: 'mark', overflow: 1 },
+                                    { id: 'move', icon: 'folder-symlink', label: 'Move', group: 'mark', overflow: 2 },
+                                ]}
+                                onAction={() => undefined}
+                            />
                             <div className="ws-message">
                                 <h1>{message.subject}</h1>
                                 <div className="ws-sender">
