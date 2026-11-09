@@ -22,6 +22,9 @@ Choosing files a person already has.
     `list`) is denied in place, the dialog staying open.
   - A dialog of fixed height on a wide screen; the whole screen on a phone, its foot kept at the bottom.
   - `kit.contract.json` does not declare it yet: no released design-tokens version has the entry.
+- Fixed: the file viewer is never wider than the screen. A viewer bar wider than a phone widened the whole overlay;
+  now the overlay is one column the screen's width, and the bar scrolls sideways in its place, its controls centred
+  while they fit.
 - `Modal` takes `initialFocus`, what takes the focus on opening when it is not the body's first control, and
   `className`, for a component drawn in it that has a layout of its own.
 
