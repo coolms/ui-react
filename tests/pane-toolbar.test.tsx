@@ -27,8 +27,14 @@ afterEach(() => {
 });
 
 // The message actions as the server's nodes give them: groups, and an overflow priority for those that may go.
-function actions(over: Record<string, Partial<PaneToolbarAction>> = {}): PaneToolbarAction[] {
-    const a = (id: string, label: string, group: string, overflow?: number): PaneToolbarAction => ({ id, icon: 'folder', label, group, ...(overflow === undefined ? {} : { overflow }), ...over[id] });
+/** An override; an undefined value takes that field away (an action with no overflow priority is pinned). */
+type Over = Record<string, { [K in keyof PaneToolbarAction]?: PaneToolbarAction[K] | undefined }>;
+function actions(over: Over = {}): PaneToolbarAction[] {
+    const a = (id: string, label: string, group: string, overflow?: number): PaneToolbarAction => {
+        const merged: Record<string, unknown> = { id, icon: 'folder', label, group, ...(overflow === undefined ? {} : { overflow }), ...over[id] };
+        for (const key of Object.keys(merged)) if (merged[key] === undefined) delete merged[key];
+        return merged as unknown as PaneToolbarAction;
+    };
     return [
         a('reply', 'Reply', 'answer'), a('forward', 'Forward', 'answer'),
         a('archive', 'Archive', 'remove'), a('delete', 'Delete', 'remove'),
@@ -36,7 +42,7 @@ function actions(over: Record<string, Partial<PaneToolbarAction>> = {}): PaneToo
     ];
 }
 let chosen: string[] = [];
-const view = (over: Record<string, Partial<PaneToolbarAction>> = {}, status?: string) => {
+const view = (over: Over = {}, status?: string) => {
     chosen = [];
     return render(<PaneToolbar label="Message actions" actions={actions(over)} onAction={(id) => chosen.push(id)} moreLabel="More actions" {...(status === undefined ? {} : { status })} />);
 };
@@ -154,6 +160,19 @@ describe('PaneToolbar', () => {
         expect(forward.querySelector('svg')).toBeNull();
         expect(forward.querySelector('.cms-pane-toolbar__label')).toHaveTextContent('Forward');
         expect(screen.getByRole('button', { name: 'Reply' }).querySelector('.cms-pane-toolbar__label')).toBeNull();
+    });
+
+    it('a single action that may go stays in the row: never one alone behind More', () => {
+        room = 200;
+        view({ unread: { overflow: undefined }, move: { overflow: undefined } });
+        expect(bar().querySelectorAll('[data-overflowed]')).toHaveLength(0);
+        expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+        expect(screen.getByRole('button', { name: 'Star' })).toBeVisible();
+    });
+
+    it('each action is found by its data-action alone: the measuring copies carry another name', () => {
+        view();
+        expect(document.querySelectorAll('[data-action="reply"]')).toHaveLength(1);
     });
 
     it('only the delete kind is drawn as danger', () => {

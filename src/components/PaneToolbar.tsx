@@ -92,7 +92,7 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
         const lead = width('[data-measure="leading"]');
         const separator = width('[data-measure="separator"]');
         const more = width('[data-measure="more"]');
-        const sizeOf = (id: string, labels: boolean) => width(`[data-measure="${labels ? 'full' : 'icon'}"][data-action="${CSS.escape(id)}"]`);
+        const sizeOf = (id: string, labels: boolean) => width(`[data-measure="${labels ? 'full' : 'icon'}"][data-measure-action="${CSS.escape(id)}"]`);
         const needed = (labels: boolean, hidden: ReadonlySet<string>) => {
             const shownGroups = groups.map(g => g.filter(a => !hidden.has(a.id))).filter(g => g.length > 0);
             const items = shownGroups.flat();
@@ -110,7 +110,8 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                 // ... takes an icon's width itself, so a menu of one saves nothing: never one alone behind it.
                 if (hidden.size >= 2 && needed(false, hidden) <= room) break;
             }
-            next = { labels: false, hidden };
+            // Only one action could go: it stays in the row, and the row is narrower than the contract promises for.
+            next = { labels: false, hidden: hidden.size >= 2 ? hidden : new Set() };
         }
         setLayout(was => (was.labels === next.labels && [...was.hidden].join() === [...next.hidden].join() ? was : next));
         // The measuring reads the groups as drawn now; `key` names what changes them.
@@ -234,12 +235,12 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                 <span data-measure="more" className="cms-icon-button cms-pane-toolbar__more"><Icon name="more" /></span>
                 {all.map(a => (
                     <span key={a.id}>
-                        <span data-measure="full" data-action={a.id} className="cms-pane-toolbar__action">
+                        <span data-measure="full" data-measure-action={a.id} className="cms-pane-toolbar__action">
                             <ActionIcon name={a.icon} />
                             <span className="cms-pane-toolbar__label">{a.label}</span>
                         </span>
                         {/* An action without an icon keeps its label when the others hide theirs. */}
-                        <span data-measure="icon" data-action={a.id} className={cx('cms-pane-toolbar__action', iconForName(a.icon) !== null && 'cms-pane-toolbar__action--icon')}>
+                        <span data-measure="icon" data-measure-action={a.id} className={cx('cms-pane-toolbar__action', iconForName(a.icon) !== null && 'cms-pane-toolbar__action--icon')}>
                             {iconForName(a.icon) !== null ? <ActionIcon name={a.icon} /> : <span className="cms-pane-toolbar__label">{a.label}</span>}
                         </span>
                     </span>
