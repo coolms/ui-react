@@ -315,18 +315,28 @@ export interface ComposerProps {
     readonly sendLabel?: string;
     /** The attach button's name, in the app's language ("Attach a file"). */
     readonly attachLabel?: string;
+    /**
+     * A quick reply's own controls, at the start of its last row, before Send (an attach menu). A chat composer does not
+     * draw them. With `onAttach` as well, a reply draws both: these first, then the attach button.
+     */
+    readonly leading?: ReactNode;
+    /**
+     * Whether Send sends: by default, when the text is not empty. Given, it decides instead, as for a reply that may go
+     * with files and no text, or may not go over its mailbox's limit.
+     */
+    readonly canSend?: boolean;
 }
 
 /**
  * Writing a message: the text, attaching a file, sending. Enter sends a chat message; Shift+Enter starts a new line.
  * Enter while an input method is composing (Chinese, Japanese, Korean...) belongs to the composition and never sends.
  */
-export function Composer({ label, value, onChange, onSend, onAttach, placeholder, variant = 'chat', sendLabel = 'Send', attachLabel = 'Attach a file' }: ComposerProps): ReactNode {
+export function Composer({ label, value, onChange, onSend, onAttach, placeholder, variant = 'chat', sendLabel = 'Send', attachLabel = 'Attach a file', leading, canSend }: ComposerProps): ReactNode {
     const id = useId();
-    const empty = value.trim() === '';
+    const sendable = canSend ?? value.trim() !== '';
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        if (!empty) onSend();
+        if (sendable) onSend();
     };
     const attach = onAttach ? (
         <button type="button" className="cms-icon-button cms-composer__attach" aria-label={attachLabel} onClick={onAttach}>
@@ -349,17 +359,18 @@ export function Composer({ label, value, onChange, onSend, onAttach, placeholder
                     if (e.nativeEvent.isComposing || e.keyCode === 229) return;
                     if (variant === 'chat' && e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        if (!empty) onSend();
+                        if (sendable) onSend();
                     }
                 }}
             />
+            {variant === 'reply' && leading !== undefined ? <div className="cms-composer__leading">{leading}</div> : null}
             {variant === 'reply' ? attach : null}
             {variant === 'chat' ? (
-                <button type="submit" className="cms-composer__send-round" aria-label={sendLabel} disabled={empty}>
+                <button type="submit" className="cms-composer__send-round" aria-label={sendLabel} disabled={!sendable}>
                     <Icon name="send" />
                 </button>
             ) : (
-                <button type="submit" className="cms-button cms-button--chrome cms-composer__send" disabled={empty}>
+                <button type="submit" className="cms-button cms-button--chrome cms-composer__send" disabled={!sendable}>
                     {sendLabel} <Icon name="send" size={18} />
                 </button>
             )}

@@ -230,6 +230,34 @@ describe('Composer', () => {
         await userEvent.click(screen.getByRole('button', { name: /Send/ }));
         expect(onSend).toHaveBeenCalled();
     });
+
+    it("a quick reply's own controls sit in its last row, before Send", () => {
+        render(<Composer variant="reply" label="Quick reply to Anna Kowalska" value="" onChange={() => undefined} onSend={() => undefined} leading={<button type="button">Attach files</button>} />);
+        const attach = screen.getByRole('button', { name: 'Attach files' });
+        const send = screen.getByRole('button', { name: /Send/ });
+        expect(attach.compareDocumentPosition(send) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        expect(attach.closest('.cms-composer__leading')).not.toBeNull();
+    });
+
+    it('canSend decides instead of the text: a reply with files and no text goes, one over its limit does not', async () => {
+        const onSend = vi.fn();
+        const { rerender } = render(<Composer variant="reply" label="Quick reply" value="" onChange={() => undefined} onSend={onSend} canSend />);
+        await userEvent.click(screen.getByRole('button', { name: /Send/ }));
+        expect(onSend).toHaveBeenCalledTimes(1);
+        rerender(<Composer variant="reply" label="Quick reply" value="Thanks" onChange={() => undefined} onSend={onSend} canSend={false} />);
+        expect(screen.getByRole('button', { name: /Send/ })).toBeDisabled();
+    });
+
+    it('canSend decides for Enter in a chat too: not with text when false, and with no text when true', async () => {
+        const onSend = vi.fn();
+        const { rerender } = render(<Composer label="Message Anna" value="Hi" onChange={() => undefined} onSend={onSend} canSend={false} />);
+        await userEvent.type(screen.getByRole('textbox', { name: 'Message Anna' }), '{Enter}');
+        expect(onSend).not.toHaveBeenCalled();
+        expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+        rerender(<Composer label="Message Anna" value="" onChange={() => undefined} onSend={onSend} canSend />);
+        await userEvent.type(screen.getByRole('textbox', { name: 'Message Anna' }), '{Enter}');
+        expect(onSend).toHaveBeenCalledTimes(1);
+    });
 });
 
 describe('Calls', () => {

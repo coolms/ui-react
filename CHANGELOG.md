@@ -2,6 +2,11 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- `Composer` takes `leading`, a quick reply's own controls at the start of its last row before Send, and `canSend`,
+  which decides whether Send sends in place of the text being non-empty.
+
 ## 0.1.0-alpha.8 (2026-11-09)
 
 Choosing files a person already has, and a file viewer that keeps to the screen.

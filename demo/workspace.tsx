@@ -8,6 +8,7 @@ import {
     AppShell,
     Avatar,
     Badge,
+    Button,
     CallBar,
     CallPanel,
     ChatBubble,
@@ -157,7 +158,7 @@ function MailPage({ sub }: { readonly sub: string }): ReactNode {
                                 <p className="ws-body">Thanks,<br />Anna</p>
                                 <a className="ws-file" href="#mail"><span className="ws-file__type">PDF</span><span><strong>demo-agenda.pdf</strong><br /><span className="ws-file__meta">PDF document</span></span></a>
                                 <div className="ws-reply">
-                                    <Composer variant="reply" label={`Quick reply to ${message.from}`} placeholder="Write a reply" value={reply} onChange={setReply} onSend={() => setReply('')} onAttach={() => undefined} />
+                                    <Composer variant="reply" label={`Quick reply to ${message.from}`} placeholder="Write a reply" value={reply} onChange={setReply} onSend={() => setReply('')} leading={<Button icon={<Icon name="paperclip" />}>Attach files</Button>} />
                                 </div>
                             </div>
                         </article>
