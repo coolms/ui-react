@@ -246,7 +246,16 @@ describe('Composer', () => {
         expect(onSend).toHaveBeenCalledTimes(1);
         rerender(<Composer variant="reply" label="Quick reply" value="Thanks" onChange={() => undefined} onSend={onSend} canSend={false} />);
         expect(screen.getByRole('button', { name: /Send/ })).toBeDisabled();
-        await userEvent.type(screen.getByRole('textbox', { name: 'Quick reply' }), '{Enter}');
+    });
+
+    it('canSend decides for Enter in a chat too: not with text when false, and with no text when true', async () => {
+        const onSend = vi.fn();
+        const { rerender } = render(<Composer label="Message Anna" value="Hi" onChange={() => undefined} onSend={onSend} canSend={false} />);
+        await userEvent.type(screen.getByRole('textbox', { name: 'Message Anna' }), '{Enter}');
+        expect(onSend).not.toHaveBeenCalled();
+        expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+        rerender(<Composer label="Message Anna" value="" onChange={() => undefined} onSend={onSend} canSend />);
+        await userEvent.type(screen.getByRole('textbox', { name: 'Message Anna' }), '{Enter}');
         expect(onSend).toHaveBeenCalledTimes(1);
     });
 });

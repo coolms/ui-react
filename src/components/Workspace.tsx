@@ -315,7 +315,10 @@ export interface ComposerProps {
     readonly sendLabel?: string;
     /** The attach button's name, in the app's language ("Attach a file"). */
     readonly attachLabel?: string;
-    /** A quick reply's own controls, at the start of its last row, before Send (an attach menu). */
+    /**
+     * A quick reply's own controls, at the start of its last row, before Send (an attach menu). A chat composer does not
+     * draw them. With `onAttach` as well, a reply draws both: these first, then the attach button.
+     */
     readonly leading?: ReactNode;
     /**
      * Whether Send sends: by default, when the text is not empty. Given, it decides instead, as for a reply that may go
