@@ -4,6 +4,7 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
 
 ## Unreleased
 
+- `ContextMenu` takes `focus`, the item focused as it opens; `PaneToolbar`'s More opens its menu on the last item with Up.
 - `PaneToolbar`, the contract's `pane-toolbar` (design-tokens develop): the one row of actions at the top of a pane, the
   same height in every pane. It draws the actions it is given, as the server's action nodes give them (id, label, icon,
   group, overflow priority, danger, disabled), and says which was chosen by its id. As the pane narrows every label

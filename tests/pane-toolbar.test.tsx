@@ -93,6 +93,18 @@ describe('PaneToolbar', () => {
         }
     });
 
+    it('More opens its menu on the first item with Down, and on the last with Up', async () => {
+        room = 250;
+        view();
+        screen.getByRole('button', { name: 'More actions' }).focus();
+        await userEvent.keyboard('{ArrowUp}');
+        expect(within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Move' })).toHaveFocus();
+        await userEvent.keyboard('{Escape}');
+        screen.getByRole('button', { name: 'More actions' }).focus();
+        await userEvent.keyboard('{ArrowDown}');
+        expect(within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Star' })).toHaveFocus();
+    });
+
     it('a choice, in the row or in the More menu, says its id, and the menu closes', async () => {
         room = 250;
         view();
