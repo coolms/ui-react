@@ -108,6 +108,60 @@ describe('PaneToolbar', () => {
         }
     });
 
+    describe('a menu-only action (overflow 0)', () => {
+        const withOriginal = (): PaneToolbarAction[] => [
+            ...actions(), { id: 'original', icon: 'file-earmark-code', label: 'Show original', group: 'view', overflow: 0 }];
+        const draw = (list: PaneToolbarAction[]) => {
+            chosen = [];
+            return render(<PaneToolbar label="Message actions" actions={list} onAction={(id) => chosen.push(id)} moreLabel="More actions" />);
+        };
+        const behind = () => [...bar().querySelectorAll<HTMLElement>('[data-overflowed]')].map((b) => b.dataset['action']).sort();
+        const menu = async () => {
+            await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+            return within(screen.getByRole('menu', { name: 'More actions' })).getAllByRole('menuitem');
+        };
+
+        it('is never in the row, at any width: always behind More, first', async () => {
+            // The row without it, all labelled, and More: 7 x 100 + 2 separators + 36 = 754.
+            for (const width of [1000, 754, 753, 300, 250, 120]) {
+                room = width;
+                const { unmount } = draw(withOriginal());
+                expect(shown().map((b) => b.dataset['action'])).not.toContain('original');
+                expect(behind()).toContain('original');
+                expect((await menu())[0]).toHaveTextContent('Show original');
+                unmount();
+            }
+            room = 754;
+            draw(withOriginal());
+            // Its label takes no part in the giving way: at 754 every label of the row still shows.
+            expect(bar().className).not.toContain('labels-partly-hidden');
+            expect(behind()).toEqual(['original']);
+            const items = await menu();
+            expect(items.map((m) => m.textContent)).toEqual(['Show original']);
+            expect(items[0]!.querySelector('svg')).not.toBeNull();
+            await userEvent.click(items[0]!);
+            expect(chosen).toEqual(['original']);
+        });
+
+        it('draws More for it even alone, and is not a Tab stop of its own', () => {
+            draw([{ id: 'reply', icon: 'reply', label: 'Reply', group: 'answer' }, { id: 'original', icon: 'file-earmark-code', label: 'Show original', group: 'view', overflow: 0 }]);
+            expect(shown().map((b) => b.getAttribute('aria-label'))).toEqual(['Reply', 'More actions']);
+            expect(shown().filter((b) => b.tabIndex === 0).map((b) => b.getAttribute('aria-label'))).toEqual(['Reply']);
+            // A group with nothing left in the row draws no separator.
+            expect(within(bar()).queryAllByRole('separator')).toHaveLength(0);
+        });
+
+        it('leaves "never one alone" to the actions that could stay: it does not make one into two', async () => {
+            // The row's icons and More, Star alone behind it: 6 x 36 + 2 separators + 36 = 270. Star could go alone,
+            // but never does; with Show original behind, Star and Move still go together.
+            room = 270;
+            draw(withOriginal());
+            expect(behind()).toEqual(['move', 'original', 'star']);
+            expect(bar().className).toContain('cms-pane-toolbar--labels-hidden');
+            expect((await menu()).map((m) => m.textContent)).toEqual(['Show original', 'Star', 'Move']);
+        });
+    });
+
     it('More opens its menu on the first item with Down, and on the last with Up', async () => {
         room = 250;
         view();
