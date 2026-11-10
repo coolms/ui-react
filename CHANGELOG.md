@@ -12,6 +12,10 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
 - `PaneToolbar`: the classes named as the contract names them. An action whose label is hidden is
   `cms-pane-toolbar__action--bare` (it was `--icon`), and an action drawn without an icon is
   `cms-pane-toolbar__action--text`, the same in both kits.
+- `PaneToolbar`: `overflow: 0` means menu only. The action is never drawn in the row, at any width, and always sits behind
+  More, first in its menu. More is drawn for it even when it is alone. Its label takes no part in the giving way, and the
+  rule that one action never goes behind More alone counts only the actions that could have stayed in the row.
+- `Icon`: `file-code`, a file with code's angle brackets, for the server's `file-earmark-code` (Show original).
 
 ## 0.1.0-alpha.10 (2026-11-10)
 
