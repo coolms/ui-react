@@ -9,6 +9,9 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
   actions go behind More, in the same order, never one alone. They come back in the reverse order. An action hiding its
   label keeps it as its tooltip. The row is marked `cms-pane-toolbar--labels-partly-hidden` between the two, the
   contract's new `labels-partly-hidden` state.
+- `PaneToolbar`: the classes named as the contract names them. An action whose label is hidden is
+  `cms-pane-toolbar__action--bare` (it was `--icon`), and an action drawn without an icon is
+  `cms-pane-toolbar__action--text`, the same in both kits.
 
 ## 0.1.0-alpha.10 (2026-11-10)
 

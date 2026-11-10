@@ -266,7 +266,7 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                             <span className="cms-pane-toolbar__label">{a.label}</span>
                         </span>
                         {/* An action without an icon keeps its label when the others hide theirs. */}
-                        <span data-measure="icon" data-measure-action={a.id} className={cx('cms-pane-toolbar__action', iconForName(a.icon) !== null && 'cms-pane-toolbar__action--icon')}>
+                        <span data-measure="icon" data-measure-action={a.id} className={cx('cms-pane-toolbar__action', iconForName(a.icon) !== null && 'cms-pane-toolbar__action--bare')}>
                             {iconForName(a.icon) !== null ? <ActionIcon name={a.icon} /> : <span className="cms-pane-toolbar__label">{a.label}</span>}
                         </span>
                     </span>
@@ -302,7 +302,7 @@ function ToolbarAction({ action, labels, overflowed, pinned, tabbable, tipOff, o
     return (
         <button
             type="button"
-            className={cx('cms-pane-toolbar__action', !showLabel && 'cms-pane-toolbar__action--icon', action.danger && 'is-danger')}
+            className={cx('cms-pane-toolbar__action', !showLabel && 'cms-pane-toolbar__action--bare', iconless && 'cms-pane-toolbar__action--text', action.danger && 'is-danger')}
             data-action={action.id}
             data-stop={action.id}
             {...(overflowed ? { 'data-overflowed': '' } : {})}

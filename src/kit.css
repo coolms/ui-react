@@ -653,7 +653,7 @@
 .cms-pane-toolbar__action { position: relative; display: inline-flex; flex: none; align-items: center; gap: var(--cms-space-2); height: var(--cms-row-height, 36px); padding: 0 var(--cms-space-3); border: 1px solid transparent; border-radius: var(--cms-radius-control); background: none; color: var(--cms-text); font: inherit; cursor: pointer; }
 .cms-pane-toolbar__action:hover:not([aria-disabled='true']) { background: var(--cms-surface-hover); }
 .cms-pane-toolbar__action:focus-visible { outline: 2px solid var(--cms-focus-ring); outline-offset: 1px; }
-.cms-pane-toolbar__action--icon { justify-content: center; width: var(--cms-row-height, 36px); padding: 0; }
+.cms-pane-toolbar__action--bare { justify-content: center; width: var(--cms-row-height, 36px); padding: 0; }
 .cms-pane-toolbar__action[hidden] { display: none; }
 .cms-pane-toolbar__action[aria-disabled='true'] { color: var(--cms-text-muted); cursor: not-allowed; }
 .cms-pane-toolbar__action.is-danger { color: var(--cms-danger-text); }
@@ -669,5 +669,5 @@
 /* At tablet and phone widths each action is at least a touch target, in the same row. */
 @media (max-width: 1199.98px) {
     .cms-pane-toolbar__action { min-height: var(--cms-touch-target-min, 44px); }
-    .cms-pane-toolbar__action--icon, .cms-pane-toolbar__more { min-width: var(--cms-touch-target-min, 44px); min-height: var(--cms-touch-target-min, 44px); }
+    .cms-pane-toolbar__action--bare, .cms-pane-toolbar__more { min-width: var(--cms-touch-target-min, 44px); min-height: var(--cms-touch-target-min, 44px); }
 }

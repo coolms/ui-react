@@ -187,6 +187,10 @@ describe('PaneToolbar', () => {
         expect(forward.querySelector('svg')).toBeNull();
         expect(forward.querySelector('.cms-pane-toolbar__label')).toHaveTextContent('Forward');
         expect(screen.getByRole('button', { name: 'Reply' }).querySelector('.cms-pane-toolbar__label')).toBeNull();
+        // The contract's names: a hidden label marks the action bare, an action drawn without an icon is text.
+        expect(screen.getByRole('button', { name: 'Reply' }).className).toContain('cms-pane-toolbar__action--bare');
+        expect(forward.className).toContain('cms-pane-toolbar__action--text');
+        expect(forward.className).not.toContain('cms-pane-toolbar__action--bare');
     });
 
     it('a single action that may go stays in the row: never one alone behind More', () => {
