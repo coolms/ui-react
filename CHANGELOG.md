@@ -2,6 +2,14 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- `PaneToolbar`: as the pane narrows, labels hide one by one, in the overflow order (lower priority first, a
+  priority's actions together), then the pinned actions' from the end of the row; only once every label is hidden do
+  actions go behind More, in the same order, never one alone. They come back in the reverse order. An action hiding its
+  label keeps it as its tooltip. The row is marked `cms-pane-toolbar--labels-partly-hidden` between the two, the
+  contract's new `labels-partly-hidden` state.
+
 ## 0.1.0-alpha.10 (2026-11-10)
 
 The row of actions at the top of a pane, drawn from the server's action nodes.
