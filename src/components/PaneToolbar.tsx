@@ -45,8 +45,10 @@ export interface PaneToolbarProps {
     readonly leading?: ReactNode;
 }
 
-type Layout = { readonly labels: boolean; readonly hidden: ReadonlySet<string> };
-const FULL: Layout = { labels: true, hidden: new Set() };
+/** Which actions show without their labels, and which have gone behind .... */
+type Layout = { readonly bare: ReadonlySet<string>; readonly hidden: ReadonlySet<string> };
+const FULL: Layout = { bare: new Set(), hidden: new Set() };
+const same = (a: ReadonlySet<string>, b: ReadonlySet<string>) => a.size === b.size && [...a].every(id => b.has(id));
 
 /** The actions in groups, in their order: a group where its first action comes. */
 function groupsOf(actions: readonly PaneToolbarAction[]): readonly (readonly PaneToolbarAction[])[] {
@@ -63,11 +65,13 @@ function unitsOf(actions: readonly PaneToolbarAction[]): readonly (readonly stri
 }
 
 /**
- * The one row of actions at the top of a pane (contract component `pane-toolbar`: default, labels-hidden, overflowing,
- * menu-open, with-status, action-disabled, action-busy, phone). It is measured on its own width as its pane resizes:
- * every label shows while all fit; then every label hides at once; then actions go behind ... in the overflow order,
- * the fewest that let the rest and ... fit, never one alone; they come back in the reverse order, and the labels once
- * every action is back and all of them fit. One Tab stop; Left and Right, Home and End move inside it.
+ * The one row of actions at the top of a pane (contract component `pane-toolbar`: default, labels-partly-hidden,
+ * labels-hidden, overflowing, menu-open, with-status, action-disabled, action-busy, phone). It is measured on its own
+ * width as its pane resizes:
+ * every label shows while all fit; then labels hide one by one in the overflow order (lower first, a priority's actions
+ * together), the pinned last, from the end of the row; only once every label is hidden do actions go behind ..., in
+ * the same order, the fewest that let the rest and ... fit, never one alone. They come back in the reverse order. One
+ * Tab stop; Left and Right, Home and End move inside it.
  */
 export function PaneToolbar({ label, actions, onAction, status, moreLabel, leading }: PaneToolbarProps): ReactNode {
     const row = useRef<HTMLDivElement>(null);
@@ -94,27 +98,41 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
         const separator = width('[data-measure="separator"]');
         const more = width('[data-measure="more"]');
         const sizeOf = (id: string, labels: boolean) => width(`[data-measure="${labels ? 'full' : 'icon'}"][data-measure-action="${CSS.escape(id)}"]`);
-        const needed = (labels: boolean, hidden: ReadonlySet<string>) => {
+        const needed = (bare: ReadonlySet<string>, hidden: ReadonlySet<string>) => {
             const shownGroups = groups.map(g => g.filter(a => !hidden.has(a.id))).filter(g => g.length > 0);
             const items = shownGroups.flat();
             const parts = items.length + (shownGroups.length - 1) + (hidden.size > 0 ? 1 : 0) + (lead > 0 ? 1 : 0);
-            return lead + items.reduce((sum, a) => sum + sizeOf(a.id, labels), 0) + separator * Math.max(0, shownGroups.length - 1)
+            return lead + items.reduce((sum, a) => sum + sizeOf(a.id, !bare.has(a.id)), 0) + separator * Math.max(0, shownGroups.length - 1)
                 + (hidden.size > 0 ? more : 0) + gap * Math.max(0, parts - 1);
         };
-        let next: Layout;
-        if (needed(true, new Set()) <= room) next = FULL;
-        else if (needed(false, new Set()) <= room) next = { labels: false, hidden: new Set() };
+        // The order labels hide in: the overflow's, then the pinned, the last in the row first.
+        const pinnedIds = all.filter(a => !units.some(u => u.includes(a.id))).map(a => a.id);
+        const labelOrder = [...units, ...[...pinnedIds].reverse().map(id => [id])];
+        let next: Layout | null = null;
+        if (needed(new Set(), new Set()) <= room) next = FULL;
         else {
+            const bare = new Set<string>();
+            for (const unit of labelOrder) {
+                for (const id of unit) bare.add(id);
+                if (needed(bare, new Set()) <= room) {
+                    next = { bare, hidden: new Set() };
+                    break;
+                }
+            }
+        }
+        if (next === null) {
+            const bare = new Set(all.map(a => a.id));
             const hidden = new Set<string>();
             for (const unit of units) {
                 for (const id of unit) if (all.some(a => a.id === id)) hidden.add(id);
                 // ... takes an icon's width itself, so a menu of one saves nothing: never one alone behind it.
-                if (hidden.size >= 2 && needed(false, hidden) <= room) break;
+                if (hidden.size >= 2 && needed(bare, hidden) <= room) break;
             }
             // Only one action could go: it stays in the row, and the row is narrower than the contract promises for.
-            next = { labels: false, hidden: hidden.size >= 2 ? hidden : new Set() };
+            next = { bare, hidden: hidden.size >= 2 ? hidden : new Set() };
         }
-        setLayout(was => (was.labels === next.labels && [...was.hidden].join() === [...next.hidden].join() ? was : next));
+        const chosen = next;
+        setLayout(was => (same(was.bare, chosen.bare) && same(was.hidden, chosen.hidden) ? was : chosen));
         // The measuring reads the groups as drawn now; `key` names what changes them.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [key]);
@@ -169,7 +187,11 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
             ref={row}
             role="toolbar"
             aria-label={label}
-            className={cx('cms-pane-toolbar', !layout.labels && 'cms-pane-toolbar--labels-hidden')}
+            className={cx(
+                'cms-pane-toolbar',
+                all.length > 0 && layout.bare.size >= all.length && 'cms-pane-toolbar--labels-hidden',
+                layout.bare.size > 0 && layout.bare.size < all.length && 'cms-pane-toolbar--labels-partly-hidden',
+            )}
             onKeyDown={move}
         >
             {leading !== undefined ? <div className="cms-pane-toolbar__leading">{leading}</div> : null}
@@ -184,7 +206,7 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                                 <ToolbarAction
                                     key={a.id}
                                     action={a}
-                                    labels={layout.labels}
+                                    labels={!layout.bare.has(a.id)}
                                     overflowed={layout.hidden.has(a.id)}
                                     pinned={pinned.has(a.id)}
                                     tabbable={focusable === a.id}

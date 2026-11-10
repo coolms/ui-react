@@ -60,13 +60,28 @@ describe('PaneToolbar', () => {
         expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
     });
 
-    it('when the labels no longer fit, every label hides at once and each action keeps its name, its label as its tooltip', () => {
+    it('when the labels no longer fit, they hide one by one in the overflow order, then the pinned from the end; each action keeps its name', () => {
+        // All labelled: 7 x 100 + 2 separators = 718. Each label hidden saves 64: four must go to fit in 500.
         room = 500;
         view();
-        expect(bar().className).toContain('cms-pane-toolbar--labels-hidden');
+        const labelled = () => shown().filter((b) => b.querySelector('.cms-pane-toolbar__label') !== null).map((b) => b.dataset['action']);
+        expect(labelled()).toEqual(['reply', 'forward', 'archive']);
         expect(shown()).toHaveLength(7);
-        expect(shown().every((b) => b.querySelector('.cms-pane-toolbar__label') === null)).toBe(true);
+        expect(bar().className).toContain('cms-pane-toolbar--labels-partly-hidden');
+        expect(bar().className).not.toContain('cms-pane-toolbar--labels-hidden');
         expect(within(screen.getByRole('button', { name: 'Star' })).getByRole('tooltip')).toHaveTextContent('Star');
+        expect(within(screen.getByRole('button', { name: 'Reply' })).queryByRole('tooltip')).toBeNull();
+    });
+
+    it('only once every label is hidden does anything go behind More', () => {
+        // All bare: 7 x 36 + 18 = 270; at 300 every label hides and all seven stay in the row.
+        room = 300;
+        view();
+        expect(bar().className).toContain('cms-pane-toolbar--labels-hidden');
+        expect(bar().className).not.toContain('labels-partly-hidden');
+        expect(shown().every((b) => b.querySelector('.cms-pane-toolbar__label') === null)).toBe(true);
+        expect(bar().querySelectorAll('[data-overflowed]')).toHaveLength(0);
+        expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
     });
 
     it('when the icons no longer fit, the overflow goes behind More in its order, never one alone, and the pinned stay', async () => {
@@ -166,7 +181,7 @@ describe('PaneToolbar', () => {
     });
 
     it('an icon the kit has no name for leaves the label alone, also when the others hide theirs', () => {
-        room = 500;
+        room = 300;
         view({ forward: { icon: 'no-such-icon' } });
         const forward = screen.getByRole('button', { name: 'Forward' });
         expect(forward.querySelector('svg')).toBeNull();
