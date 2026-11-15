@@ -2,7 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.11
+
+Show original stays in More, and a toolbar's labels give way one by one.
 
 - `PaneToolbar`: as the pane narrows, labels hide one by one, in the overflow order (lower priority first, a
   priority's actions together), then the pinned actions' from the end of the row; only once every label is hidden do
@@ -10,33 +12,33 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
   label keeps it as its tooltip. The row is marked `cms-pane-toolbar--labels-partly-hidden` between the two, the
   contract's new `labels-partly-hidden` state.
 - `PaneToolbar`: the classes named as the contract names them. An action whose label is hidden is
-  `cms-pane-toolbar__action--bare` (it was `--icon`), and an action drawn without an icon is
+  `cms-pane-toolbar__action--bare`, and an action drawn without an icon is
   `cms-pane-toolbar__action--text`, the same in both kits.
 - `PaneToolbar`: `overflow: 0` means menu only. The action is never drawn in the row, at any width, and always sits behind
   More, first in its menu. More is drawn for it even when it is alone. Its label takes no part in the giving way, and the
   rule that one action never goes behind More alone counts only the actions that could have stayed in the row.
 - `Icon`: `file-code`, a file with code's angle brackets, for the server's `file-earmark-code` (Show original).
 
-## 0.1.0-alpha.10 (2026-11-10)
+## 0.1.0-alpha.10
 
 The row of actions at the top of a pane, drawn from the server's action nodes.
 
 - `ContextMenu` takes `focus`, the item focused as it opens; `PaneToolbar`'s More opens its menu on the last item with Up.
-- `PaneToolbar`, the contract's `pane-toolbar` (design-tokens develop): the one row of actions at the top of a pane, the
+- `PaneToolbar`, the contract's `pane-toolbar`: the one row of actions at the top of a pane, the
   same height in every pane. It draws the actions it is given, as the server's action nodes give them (id, label, icon,
   group, overflow priority, danger, disabled), and says which was chosen by its id. As the pane narrows every label
   hides at once, then actions go behind More by their overflow priority, never one alone, a priority's actions together.
   One Tab stop, a status at the end.
 - Icons `forward` and `refresh`.
 
-## 0.1.0-alpha.9 (2026-11-09)
+## 0.1.0-alpha.9
 
 A quick reply that carries its own controls and decides when it may be sent.
 
 - `Composer` takes `leading`, a quick reply's own controls at the start of its last row before Send, and `canSend`,
   which decides whether Send sends in place of the text being non-empty.
 
-## 0.1.0-alpha.8 (2026-11-09)
+## 0.1.0-alpha.8
 
 Choosing files a person already has, and a file viewer that keeps to the screen.
 
@@ -62,14 +64,14 @@ Choosing files a person already has, and a file viewer that keeps to the screen.
 - `Modal` takes `initialFocus`, what takes the focus on opening when it is not the body's first control, and
   `className`, for a component drawn in it that has a layout of its own.
 
-## 0.1.0-alpha.7 (2026-11-08)
+## 0.1.0-alpha.7
 
 An icon of its own for the important folder.
 
 - Added: the `important` icon, a marker shaped as a label's chevron, for a mail client's important folder. The bell
   stays for notifications alone. The demo's mail folders show it after Starred.
 
-## 0.1.0-alpha.6 (2026-11-08)
+## 0.1.0-alpha.6
 
 A file opens over the page, and every place that waits, finds nothing or is refused says so in one way.
 
@@ -91,7 +93,7 @@ A file opens over the page, and every place that waits, finds nothing or is refu
   `elevation-required` is declared not offered, since this kit's clients never elevate.
 - Changed: the kit is checked against design-tokens v0.7.1, from v0.7.0.
 
-## 0.1.0-alpha.5 (2026-11-04)
+## 0.1.0-alpha.5
 
 A field is drawn once.
 
@@ -101,7 +103,7 @@ A field is drawn once.
   the frame is a column of label, box and help only. A page that styled the sign-in inputs as `.cms-field` styles
   them as `.cms-signin-form__input`.
 
-## 0.1.0-alpha.4 (2026-11-02)
+## 0.1.0-alpha.4
 
 The kit's words come from the app, and the composer leaves an input method's Enter alone.
 
@@ -115,7 +117,7 @@ The kit's words come from the app, and the composer leaves an input method's Ent
 - Fixed: `Composer` no longer sends on Enter while an input method is composing (`isComposing`, or the composing key
   229 on browsers that do not set it). Typing Chinese, Japanese or Korean, Enter confirms the text.
 
-## 0.1.0-alpha.3 (2026-10-30)
+## 0.1.0-alpha.3
 
 The Workspace's components, on design-tokens 0.6.0.
 
@@ -139,7 +141,7 @@ The Workspace's components, on design-tokens 0.6.0.
   at 1440, 1024, 768 and 390px, light and dark, in headless Chrome: nothing passes the edge or scrolls sideways,
   and no control at touch widths is under 44px).
 
-## 0.1.0-alpha.2 (2026-10-28)
+## 0.1.0-alpha.2
 
 The token file is CSS a browser keeps whole.
 
@@ -150,13 +152,11 @@ The token file is CSS a browser keeps whole.
   `design-tokens.lock.json` with the tag's commit.
 - Added: `tools/check-css.mjs`, copied from v0.5.0 and pinned the same way, runs on the token file in
   `tokens:check`; `tools/check-css-teeth.mjs` makes sure it still fails a `//` header and a missing file.
-- Changed: the README's install line names no version (it named 0.1.0-alpha.1), and says to use 0.1.0-alpha.2 or
-  later.
+- Changed: the README's install line names no version, and says to use 0.1.0-alpha.2 or later.
 
-## 0.1.0-alpha.1 (2026-10-23)
+## 0.1.0-alpha.1
 
-The first pre-release. Published from `develop` at 91f0db3, which has no tag; the package already carries
-`design-tokens.lock.json` (#1).
+The first pre-release. The package carries `design-tokens.lock.json`.
 
 - The 15 components of the CoolMS UI contract, each in every state the contract names. `elevation-required` is not
   offered.
