@@ -2,12 +2,29 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.11 (2026-11-15)
+
+Show original stays in More, and a toolbar's labels give way one by one.
+
+- `PaneToolbar`: as the pane narrows, labels hide one by one, in the overflow order (lower priority first, a
+  priority's actions together), then the pinned actions' from the end of the row; only once every label is hidden do
+  actions go behind More, in the same order, never one alone. They come back in the reverse order. An action hiding its
+  label keeps it as its tooltip. The row is marked `cms-pane-toolbar--labels-partly-hidden` between the two, the
+  contract's new `labels-partly-hidden` state.
+- `PaneToolbar`: the classes named as the contract names them. An action whose label is hidden is
+  `cms-pane-toolbar__action--bare` (renamed `--icon` to `--bare`), and an action drawn without an icon is
+  `cms-pane-toolbar__action--text`, the same in both kits.
+- `PaneToolbar`: `overflow: 0` means menu only. The action is never drawn in the row, at any width, and always sits behind
+  More, first in its menu. More is drawn for it even when it is alone. Its label takes no part in the giving way, and the
+  rule that one action never goes behind More alone counts only the actions that could have stayed in the row.
+- `Icon`: `file-code`, a file with code's angle brackets, for the server's `file-earmark-code` (Show original).
+
 ## 0.1.0-alpha.10 (2026-11-10)
 
 The row of actions at the top of a pane, drawn from the server's action nodes.
 
 - `ContextMenu` takes `focus`, the item focused as it opens; `PaneToolbar`'s More opens its menu on the last item with Up.
-- `PaneToolbar`, the contract's `pane-toolbar` (design-tokens develop): the one row of actions at the top of a pane, the
+- `PaneToolbar`, the contract's `pane-toolbar`: the one row of actions at the top of a pane, the
   same height in every pane. It draws the actions it is given, as the server's action nodes give them (id, label, icon,
   group, overflow priority, danger, disabled), and says which was chosen by its id. As the pane narrows every label
   hides at once, then actions go behind More by their overflow priority, never one alone, a priority's actions together.
@@ -135,13 +152,11 @@ The token file is CSS a browser keeps whole.
   `design-tokens.lock.json` with the tag's commit.
 - Added: `tools/check-css.mjs`, copied from v0.5.0 and pinned the same way, runs on the token file in
   `tokens:check`; `tools/check-css-teeth.mjs` makes sure it still fails a `//` header and a missing file.
-- Changed: the README's install line names no version (it named 0.1.0-alpha.1), and says to use 0.1.0-alpha.2 or
-  later.
+- Changed: the README's install line names no version, and says to use 0.1.0-alpha.2 or later.
 
 ## 0.1.0-alpha.1 (2026-10-23)
 
-The first pre-release. Published from `develop` at 91f0db3, which has no tag; the package already carries
-`design-tokens.lock.json` (#1).
+The first pre-release. The package carries `design-tokens.lock.json` (#1).
 
 - The 15 components of the CoolMS UI contract, each in every state the contract names. `elevation-required` is not
   offered.
