@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Icon, iconForName } from './Icon';
 import { ContextMenu, type MenuItem } from './Collections';
 import { STATE_DELAY_MS } from './State';
@@ -315,7 +315,11 @@ function ToolbarAction({ action, labels, overflowed, pinned, tabbable, tipOff, o
     // An action whose icon the kit lacks shows its label alone, also when the others hide theirs.
     const iconless = iconForName(action.icon) === null;
     const showLabel = labels || iconless;
-    const tip = action.disabled && action.reason ? action.reason : showLabel ? null : action.label;
+    // A disabled action's reason describes it, and shows on hover, on focus and on a press, until focus leaves.
+    const reason = action.disabled && action.reason ? action.reason : null;
+    const tip = reason ?? (showLabel ? null : action.label);
+    const tipId = useId();
+    const [pressed, setPressed] = useState(false);
     return (
         <button
             type="button"
@@ -328,15 +332,22 @@ function ToolbarAction({ action, labels, overflowed, pinned, tabbable, tipOff, o
             aria-label={action.label}
             aria-disabled={action.disabled || undefined}
             aria-busy={action.busy || undefined}
+            {...(reason === null ? {} : { 'aria-describedby': tipId })}
+            {...(pressed && reason !== null ? { 'data-reason-shown': '' } : {})}
             tabIndex={tabbable ? 0 : -1}
             onFocus={onFocus}
+            onBlur={() => setPressed(false)}
+            onKeyDown={(event) => {
+                if (event.key === 'Escape') setPressed(false);
+            }}
             onClick={() => {
-                if (!action.disabled && !action.busy) onChoose();
+                if (reason !== null) setPressed(true);
+                else if (!action.disabled && !action.busy) onChoose();
             }}
         >
             {spinning ? <Glyph name="spinner" /> : <ActionIcon name={action.icon} />}
             {showLabel ? <span className="cms-pane-toolbar__label" aria-hidden="true">{action.label}</span> : null}
-            {tip !== null && !tipOff ? <span className="cms-pane-toolbar__tip" role="tooltip">{tip}</span> : null}
+            {reason !== null || (tip !== null && !tipOff) ? <span className="cms-pane-toolbar__tip" role="tooltip" id={tipId}>{tip}</span> : null}
         </button>
     );
 }
