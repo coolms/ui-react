@@ -2,6 +2,10 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- `PaneToolbar`: a disabled action's reason describes it (`aria-describedby`), so it is read out with the action, and a press shows it as hover and focus do, until focus leaves or Escape. A press still runs nothing.
+
 ## 0.1.0-alpha.11 (2026-11-15)
 
 Show original stays in More, and a toolbar's labels give way one by one.

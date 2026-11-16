@@ -214,6 +214,26 @@ describe('PaneToolbar', () => {
         expect(chosen).toEqual([]);
     });
 
+    it('a disabled action\'s reason describes it, and a press shows it until focus leaves', async () => {
+        view({ archive: { disabled: true, reason: 'This mailbox has no archive' } });
+        const archive = screen.getByRole('button', { name: 'Archive' });
+        expect(archive).toHaveAccessibleDescription('This mailbox has no archive');
+        expect(archive).not.toHaveAttribute('data-reason-shown');
+        await userEvent.click(archive);
+        expect(archive).toHaveAttribute('data-reason-shown');
+        await userEvent.keyboard('{Escape}');
+        expect(archive).not.toHaveAttribute('data-reason-shown');
+        await userEvent.click(archive);
+        await userEvent.tab();
+        expect(archive).not.toHaveAttribute('data-reason-shown');
+        expect(chosen).toEqual([]);
+    });
+
+    it('an action that is not disabled has no description', () => {
+        view({});
+        expect(screen.getByRole('button', { name: 'Archive' })).not.toHaveAttribute('aria-describedby');
+    });
+
     it('a busy action says so, shows its spinner only after a moment, and a second press runs nothing', async () => {
         vi.useFakeTimers();
         view({ delete: { busy: true } });
