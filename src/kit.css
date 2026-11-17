@@ -522,9 +522,10 @@
 .cms-viewer__body { display: flex; min-height: 0; }
 .cms-viewer__thumbnails { flex: none; width: 124px; padding: var(--cms-space-3); overflow: auto; border-right: 1px solid #2a2f38; }
 .cms-viewer__content { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; }
+/* The next arrow stands clear of the content's own vertical scrollbar (at most 20px), down the content's right edge. */
 .cms-viewer__side { position: absolute; top: 50%; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; margin-top: -22px; border: 0; border-radius: 50%; background: #262b34; color: inherit; cursor: pointer; }
 .cms-viewer__side--previous { left: var(--cms-space-3); }
-.cms-viewer__side--next { right: var(--cms-space-3); }
+.cms-viewer__side--next { right: calc(var(--cms-space-3) + 20px); }
 .cms-viewer__side--next svg { transform: scaleX(-1); }
 .cms-viewer__strip { display: flex; justify-content: center; gap: var(--cms-space-2); min-width: 0; padding: var(--cms-space-2) var(--cms-space-3); overflow-x: auto; border-top: 1px solid #2a2f38; }
 .cms-viewer__dots { display: none; position: absolute; left: 0; right: 0; bottom: var(--cms-space-2); z-index: 2; justify-content: center; gap: 6px; }
