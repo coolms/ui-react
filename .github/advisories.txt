@@ -1,0 +1,5 @@
+# The advisories npm audit reports against the committed package-lock.json, each with why it stays.
+# A new advisory fails CI, and so does a line here whose advisory is no longer reported: take it off when it clears.
+#
+# <package> <advisory id> <severity accepted at> <why it stays>
+picomatch GHSA-fc5q-39xc-vjpf high Vite, Vitest and their file matching (tinyglobby), on the build machine only: npm ls picomatch --omit=dev is empty, and the built dist/ holds none of it. No fixed release yet. Review by 2026-12-17.

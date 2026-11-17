@@ -73,6 +73,8 @@
     font: inherit;
 }
 .cms-input:focus { border-color: var(--cms-accent); }
+.cms-textarea { padding: 8px 10px; line-height: 1.5; resize: vertical; }
+.cms-input[type="date"], .cms-input[type="time"], .cms-input[type="datetime-local"] { color-scheme: inherit; }
 .cms-input:disabled { background: var(--cms-bg-muted); color: var(--cms-text-muted); cursor: not-allowed; }
 .cms-input:read-only:not(select) { background: var(--cms-surface-muted); }
 .cms-field.is-invalid .cms-input { border-color: var(--cms-danger); }
