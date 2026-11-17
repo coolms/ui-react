@@ -1,5 +1,5 @@
 export { Button, type ButtonProps } from './components/Button';
-export { TextField, Select, Toggle, type TextFieldProps, type SelectProps, type SelectOption, type ToggleProps } from './components/Fields';
+export { TextField, TextArea, Select, Toggle, writtenOut, type TextFieldProps, type TextFieldType, type TextAreaProps, type SelectProps, type SelectOption, type ToggleProps } from './components/Fields';
 export { Modal, ConfirmDialog, MODAL_CLOSE_MS, type ModalProps, type ConfirmDialogProps } from './components/Dialogs';
 export { Toast, ToastRegion, Loading, EmptyState, ErrorBanner, type ToastProps, type LoadingProps, type EmptyStateProps, type ErrorBannerProps } from './components/Status';
 export { State, STATE_DELAY_MS, type StateKind, type StatePlacement, type StateProps } from './components/State';
