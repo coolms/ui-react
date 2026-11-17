@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { Button, Select, SignInForm, TextField, Toggle } from '../src';
+import { Button, Select, SignInForm, TextArea, TextField, Toggle, writtenOut } from '../src';
 import css from '../src/kit.css?raw';
 
 describe('Button', () => {
@@ -100,5 +100,79 @@ describe('Toggle', () => {
         render(<Toggle label="Notify me" checked readOnly onChange={onChange} />);
         await userEvent.click(screen.getByRole('switch'));
         expect(onChange).not.toHaveBeenCalled();
+    });
+});
+
+describe('TextField kinds and constraints', () => {
+    it('a number: the native input with the server\'s bounds and step, and the keyboard that fits it', () => {
+        render(<><TextField label="Amount" type="number" value="12.5" min={0} max={10000} step={0.01} required /><TextField label="Nights" type="number" value="2" min={1} step={1} /></>);
+        const amount = screen.getByRole('spinbutton', { name: 'Amount' });
+        expect(amount).toHaveAttribute('min', '0');
+        expect(amount).toHaveAttribute('max', '10000');
+        expect(amount).toHaveAttribute('step', '0.01');
+        expect(amount).toHaveAttribute('inputmode', 'decimal');
+        expect(amount).toBeRequired();
+        expect(amount).toHaveAttribute('aria-required', 'true');
+        expect(screen.getByRole('spinbutton', { name: 'Nights' })).toHaveAttribute('inputmode', 'numeric');
+    });
+
+    it('a date, a time and both: the native pickers, holding ISO values, with their bounds', async () => {
+        const onChange = vi.fn();
+        render(<><TextField label="Day" type="date" value="2026-11-18" min="2026-01-01" max="2026-12-31" onChange={onChange} locale="de-DE" /><TextField label="At" type="time" value="14:30" step={900} /><TextField label="When" type="datetime-local" value="2026-11-18T14:30" /></>);
+        const day = screen.getByLabelText('Day');
+        expect(day).toHaveAttribute('type', 'date');
+        expect(day).toHaveValue('2026-11-18');
+        expect(day).toHaveAttribute('min', '2026-01-01');
+        expect(day).toHaveAttribute('lang', 'de-DE');
+        expect(screen.getByLabelText('At')).toHaveAttribute('type', 'time');
+        expect(screen.getByLabelText('At')).toHaveAttribute('step', '900');
+        expect(screen.getByLabelText('When')).toHaveAttribute('type', 'datetime-local');
+        await userEvent.clear(day);
+        expect(onChange).toHaveBeenLastCalledWith('');
+    });
+
+    it('a read-only or pinned date or time is written out in the person\'s locale, its ISO value kept', () => {
+        render(<><TextField label="Day" type="date" value="2026-11-18" readOnly locale="en-GB" /><TextField label="When" type="datetime-local" value="2026-11-18T14:30" pinned="Set by the deployment" locale="de-DE" /><TextField label="At" type="time" value="09:05" readOnly locale="en-US" /></>);
+        const day = screen.getByLabelText('Day');
+        expect(day).toHaveAttribute('type', 'text');
+        expect(day).toHaveValue('18 Nov 2026');
+        expect(day).toHaveAttribute('data-value', '2026-11-18');
+        expect(day).toHaveAttribute('readonly');
+        expect(screen.getByLabelText('When')).toHaveValue('18.11.2026, 14:30');
+        expect((screen.getByLabelText('At') as HTMLInputElement).value).toMatch(/^9:05\sAM$/);
+    });
+
+    it('writes out a value that is not of its type as it is, and never shifts a date by a time zone', () => {
+        expect(writtenOut('date', 'tomorrow', 'en-GB')).toBe('tomorrow');
+        expect(writtenOut('date', '2026-01-01', 'en-GB')).toBe('1 Jan 2026');
+        expect(writtenOut('time', '23:59:30', 'en-GB')).toBe('23:59:30');
+    });
+
+    it('text lengths come from the server', () => {
+        render(<TextField label="Title" value="" minLength={3} maxLength={80} />);
+        expect(screen.getByRole('textbox', { name: 'Title' })).toHaveAttribute('maxlength', '80');
+        expect(screen.getByRole('textbox', { name: 'Title' })).toHaveAttribute('minlength', '3');
+    });
+});
+
+describe('TextArea', () => {
+    it('several lines in the text field\'s frame: label, help, error, length and need', async () => {
+        const onChange = vi.fn();
+        render(<TextArea label="Reason" help="Why the expense was needed" error="Say why" value="" maxLength={500} required onChange={onChange} />);
+        const area = screen.getByRole('textbox', { name: 'Reason' });
+        expect(area.tagName).toBe('TEXTAREA');
+        expect(area).toHaveAttribute('rows', '4');
+        expect(area).toHaveAttribute('maxlength', '500');
+        expect(area).toBeRequired();
+        expect(area).toHaveAttribute('aria-invalid', 'true');
+        expect(area).toHaveAccessibleDescription('Say why Why the expense was needed');
+        await userEvent.type(area, 'A{Enter}B');
+        expect(onChange).toHaveBeenLastCalledWith('B');
+    });
+
+    it('read-only and pinned are not changed here', () => {
+        render(<><TextArea label="Note" value="Fixed" readOnly /><TextArea label="Policy" value="P" pinned="Set by the deployment" /></>);
+        expect(screen.getByRole('textbox', { name: 'Note' })).toHaveAttribute('readonly');
+        expect(screen.getByRole('textbox', { name: 'Policy' })).toHaveAttribute('readonly');
     });
 });
