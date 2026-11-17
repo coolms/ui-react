@@ -10,7 +10,10 @@ export interface FileViewerAction {
     readonly onSelect: () => void;
 }
 
-/** The other files of a set, for previous and next. A side with no handler is that end of the list. */
+/**
+ * The other files of a set, for previous and next. A side with no handler is that end of the list, and draws no arrow.
+ * Each label names where its arrow goes ("Next attachment: Receipt.pdf"), as its accessible name and its tooltip.
+ */
 export interface FileViewerSiblings {
     readonly position: string;
     readonly index: number;
@@ -221,12 +224,12 @@ export function FileViewer(props: FileViewerProps): ReactNode {
                 <div className="cms-viewer__content" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
                     {children}
                     {editing === undefined && siblings?.onPrevious ? (
-                        <button type="button" className="cms-viewer__side cms-viewer__side--previous" aria-label={siblings.previousLabel} onClick={siblings.onPrevious}>
+                        <button type="button" className="cms-viewer__side cms-viewer__side--previous" aria-label={siblings.previousLabel} title={siblings.previousLabel} onClick={siblings.onPrevious}>
                             <Glyph name="back" />
                         </button>
                     ) : null}
                     {editing === undefined && siblings?.onNext ? (
-                        <button type="button" className="cms-viewer__side cms-viewer__side--next" aria-label={siblings.nextLabel} onClick={siblings.onNext}>
+                        <button type="button" className="cms-viewer__side cms-viewer__side--next" aria-label={siblings.nextLabel} title={siblings.nextLabel} onClick={siblings.onNext}>
                             <Glyph name="back" />
                         </button>
                     ) : null}

@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FileViewer, type FileViewerSiblings } from '../src';
+import css from '../src/kit.css?raw';
 
 const actions = [
     { label: 'Download', icon: null, onSelect: vi.fn() },
@@ -97,6 +98,18 @@ describe('FileViewer', () => {
         render(<FileViewer {...base} siblings={siblings}><p>Content</p></FileViewer>);
         fireEvent.keyDown(screen.getByRole('button', { name: 'Close' }), { key: 'ArrowLeft', altKey: true });
         expect(siblings.onPrevious).not.toHaveBeenCalled();
+    });
+
+    it("names each arrow's target as its tooltip too, and draws no arrow past either end", () => {
+        const { onNext: _gone, ...last } = set({ previousLabel: 'Previous attachment: Receipt-2186.pdf', nextLabel: 'Next attachment: none' });
+        render(<FileViewer {...base} siblings={last}><p>Content</p></FileViewer>);
+        const previous = screen.getByRole('button', { name: 'Previous attachment: Receipt-2186.pdf' });
+        expect(previous).toHaveAttribute('title', 'Previous attachment: Receipt-2186.pdf');
+        expect(screen.queryByRole('button', { name: 'Next attachment: none' })).toBeNull();
+    });
+
+    it("keeps the next arrow clear of the content's scrollbar", () => {
+        expect(css).toMatch(/\.cms-viewer__side--next \{ right: calc\(var\(--cms-space-3\) \+ 20px\); \}/);
     });
 
     it('the first file offers no previous', () => {
