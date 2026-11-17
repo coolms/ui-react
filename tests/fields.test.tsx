@@ -144,6 +144,13 @@ describe('TextField kinds and constraints', () => {
 
     it('writes out a value that is not of its type as it is, and never shifts a date by a time zone', () => {
         expect(writtenOut('date', 'tomorrow', 'en-GB')).toBe('tomorrow');
+        expect(writtenOut('date', '2026-02-30', 'en-GB')).toBe('2026-02-30');
+        expect(writtenOut('time', '25:61', 'en-GB')).toBe('25:61');
+        expect(writtenOut('time', '23:60', 'en-GB')).toBe('23:60');
+        expect(writtenOut('datetime-local', '2026-13-01T10:00', 'en-GB')).toBe('2026-13-01T10:00');
+        expect(writtenOut('datetime-local', '2026-04-31T24:00', 'en-GB')).toBe('2026-04-31T24:00');
+        expect(writtenOut('date', '2024-02-29', 'en-GB')).toBe('29 Feb 2024');
+        expect(writtenOut('date', '0099-05-01', 'en-GB')).not.toContain('1999');
         expect(writtenOut('date', '2026-01-01', 'en-GB')).toBe('1 Jan 2026');
         expect(writtenOut('time', '23:59:30', 'en-GB')).toBe('23:59:30');
     });

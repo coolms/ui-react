@@ -81,26 +81,35 @@ const CLOCK = /^(\d{2}):(\d{2})(?::(\d{2}))?$/;
 
 /**
  * A date or time value written out in a locale, as the wall-clock value it is (no time zone is applied); the value
- * itself when it is not one the type holds.
+ * itself when it is not one the type holds, or names no real date or time (a 30 February, a 25th hour).
  */
 export function writtenOut(type: TextFieldType, value: string, locale: string | undefined): string {
-    const at = (y: number, mo: number, d: number, h = 0, mi = 0, se = 0) => new Date(Date.UTC(y, mo - 1, d, h, mi, se));
+    // The moment the parts name, or null when they name none (a 30 February, a 25th hour): never rolled over.
+    const at = (y: number, mo: number, d: number, h = 0, mi = 0, se = 0): Date | null => {
+        const moment = new Date(Date.UTC(y, mo - 1, d, h, mi, se));
+        moment.setUTCFullYear(y);
+        const same = moment.getUTCFullYear() === y && moment.getUTCMonth() === mo - 1 && moment.getUTCDate() === d
+            && moment.getUTCHours() === h && moment.getUTCMinutes() === mi && moment.getUTCSeconds() === se;
+        return same ? moment : null;
+    };
     const clock = (time: RegExpMatchArray) => ({ hour: Number(time[1]), minute: Number(time[2]), second: Number(time[3] ?? 0) });
     try {
         if (type === 'time') {
             const t = value.match(CLOCK);
             if (t === null) return value;
             const c = clock(t);
-            return new Intl.DateTimeFormat(locale, { timeStyle: t[3] === undefined ? 'short' : 'medium', timeZone: 'UTC' }).format(at(2000, 1, 1, c.hour, c.minute, c.second));
+            const moment = at(2000, 1, 1, c.hour, c.minute, c.second);
+            return moment === null ? value : new Intl.DateTimeFormat(locale, { timeStyle: t[3] === undefined ? 'short' : 'medium', timeZone: 'UTC' }).format(moment);
         }
         const w = value.match(WHEN);
         if (w === null) return value;
         if (type === 'date' && w[4] === undefined) {
-            return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeZone: 'UTC' }).format(at(Number(w[1]), Number(w[2]), Number(w[3])));
+            const moment = at(Number(w[1]), Number(w[2]), Number(w[3]));
+            return moment === null ? value : new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeZone: 'UTC' }).format(moment);
         }
         if (type === 'datetime-local' && w[4] !== undefined) {
-            return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: w[6] === undefined ? 'short' : 'medium', timeZone: 'UTC' })
-                .format(at(Number(w[1]), Number(w[2]), Number(w[3]), Number(w[4]), Number(w[5]), Number(w[6] ?? 0)));
+            const moment = at(Number(w[1]), Number(w[2]), Number(w[3]), Number(w[4]), Number(w[5]), Number(w[6] ?? 0));
+            return moment === null ? value : new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: w[6] === undefined ? 'short' : 'medium', timeZone: 'UTC' }).format(moment);
         }
     } catch {
         return value;
