@@ -2,6 +2,14 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.14 (2026-11-18)
+
+Number, date and time fields, and a field of several lines, for forms the server declares.
+
+- `TextField`: `type` adds `number`, `date`, `time` and `datetime-local`, native inputs, so a phone shows its own keyboard or picker and assistive technology reads them as what they are. The server's constraints are the input's own: `min`, `max`, `step`, `minLength`, `maxLength` and `required`. A number with a fractional or `any` step asks for the decimal keyboard. `locale` (the person's) is the input's language, and a read-only or pinned date or time is written out in it as the wall-clock value it is, with its ISO value in `data-value`; a value naming no real date or time is shown as given. While a date or time is edited, the device's picker shows the browser's own format.
+- `writtenOut(type, value, locale)`: the same writing out, for a host.
+- `TextArea`: several lines in the text field's frame and states, with `rows`, `minLength`, `maxLength`, `required` and `locale`.
+
 ## 0.1.0-alpha.13 (2026-11-17)
 
 The viewer's side arrows say where they go, and the next one stands clear of the scrollbar.
