@@ -2,6 +2,12 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.13 (2026-11-17)
+
+The viewer's side arrows say where they go, and the next one stands clear of the scrollbar.
+
+- `FileViewer`: each side arrow's label (`siblings.previousLabel` / `nextLabel`) is also its tooltip, so the caller's words ("Next attachment: Receipt.pdf") show on hover. The next arrow stands 20px further in from the content's right edge, clear of the content's own vertical scrollbar.
+
 ## 0.1.0-alpha.12 (2026-11-16)
 
 A disabled action's reason is read out with it, and a press shows it.
