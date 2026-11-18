@@ -1,4 +1,4 @@
-import { useId, useRef, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
+import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { Icon, type IconName } from './Icon';
 import { cx, withDefaults } from './internal';
 import { Avatar } from './Structure';
@@ -192,6 +192,17 @@ export interface Pane {
     readonly content: ReactNode;
 }
 
+/** A pane the person may make wider or narrower, in px: where it is, its limits, its default, and its splitter's name. */
+export interface PaneSize {
+    readonly width: number;
+    readonly min: number;
+    readonly max: number;
+    /** The width a double-click or Enter on its splitter puts it back to. */
+    readonly reset: number;
+    /** The splitter's name, in the app's language ("Resize folders"). */
+    readonly label: string;
+}
+
 export interface SplitPanesProps {
     /** Two panes (a list and what is open) or three (navigation, a list, what is open). */
     readonly panes: readonly [Pane, Pane] | readonly [Pane, Pane, Pane];
@@ -205,16 +216,143 @@ export interface SplitPanesProps {
      * only where that pane is hidden (phone, or tablet with three panes and the last one active).
      */
     readonly back?: { readonly label: string; readonly href: string };
+    /**
+     * Sizes for the panes before the last, by index: each one given draws a splitter after its pane where every pane
+     * shows (the desktop grid). The caller keeps the widths; the last pane takes the rest.
+     */
+    readonly sizes?: readonly (PaneSize | undefined)[];
+    /** The last pane's least width while splitters move and the window narrows (360 by default). */
+    readonly lastMin?: number;
+    /**
+     * A splitter moved pane `index` to `width`: while it is dragged (`done` false), and once more when the drag or the
+     * key ends (`done` true), which is when a width is worth keeping.
+     */
+    readonly onResize?: (index: number, width: number, done: boolean) => void;
+}
+
+/** One arrow press moves a splitter this far. */
+const SPLITTER_STEP = 16;
+
+/**
+ * The widths the panes take in `room` px: each as wanted within its limits; when the last pane would be under its
+ * least width, the pane nearest it gives way first, down to its own least, then the one before.
+ */
+export function fitPanes(wanted: readonly PaneSize[], room: number, lastMin: number): number[] {
+    const widths = wanted.map((one) => Math.min(Math.max(one.width, one.min), one.max));
+    let over = widths.reduce((sum, w) => sum + w, 0) + lastMin - room;
+    for (let i = widths.length - 1; i >= 0 && over > 0; i -= 1) {
+        const give = Math.min(over, widths[i]! - wanted[i]!.min);
+        widths[i] = widths[i]! - give;
+        over -= give;
+    }
+    return widths;
+}
+
+function Splitter({ index, size, shown, others, room, lastMin, onResize }: {
+    readonly index: number;
+    readonly size: PaneSize;
+    readonly shown: number;
+    /** The other sized panes' widths, for the most this one may take beside them. */
+    readonly others: number;
+    readonly room: number;
+    readonly lastMin: number;
+    readonly onResize: SplitPanesProps['onResize'];
+}): ReactNode {
+    const most = Math.max(size.min, Math.min(size.max, room > 0 ? room - others - lastMin : size.max));
+    const clamp = (w: number) => Math.round(Math.min(Math.max(w, size.min), most));
+    const drag = useRef<{ x: number; from: number; last: number } | null>(null);
+    const move = (w: number, done: boolean) => onResize?.(index, clamp(w), done);
+    return (
+        <div
+            role="separator"
+            tabIndex={0}
+            aria-orientation="vertical"
+            aria-label={size.label}
+            aria-valuenow={shown}
+            aria-valuemin={size.min}
+            aria-valuemax={most}
+            className="cms-panes__splitter"
+            style={{ '--split-at': `var(--split-pane-end-${String(index)})` } as CSSProperties}
+            onPointerDown={(e: PointerEvent<HTMLDivElement>) => {
+                // Only the primary button (or a touch or a pen) drags.
+                if (e.button > 0) return;
+                e.preventDefault();
+                e.currentTarget.setPointerCapture?.(e.pointerId);
+                drag.current = { x: e.clientX, from: shown, last: shown };
+                e.currentTarget.closest('.cms-panes')?.classList.add('is-resizing');
+            }}
+            onPointerMove={(e: PointerEvent<HTMLDivElement>) => {
+                const d = drag.current;
+                if (d === null || !Number.isFinite(e.clientX)) return;
+                d.last = clamp(d.from + e.clientX - d.x);
+                move(d.last, false);
+            }}
+            onPointerUp={(e: PointerEvent<HTMLDivElement>) => {
+                const d = drag.current;
+                if (d === null) return;
+                drag.current = null;
+                e.currentTarget.closest('.cms-panes')?.classList.remove('is-resizing');
+                move(d.last, true);
+            }}
+            onPointerCancel={(e: PointerEvent<HTMLDivElement>) => {
+                const d = drag.current;
+                drag.current = null;
+                e.currentTarget.closest('.cms-panes')?.classList.remove('is-resizing');
+                if (d !== null) move(d.last, true);
+            }}
+            onDoubleClick={() => move(size.reset, true)}
+            onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
+                const to = e.key === 'ArrowLeft' ? shown - SPLITTER_STEP
+                    : e.key === 'ArrowRight' ? shown + SPLITTER_STEP
+                    : e.key === 'Home' ? size.min
+                    : e.key === 'End' ? most
+                    : e.key === 'Enter' ? size.reset
+                    : null;
+                if (to === null) return;
+                e.preventDefault();
+                move(to, true);
+            }}
+        />
+    );
 }
 
 /**
- * A section's panes: side by side on desktop, the active pane and the one before it on tablet, the active pane alone
- * on phone, with Back to the one before it. The last visible pane takes the rest of the width.
+ * Two or three panes side by side (contract `split-panes`), showing fewer as the window narrows. With `sizes`, the
+ * panes before the last are resizable where all of them show (contract `pane splitter`): each has a splitter, a
+ * separator dragged by mouse or touch, moved 16 px by the arrow keys, taken to its limits by Home and End, and put back
+ * by a double-click or Enter. The last pane is never narrower than `lastMin`; as the window narrows the pane nearest it
+ * gives way first.
  */
-export function SplitPanes({ panes, active, back }: SplitPanesProps): ReactNode {
+export function SplitPanes({ panes, active, back, sizes, lastMin = 360, onResize }: SplitPanesProps): ReactNode {
     const at = Math.min(Math.max(active ?? panes.length - 1, 0), panes.length - 1);
+    const grid = useRef<HTMLDivElement>(null);
+    const [room, setRoom] = useState(0);
+    const sized = (sizes ?? []).slice(0, panes.length - 1);
+    const resizable = sized.length === panes.length - 1 && sized.every((one): one is PaneSize => one !== undefined);
+    useLayoutEffect(() => {
+        const el = grid.current;
+        if (el === null || !resizable) return undefined;
+        const measure = () => setRoom(el.clientWidth);
+        measure();
+        if (typeof ResizeObserver === 'undefined') return undefined;
+        const watch = new ResizeObserver(measure);
+        watch.observe(el);
+        return () => watch.disconnect();
+    }, [resizable]);
+    const shown = resizable ? fitPanes(sized as PaneSize[], room > 0 ? room : Number.POSITIVE_INFINITY, lastMin) : [];
+    const style = resizable
+        ? (Object.fromEntries(shown.flatMap((w, i) => [
+            [`--split-pane-${String(i)}`, `${String(w)}px`],
+            [`--split-pane-end-${String(i)}`, `${String(shown.slice(0, i + 1).reduce((sum, x) => sum + x, 0))}px`],
+        ])) as CSSProperties)
+        : undefined;
     return (
-        <div className={cx('cms-panes', panes.length === 3 ? 'cms-panes--three' : 'cms-panes--two')} data-active={at}>
+        <div
+            ref={grid}
+            className={cx('cms-panes', panes.length === 3 ? 'cms-panes--three' : 'cms-panes--two', resizable && 'cms-panes--sized')}
+            data-active={at}
+            style={style}
+        >
             {panes.map((p, i) => (
                 <section key={p.label} className="cms-panes__pane" aria-label={p.label} data-offset={at - i}>
                     {i === at && back ? (
@@ -226,6 +364,20 @@ export function SplitPanes({ panes, active, back }: SplitPanesProps): ReactNode 
                     {p.content}
                 </section>
             ))}
+            {resizable
+                ? (sized as PaneSize[]).map((size, i) => (
+                    <Splitter
+                        key={size.label}
+                        index={i}
+                        size={size}
+                        shown={shown[i]!}
+                        others={shown.reduce((sum, w, j) => (j === i ? sum : sum + w), 0)}
+                        room={room}
+                        lastMin={lastMin}
+                        onResize={onResize}
+                    />
+                ))
+                : null}
         </div>
     );
 }
