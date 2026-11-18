@@ -62,10 +62,10 @@ jobs:
           '
 
   # The committed lockfile's advisories held to .github/advisories.txt, an empty list while there is no such file: a new
-  # one fails. The shared job, pinned to a commit of coolms/.github.
+  # one fails, and so does a line past its review date. The shared job, pinned to a commit of coolms/.github.
   advisories:
     name: advisories
-    uses: coolms/.github/.github/workflows/npm-advisories.yml@79b177b7e6d6ae711753e1adb64a4de1e515bfc3
+    uses: coolms/.github/.github/workflows/npm-advisories.yml@7737e6badcc76ec76aadbfd8b7f5e100a0266bdc
 
   # README, a LICENSE matching the manifest, and CHANGELOG (coolms/.github's basic-files.yml), pinned to a commit.
   basic-files:
