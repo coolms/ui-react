@@ -2,6 +2,13 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.15 (2026-11-18)
+
+Resizable panes.
+
+- `SplitPanes`: `sizes` gives the panes before the last a width, limits, a width to put back and a splitter's name; where every pane shows, a splitter is drawn after each. A splitter is a vertical separator with its width and limits, dragged by mouse, touch or pen, moved 16 px by the arrow keys, taken to its limits by Home and End, and put back by a double-click or Enter. `onResize` reports a move while it is dragged and once more when the drag or the key ends. The last pane is never narrower than `lastMin` (360 by default); as the window narrows the pane nearest it gives way first. Where fewer panes show, there is no splitter.
+- `fitPanes(sizes, room, lastMin)`: the widths the panes take in a given room, as `SplitPanes` lays them out.
+
 ## 0.1.0-alpha.14 (2026-11-18)
 
 Number, date and time fields, and a field of several lines, for forms the server declares.
