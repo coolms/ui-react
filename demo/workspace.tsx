@@ -19,6 +19,7 @@ import {
     Icon,
     IncomingCall,
     MailRow,
+    Notification,
     SearchField,
     SignInForm,
     SignInLayout,
@@ -34,7 +35,7 @@ import {
 } from '../src';
 
 /** The demo's pages, one per mockup, by the address's hash; the theme by `?theme=dark`. */
-type Page = 'mail' | 'chat' | 'calls' | 'signin' | 'viewer' | 'state' | 'picker';
+type Page = 'mail' | 'chat' | 'calls' | 'signin' | 'viewer' | 'state' | 'picker' | 'notifications';
 
 const RAIL: readonly RailItem[] = [
     { id: 'mail', label: 'Mail', icon: 'mail', href: '#mail', badge: { count: 12, label: '12 unread' } },
@@ -284,7 +285,7 @@ function SignInPage(): ReactNode {
 /** The page and the place within it, from the address: `#mail/2` is Mail with its third message open. */
 function routeOf(hash: string): { readonly page: Page; readonly sub: string } {
     const [h = '', sub = ''] = hash.replace('#', '').split('/');
-    return { page: h === 'chat' || h === 'calls' || h === 'signin' || h === 'viewer' || h === 'state' || h === 'picker' ? h : 'mail', sub };
+    return { page: h === 'chat' || h === 'calls' || h === 'signin' || h === 'viewer' || h === 'state' || h === 'picker' || h === 'notifications' ? h : 'mail', sub };
 }
 
 /** The one state component: each kind at a page's size, or all of them in a card and beside text. */
@@ -301,6 +302,21 @@ function StatePage({ sub }: { readonly sub: string | undefined }): ReactNode {
             <p>Synced at 12:41 <State kind="loading" title="Syncing" placement="inline" /></p>
             <p>Mail <State kind="error" title="Not synced" description="The server did not answer." placement="inline" /></p>
         </div>
+    );
+}
+
+/** The notification's states, as a list in a host's panel: unread and read, a row action, a button action, a long body. */
+function NotificationsPage(): ReactNode {
+    const words = { unreadLabel: 'Unread', expandLabel: 'Show more', collapseLabel: 'Show less' };
+    const [read, setRead] = useState<ReadonlySet<string>>(() => new Set(['n3']));
+    const reading = (id: string) => () => setRead((before) => new Set(before).add(id));
+    const go = () => undefined;
+    return (
+        <section aria-label="Notifications" style={{ display: 'flex', flexDirection: 'column', maxWidth: 420, padding: 8 }}>
+            <Notification title="Missed call" body="Anna Kowalska called you." time="09:42" unread={!read.has('n1')} onRead={reading('n1')} action={{ label: 'Open conversation', presentation: 'row', onAction: go }} leading={<Icon name="phone" size={18} />} {...words} />
+            <Notification title="You were mentioned in Product team" body="Olga: @Ada can you check the call panel before Thursday's demo? The agenda is in the shared folder." time="09:30" unread={!read.has('n2')} onRead={reading('n2')} action={{ label: 'Open', presentation: 'button', onAction: go }} leading={<Icon name="chat" size={18} />} {...words} />
+            <Notification title="Export finished" body="The October invoices are ready to download." time="Yesterday" unread={!read.has('n3')} onRead={reading('n3')} leading={<Icon name="file" size={18} />} {...words} />
+        </section>
     );
 }
 
@@ -388,8 +404,9 @@ function Demo(): ReactNode {
         <>
             {route.page === 'viewer' ? <ViewerPage sub={route.sub} /> : null}
             {route.page === 'state' ? <StatePage sub={route.sub} /> : null}
+            {route.page === 'notifications' ? <NotificationsPage /> : null}
             {route.page === 'picker' ? <PickerPage sub={route.sub} /> : null}
-            {route.page === 'viewer' || route.page === 'state' || route.page === 'picker' ? null : route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
+            {route.page === 'viewer' || route.page === 'state' || route.page === 'picker' || route.page === 'notifications' ? null : route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
             <button type="button" className="cms-button ws-theme" aria-pressed={dark} onClick={() => setDark(d => !d)}>Dark</button>
         </>
     );

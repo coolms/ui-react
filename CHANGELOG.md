@@ -2,6 +2,18 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.16 (2026-11-19)
+
+The design tokens 0.8.0 with their control heights, and the kit covering every entry of their contract 0.3.0.
+
+- Tokens: the copy is design-tokens v0.8.0, with `--cms-control-height-sm` (32px), `-md` (40px; 44px on a coarse pointer) and `-lg` (44px). `tools/check-css.mjs` is its copy that keeps the coarse-pointer block.
+- Control heights: a button, a text field and a select are `--cms-control-height-md`: 40px with a mouse, 44px on a touch screen, as the token says. A button's height is no longer set again by the window's width.
+- `Notification`: one notification in a list (contract `notification`: unread, read, collapsed, expanded, with-action, row-action). Pressing the row reads it and follows only a row action the host can follow; a button action goes only from its button, after the text; the chevron opens the body and reads it.
+- `FileViewer`: `state` draws loading, an error (Retry only when the caller gives it) or no preview (Download as its action) inside the content, the top bar staying; `editing.conflict` asks, above the editor, whether to overwrite the other version or keep both, and saves nothing on its own.
+- `ContextMenu`: a refused or disabled item is described by its reason (`aria-describedby`), as the pane toolbar's disabled action is (contract `item-disabled`); an item's icon and words share one line.
+- The kit declares `file-viewer`, `file-picker`, `pane-toolbar` and `notification` against the contract, state by state.
+- `tools/check-layout.mjs`: below the desktop width the browser is a touch screen's (a coarse pointer, no hover), so a control's touch height is the one measured; the demo has a notifications screen.
+
 ## 0.1.0-alpha.15 (2026-11-18)
 
 Resizable panes.

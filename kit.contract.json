@@ -16,7 +16,11 @@
     "tab-strip": { "implementedBy": "TabStrip", "states": ["default", "active", "with-count"] },
     "list": { "implementedBy": "List", "states": ["loading", "empty", "populated", "selected", "error"] },
     "avatar": { "implementedBy": "Avatar", "states": ["picture", "initials", "presence"] },
-    "context-menu": { "implementedBy": "ContextMenu", "states": ["open", "item-danger", "item-locked", "item-refused"] }
+    "context-menu": { "implementedBy": "ContextMenu", "states": ["open", "item-danger", "item-locked", "item-refused", "item-disabled"] },
+    "file-viewer": { "implementedBy": "FileViewer", "states": ["loading", "error", "no-preview", "editing", "editing-closing", "editing-conflict", "with-edit", "with-siblings", "with-thumbnails", "with-attachment-strip", "phone"] },
+    "file-picker": { "implementedBy": "FilePicker", "states": ["loading", "empty", "error", "denied", "with-selection", "with-budget", "over-budget", "disabled-entry", "paging", "phone"] },
+    "notification": { "implementedBy": "Notification", "states": ["unread", "read", "collapsed", "expanded", "with-action", "row-action"] },
+    "pane-toolbar": { "implementedBy": "PaneToolbar", "states": ["default", "labels-partly-hidden", "labels-hidden", "overflowing", "menu-open", "with-status", "action-disabled", "action-busy", "phone"] }
   },
   "serverStates": {
     "node-rwx": { "where": "src/server/capability.ts" },

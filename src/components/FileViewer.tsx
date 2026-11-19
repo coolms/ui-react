@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode, type TouchEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon } from './Icon';
+import { State } from './State';
 import { Glyph, cx } from './internal';
 
 /** One of the top bar's file actions, as Download, Print and Open separately are: the caller's words and handler. */
@@ -24,6 +25,18 @@ export interface FileViewerSiblings {
     readonly onNext?: () => void;
 }
 
+/**
+ * The file changed elsewhere while it was being edited: the viewer says so above the editor and asks whether to
+ * overwrite the other version or keep both, never saving over it silently. The words and both answers are the caller's.
+ */
+export interface FileViewerConflict {
+    readonly message: string;
+    readonly overwriteLabel: string;
+    readonly onOverwrite: () => void;
+    readonly keepBothLabel: string;
+    readonly onKeepBoth: () => void;
+}
+
 /** The editing state: the content hosts the type's own editor, and the viewer has none of its own. */
 export interface FileViewerEditing {
     readonly status: ReactNode;
@@ -32,7 +45,19 @@ export interface FileViewerEditing {
     /** It holds unsaved work: Close calls onDirtyClose, which asks the person, rather than closing. */
     readonly dirty?: boolean;
     readonly onDirtyClose: () => void;
+    /** The file changed elsewhere meanwhile: the question above the editor until the caller has its answer. */
+    readonly conflict?: FileViewerConflict;
 }
+
+/**
+ * What the content shows instead of the file, as the state component in page placement, the top bar staying (Close and
+ * Download remain): loading while the file is read; error in the caller's words, with Retry when trying again can
+ * help (none when the server says the file is gone or refused); no-preview, with Download as its action.
+ */
+export type FileViewerState =
+    | { readonly kind: 'loading'; readonly title: string }
+    | { readonly kind: 'error'; readonly title: string; readonly description?: string; readonly retry?: { readonly label: string; readonly onRetry: () => void } }
+    | { readonly kind: 'no-preview'; readonly title: string; readonly description?: string; readonly download: { readonly label: string; readonly onDownload: () => void } };
 
 export interface FileViewerProps {
     /** The file's name: the dialog's name, truncated where it does not fit, with the whole of it available. */
@@ -48,6 +73,8 @@ export interface FileViewerProps {
     /** Only with the server's write permission for this file: absent, never disabled, without it. */
     readonly edit?: { readonly label: string; readonly icon: ReactNode; readonly onEdit: () => void };
     readonly editing?: FileViewerEditing;
+    /** Instead of the file: loading, an error, or no preview. Without it the content is the adapter's. */
+    readonly state?: FileViewerState;
     readonly siblings?: FileViewerSiblings;
     /** What the viewer bar holds, from the adapter: page, zoom, fit. It never holds a file action. */
     readonly bar?: ReactNode;
@@ -87,7 +114,7 @@ function drawn(element: HTMLElement): boolean {
  * inside, and returns to what opened it.
  */
 export function FileViewer(props: FileViewerProps): ReactNode {
-    const { name, badge, closeLabel, onClose, actions = [], moreLabel = 'More', edit, editing, siblings, bar, thumbnails, strip, onZoom, children } = props;
+    const { name, badge, closeLabel, onClose, actions = [], moreLabel = 'More', edit, editing, state, siblings, bar, thumbnails, strip, onZoom, children } = props;
     const panel = useRef<HTMLDivElement>(null);
     const close = useRef<HTMLButtonElement>(null);
     const nameId = useId();
@@ -222,7 +249,14 @@ export function FileViewer(props: FileViewerProps): ReactNode {
             <div className="cms-viewer__body">
                 {thumbnails != null && editing === undefined ? <nav className="cms-viewer__thumbnails">{thumbnails}</nav> : null}
                 <div className="cms-viewer__content" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    {children}
+                    {editing?.conflict !== undefined ? (
+                        <div className="cms-viewer__conflict" role="alert">
+                            <p className="cms-viewer__conflict-text">{editing.conflict.message}</p>
+                            <button type="button" className="cms-viewer__button" onClick={editing.conflict.onOverwrite}>{editing.conflict.overwriteLabel}</button>
+                            <button type="button" className="cms-viewer__button cms-viewer__button--edit" onClick={editing.conflict.onKeepBoth}>{editing.conflict.keepBothLabel}</button>
+                        </div>
+                    ) : null}
+                    {state === undefined ? children : <ViewerState state={state} />}
                     {editing === undefined && siblings?.onPrevious ? (
                         <button type="button" className="cms-viewer__side cms-viewer__side--previous" aria-label={siblings.previousLabel} title={siblings.previousLabel} onClick={siblings.onPrevious}>
                             <Glyph name="back" />
@@ -247,4 +281,32 @@ export function FileViewer(props: FileViewerProps): ReactNode {
         </div>,
         document.body,
     );
+}
+
+/** The state component, in page placement, for what the content shows instead of the file. */
+function ViewerState({ state }: { readonly state: FileViewerState }): ReactNode {
+    switch (state.kind) {
+        case 'loading':
+            return <State kind="loading" title={state.title} placement="page" />;
+        case 'error':
+            return (
+                <State
+                    kind="error"
+                    title={state.title}
+                    {...(state.description === undefined ? {} : { description: state.description })}
+                    {...(state.retry === undefined ? {} : { action: { label: state.retry.label, onAction: state.retry.onRetry } })}
+                    placement="page"
+                />
+            );
+        case 'no-preview':
+            return (
+                <State
+                    kind="empty"
+                    title={state.title}
+                    {...(state.description === undefined ? {} : { description: state.description })}
+                    action={{ label: state.download.label, onAction: state.download.onDownload }}
+                    placement="page"
+                />
+            );
+    }
 }
