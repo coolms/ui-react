@@ -3,7 +3,7 @@ export { TextField, TextArea, Select, Toggle, writtenOut, type TextFieldProps, t
 export { Modal, ConfirmDialog, MODAL_CLOSE_MS, type ModalProps, type ConfirmDialogProps } from './components/Dialogs';
 export { Toast, ToastRegion, Loading, EmptyState, ErrorBanner, type ToastProps, type LoadingProps, type EmptyStateProps, type ErrorBannerProps } from './components/Status';
 export { State, STATE_DELAY_MS, type StateKind, type StatePlacement, type StateProps } from './components/State';
-export { FileViewer, type FileViewerAction, type FileViewerEditing, type FileViewerProps, type FileViewerSiblings } from './components/FileViewer';
+export { FileViewer, type FileViewerAction, type FileViewerConflict, type FileViewerEditing, type FileViewerProps, type FileViewerSiblings, type FileViewerState } from './components/FileViewer';
 export { FilePicker, FilePickerDenied, type FilePickerBudget, type FilePickerChoice, type FilePickerEntry, type FilePickerLabels, type FilePickerPage, type FilePickerProps, type FilePickerSpace } from './components/FilePicker';
 export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps } from './components/Structure';
 export { Icon, ICON_NAMES, BOOTSTRAP_ICONS, iconForName, type IconName, type IconProps } from './components/Icon';
@@ -12,6 +12,7 @@ export { IncomingCall, CallPanel, CallBar, CALL_LABELS, type CallLabels, type In
 export { SignInLayout, SignInForm, SIGN_IN_LABELS, type SignInLabels, type SignInLayoutProps, type SignInFormProps, type SignInFeature } from './components/SignIn';
 export { List, ContextMenu, type ListRow, type ListProps, type MenuItem, type ContextMenuProps } from './components/Collections';
 export { PaneToolbar, type PaneToolbarAction, type PaneToolbarProps } from './components/PaneToolbar';
+export { Notification, type NotificationAction, type NotificationProps } from './components/Notification';
 
 export { offerFor, isCapability, type Capability, type Offer, type OfferOptions } from './server/capability';
 export { readRefusal, refusalText, type Refusal } from './server/refusal';

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FileViewer, type FileViewerSiblings } from '../src';
@@ -191,6 +191,69 @@ describe('FileViewer', () => {
         view.rerender(<FileViewer {...base} onZoom={onZoom} editing={{ status: 'Saved', doneLabel: 'Done', onDone: vi.fn(), onDirtyClose: vi.fn() }}><p>Editor</p></FileViewer>);
         fireEvent.keyDown(screen.getByRole('button', { name: 'Close' }), { key: '+' });
         expect(onZoom).toHaveBeenCalledTimes(4);
+    });
+
+    it('loading, error and no-preview: the state component inside the content, the top bar staying', async () => {
+        const download = vi.fn();
+        const retry = vi.fn();
+        const actions = [{ label: 'Download', icon: null, onSelect: download }];
+        const view = render(<FileViewer {...base} actions={actions} state={{ kind: 'loading', title: 'Opening report.pdf' }}><p>Content</p></FileViewer>);
+        const content = () => document.querySelector('.cms-viewer__content')!;
+        expect(content().querySelector('.cms-state--page')).not.toBeNull();
+        expect(screen.queryByText('Content')).toBeNull();
+        expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+        expect(screen.getAllByRole('button', { name: 'Download' }).length).toBeGreaterThan(0);
+
+        view.rerender(<FileViewer {...base} actions={actions} state={{ kind: 'error', title: 'The file could not be read.', retry: { label: 'Try again', onRetry: retry } }}><p>Content</p></FileViewer>);
+        expect(content()).toHaveTextContent('The file could not be read.');
+        await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+        expect(retry).toHaveBeenCalledTimes(1);
+        // Gone or refused: the server's words, and nothing to try again.
+        view.rerender(<FileViewer {...base} actions={actions} state={{ kind: 'error', title: 'This file was deleted.' }}><p>Content</p></FileViewer>);
+        expect(content().querySelector('button')).toBeNull();
+
+        view.rerender(<FileViewer {...base} actions={actions} state={{ kind: 'no-preview', title: 'No preview for this file', download: { label: 'Download', onDownload: download } }}><p>Content</p></FileViewer>);
+        expect(content().querySelector('.cms-state--empty')).not.toBeNull();
+        await userEvent.click(within(content() as HTMLElement).getByRole('button', { name: 'Download' }));
+        expect(download).toHaveBeenCalledTimes(1);
+
+        view.rerender(<FileViewer {...base} actions={actions}><p>Content</p></FileViewer>);
+        expect(screen.getByText('Content')).toBeInTheDocument();
+    });
+
+    it('editing-conflict: asks to overwrite or keep both above the editor, and saves nothing on its own', async () => {
+        const onOverwrite = vi.fn();
+        const onKeepBoth = vi.fn();
+        const onDone = vi.fn();
+        const editing = { status: 'Saved', doneLabel: 'Done', onDone, onDirtyClose: () => undefined };
+        const view = render(<FileViewer {...base} editing={editing}><p>Editor</p></FileViewer>);
+        expect(screen.queryByRole('alert')).toBeNull();
+        view.rerender(
+            <FileViewer {...base} editing={{ ...editing, conflict: { message: 'Someone changed this file while you were editing.', overwriteLabel: 'Overwrite', onOverwrite, keepBothLabel: 'Keep both', onKeepBoth } }}>
+                <p>Editor</p>
+            </FileViewer>,
+        );
+        const question = screen.getByRole('alert');
+        expect(question).toHaveTextContent('Someone changed this file while you were editing.');
+        expect(question.closest('.cms-viewer__content')).not.toBeNull();
+        expect(question.compareDocumentPosition(screen.getByText('Editor')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        expect(onOverwrite).not.toHaveBeenCalled();
+        expect(onKeepBoth).not.toHaveBeenCalled();
+        await userEvent.click(within(question).getByRole('button', { name: 'Keep both' }));
+        expect(onKeepBoth).toHaveBeenCalledTimes(1);
+        await userEvent.click(within(question).getByRole('button', { name: 'Overwrite' }));
+        expect(onOverwrite).toHaveBeenCalledTimes(1);
+        expect(onDone).not.toHaveBeenCalled();
+    });
+
+    it('with-thumbnails: the pages stand beside the file, not over it, and go while editing', () => {
+        const view = render(<FileViewer {...base} thumbnails={<ol><li>Page 1</li></ol>}><p>Content</p></FileViewer>);
+        const rail = document.querySelector('.cms-viewer__thumbnails')!;
+        expect(rail).toHaveTextContent('Page 1');
+        expect(rail.closest('.cms-viewer__content')).toBeNull();
+        expect(rail.nextElementSibling).toHaveClass('cms-viewer__content');
+        view.rerender(<FileViewer {...base} thumbnails={<ol><li>Page 1</li></ol>} editing={{ status: 'Saved', doneLabel: 'Done', onDone: () => undefined, onDirtyClose: () => undefined }}><p>Content</p></FileViewer>);
+        expect(document.querySelector('.cms-viewer__thumbnails')).toBeNull();
     });
 
     it('the strip takes its own row above the viewer bar, not a place over the file', () => {
