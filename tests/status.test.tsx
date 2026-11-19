@@ -82,6 +82,12 @@ describe('Avatar', () => {
         expect(initialsOf('  ada  ')).toBe('A');
         expect(initialsOf('Jean Paul Sartre')).toBe('JS');
         expect(initialsOf('')).toBe('');
+        // A trailing "via <service>" names the sender's go-between, not the sender.
+        expect(initialsOf('Valentina Zagnetova via LinkedIn')).toBe('VZ');
+        expect(initialsOf('Anna Kowalska VIA Google Groups')).toBe('AK');
+        // Only a trailing "via" with something after it: a name that is or ends in the word keeps it.
+        expect(initialsOf('Via Rossi')).toBe('VR');
+        expect(initialsOf('Olga via')).toBe('OV');
     });
 
     it('picture, initials, presence', () => {
