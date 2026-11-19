@@ -2,7 +2,7 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.16 (2026-11-19)
 
 The design tokens 0.8.0 with their control heights, and the kit covering every entry of their contract 0.3.0.
 
