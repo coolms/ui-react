@@ -2,6 +2,13 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.17 (2026-11-19)
+
+The pane toolbar always reaches More, and two icons of their own.
+
+- `PaneToolbar`: More is always reached. In a row too narrow for its pinned actions and More, after the overflow, the pinned go behind More too, from the end of the row, and its menu lists them after the overflow; no action is cut off at the row's edge. One action alone goes behind More when no other can go with it and that alone lets the row fit (one keeping its label, without an icon).
+- Icons: `envelope-open` draws an open envelope (`mail-open`), apart from `envelope`, and `clipboard` draws a clipboard (`copy`), so Show message and Copy source have their own icons.
+
 ## 0.1.0-alpha.16 (2026-11-19)
 
 The design tokens 0.8.0 with their control heights, and the kit covering every entry of their contract 0.3.0.
