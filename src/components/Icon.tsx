@@ -5,10 +5,14 @@ export type IconName =
     | 'mail' | 'chat' | 'phone' | 'calendar' | 'file' | 'image' | 'search' | 'bell' | 'pencil' | 'star' | 'send'
     | 'inbox' | 'archive' | 'trash' | 'paperclip' | 'mic' | 'speaker' | 'user-plus' | 'phone-off' | 'video' | 'info'
     | 'chevron-down' | 'chevron-left' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more'
-    | 'download' | 'print' | 'open-separately' | 'important' | 'forward' | 'refresh' | 'file-code';
+    | 'download' | 'print' | 'open-separately' | 'important' | 'forward' | 'refresh' | 'file-code' | 'mail-open' | 'copy';
 
 const PATHS: Readonly<Record<IconName, ReactNode>> = {
     mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
+    // The envelope with its flap open above it: a message read, or the message itself again.
+    'mail-open': <><path d="M3 10v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9" /><path d="m3 10 9-6 9 6" /><path d="m3 10 9 6 9-6" /></>,
+    // A clipboard: copy what is shown.
+    copy: <><rect x="6" y="4" width="12" height="17" rx="2" /><path d="M9 4V3h6v1" /><path d="M9 10h6M9 14h6M9 18h3" /></>,
     chat: <path d="M4 12a8 8 0 1 1 4 6.9L4 20l1.1-4A8 8 0 0 1 4 12Z" />,
     phone: <path d="M5 3h3l2 5-2.5 1.5a11 11 0 0 0 7 7L16 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z" />,
     calendar: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>,
@@ -87,7 +91,7 @@ export const BOOTSTRAP_ICONS: Readonly<Record<string, IconName>> = {
     'reply-all': 'reply',
     forward: 'forward',
     envelope: 'mail',
-    'envelope-open': 'mail',
+    'envelope-open': 'mail-open',
     star: 'star',
     'star-fill': 'star',
     'folder-symlink': 'folder',
@@ -98,6 +102,7 @@ export const BOOTSTRAP_ICONS: Readonly<Record<string, IconName>> = {
     download: 'download',
     printer: 'print',
     'file-earmark-code': 'file-code',
+    clipboard: 'copy',
     'three-dots': 'more',
 };
 

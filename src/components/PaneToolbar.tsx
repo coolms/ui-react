@@ -18,8 +18,8 @@ export interface PaneToolbarAction {
     readonly group: string;
     /**
      * When it goes behind ... as the row narrows: lower first; actions of the same priority go together (a toggle's
-     * pair). Without one it is pinned: it never goes behind .... 0: menu only, behind ... at every width and never in
-     * the row.
+     * pair). Without one it is pinned: it goes behind ... only in a row too narrow to hold it with the rest, the last in
+     * the row first, so that nothing is cut off. 0: menu only, behind ... at every width and never in the row.
      */
     readonly overflow?: number;
     /** Shown, kept in the focus order, and doing nothing when chosen; `reason` is its tooltip. */
@@ -74,8 +74,10 @@ function unitsOf(actions: readonly PaneToolbarAction[]): readonly (readonly stri
  * width as its pane resizes:
  * every label shows while all fit; then labels hide one by one in the overflow order (lower first, a priority's actions
  * together), the pinned last, from the end of the row; only once every label is hidden do actions go behind ..., in
- * the same order, the fewest that let the rest and ... fit, never one alone. They come back in the reverse order. One
- * Tab stop; Left and Right, Home and End move inside it.
+ * the same order, the fewest that let the rest and ... fit, never one alone while another can go with it. Where the
+ * pinned and ... still do not fit, the pinned go behind ... too, from the end of the row: no action is ever cut off,
+ * and ... is always reached. They come back in the reverse order. One Tab stop; Left and Right, Home and End move
+ * inside it.
  *
  * Menu-only actions (overflow 0) are behind ... at every width, first in its menu, and take no part in the giving way:
  * their labels are not counted, and "never one alone" counts only the actions that could have stayed in the row. ...
@@ -140,8 +142,14 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                 // ... takes an icon's width itself, so a menu of one saves nothing: never one alone behind it.
                 if (hidden.size >= 2 && needed(bare, hidden) <= room) break;
             }
-            // Only one action could go: it stays in the row, and the row is narrower than the contract promises for.
-            next = { bare, hidden: hidden.size >= 2 ? hidden : new Set() };
+            // Still wider than the row: the pinned go too, from the end, so that nothing is cut off and ... is reached.
+            if (needed(bare, hidden) > room) {
+                for (const id of [...pinnedIds].reverse()) {
+                    hidden.add(id);
+                    if (needed(bare, hidden) <= room) break;
+                }
+            }
+            next = { bare, hidden };
         }
         const chosen = next;
         setLayout(was => (same(was.bare, chosen.bare) && same(was.hidden, chosen.hidden) ? was : chosen));
@@ -165,6 +173,8 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
     const behind = [
         ...menuOnly,
         ...units.flat().map(id => all.find(a => a.id === id)).filter((a): a is PaneToolbarAction => a !== undefined && layout.hidden.has(a.id)),
+        // The pinned that a row too narrow for them sent behind ..., in the row's order.
+        ...inRow.filter(a => layout.hidden.has(a.id) && !units.some(u => u.includes(a.id))),
     ];
     const pinned = new Set(inRow.filter(a => !units.some(u => u.includes(a.id))).map(a => a.id));
     const stops = [...shown.map(a => a.id), ...(behind.length > 0 ? ['more'] : [])];
