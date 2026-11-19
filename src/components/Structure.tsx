@@ -112,9 +112,12 @@ export interface AvatarProps {
     readonly size?: number;
 }
 
-/** Up to two initials from a name: "Ada Lovelace" -> "AL", "ada" -> "A". */
+/**
+ * Up to two initials from a name: "Ada Lovelace" -> "AL", "ada" -> "A". A sender named for the service that sent on
+ * their behalf keeps their own: "Valentina Zagnetova via LinkedIn" -> "VZ".
+ */
 export function initialsOf(name: string): string {
-    const words = name.trim().split(/\s+/).filter(Boolean);
+    const words = name.trim().replace(/\s+via\s+\S.*$/i, '').split(/\s+/).filter(Boolean);
     const letters = words.length > 1 ? [words[0]![0], words[words.length - 1]![0]] : [words[0]?.[0]];
     return letters.filter(Boolean).join('').toUpperCase();
 }
