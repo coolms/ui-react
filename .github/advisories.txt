@@ -6,4 +6,3 @@
 #
 # Every line is reviewed again by its date: at most 30 days out for critical and high, 90 for the rest. A review writes
 # a new date and the reason as it stands then; an update that clears the advisory takes the line off instead.
-picomatch GHSA-fc5q-39xc-vjpf high 2026-12-17 Vite, Vitest and their file matching (tinyglobby), on the build machine only: npm ls picomatch --omit=dev is empty, and the built dist/ holds none of it. No fixed release yet.
