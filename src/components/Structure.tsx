@@ -117,8 +117,11 @@ export interface AvatarProps {
  * their behalf keeps their own: "Valentina Zagnetova via LinkedIn" -> "VZ".
  */
 export function initialsOf(name: string): string {
-    const words = name.trim().replace(/\s+via\s+\S.*$/i, '').split(/\s+/).filter(Boolean);
-    const letters = words.length > 1 ? [words[0]![0], words[words.length - 1]![0]] : [words[0]?.[0]];
+    // Only a lowercase "via", as relays write it: a name with "Via" in it ("Maria Via Rossi") keeps every part.
+    const words = name.trim().replace(/\s+via\s+\S.*$/, '').split(/\s+/).filter(Boolean);
+    // A word's first letter or digit: a name in quotes ("'Anna Kowalska'") gives AK, not 'K.
+    const first = (word: string | undefined) => word?.match(/[\p{L}\p{N}]/u)?.[0];
+    const letters = words.length > 1 ? [first(words[0]), first(words[words.length - 1])] : [first(words[0])];
     return letters.filter(Boolean).join('').toUpperCase();
 }
 
