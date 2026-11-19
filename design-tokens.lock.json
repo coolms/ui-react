@@ -1,15 +1,15 @@
 {
   "repository": "coolms/design-tokens",
-  "tag": "v0.7.1",
-  "commit": "0167cfcaf665e4f785910e7c309ef18fedf61c52",
+  "tag": "v0.8.0",
+  "commit": "f43a36bfa604ce965824bf57ea23394c322ea7f7",
   "files": {
     "dist/coolms-tokens.css": {
       "to": "src/tokens/coolms-tokens.css",
-      "sha256": "e0b01973324f21b32dc89907d379f3380c47f740e152e471ea4287efee652cc0"
+      "sha256": "aadfb15497060c9c1ddd2ffb89039ff569bd6b3618734cccde0a17c51a217fac"
     },
     "contract/components.json": {
       "to": "contract/components.json",
-      "sha256": "61c8d3610cdf9a7685576d8ab891f3be8d3b55bc73716172da15e2ca8b889bd0"
+      "sha256": "e9675caaa511e6581922d6bd2d7bf38975903f3269d563eb6c5be7effb28b293"
     },
     "contract/server-states.json": {
       "to": "contract/server-states.json",
@@ -21,7 +21,7 @@
     },
     "tools/check-css.mjs": {
       "to": "tools/check-css.mjs",
-      "sha256": "231ca006b6e949f9882c98186527e2a974efb5acd60bfb8d05a37d82eae6a678"
+      "sha256": "aad1b7d00c46577346b4fc38ddfe0047633a61f4eebe39959918811eb134fd12"
     },
     "fonts/inter.css": {
       "to": "src/fonts/inter.css",

@@ -3,7 +3,8 @@
 // Serves the built demo (demo/dist) on a free local port and opens each screen of demo/workspace.html in headless
 // Chrome at each width of the layout: 1440 (desktop), 1024 and 768 (tablet), 390 (phone), in light and dark. The
 // page's own probe (`?probe=layout`) reports what passes the viewport's edge, what scrolls sideways, and, below the
-// desktop width, every control smaller than the 44px touch target. Any of those is FOUND.
+// desktop width, every control smaller than the 44px touch target. Any of those is FOUND. Below the desktop width the
+// browser is a touch screen's (a coarse pointer, no hover), as a phone or a tablet is.
 //
 // A browser window has a smallest width (about 500px for Chrome on Windows), narrower than a phone. So each screen is
 // opened in a frame of exactly its width, inside a harness page this check serves; the screen's media queries read
@@ -28,9 +29,13 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'demo', 'dist')
 const WINDOWS_CHROME = '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe';
 
 /** The demo's screens, each at a place its address names. */
-export const SCREENS = ['mail/folders', 'mail', 'mail/0', 'chat', 'chat/0', 'calls', 'signin'];
+export const SCREENS = ['mail/folders', 'mail', 'mail/0', 'chat', 'chat/0', 'calls', 'signin', 'notifications'];
 /** The widths of the layout: desktop, two tablet widths, phone. */
 export const WIDTHS = [1440, 1024, 768, 390];
+/** The breakpoint-desktop token: below it the layout is a touch screen's. */
+const DESKTOP_WIDTH = 1200;
+/** Chrome's own settings for a touch screen: the primary and every available pointer coarse, no hover. */
+export const TOUCH_SCREEN = '--blink-settings=primaryPointerType=2,availablePointerTypes=2,primaryHoverType=1,availableHoverTypes=1';
 const HEIGHT = { 1440: 900, 1024: 768, 768: 1024, 390: 844 };
 /** The narrowest window the harness asks for: wider than any browser's smallest window. */
 const WINDOW_MIN = 520;
@@ -95,6 +100,9 @@ function browserArgs(chrome, profile, port, screen, width, dark, probe) {
             '--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run', '--no-default-browser-check',
             `--user-data-dir=${forBrowser(chrome, profile)}`,
             `--window-size=${String(Math.max(width, WINDOW_MIN))},${String(height)}`, '--virtual-time-budget=6000',
+            // Below the desktop width the screen is read as a touch screen's: a coarse pointer and no hover, so the
+            // control heights the tokens give a touch screen (44px) are the ones measured, not a mouse's.
+            ...(width < DESKTOP_WIDTH ? [TOUCH_SCREEN] : []),
         ],
     };
 }

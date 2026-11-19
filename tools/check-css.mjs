@@ -4,7 +4,8 @@
 // A browser drops a rule whose selector it cannot read, silently, with every custom property in it: a `//` line --
 // a comment in SCSS, not in CSS -- in front of `:root` cost a whole page its light theme. This reads the file the
 // way the generator writes it and refuses anything else: comments only as /* ... */; rules only `:root` and
-// `:root[data-theme='dark']`; inside them only `--cms-*: value;` declarations; at least one declaration in `:root`.
+// `:root[data-theme='dark']`, and `:root` inside `@media (pointer: coarse)`; inside them only `--cms-*: value;`
+// declarations; at least one declaration in the top-level `:root`.
 // Node built-ins only.
 //
 // Exit 0 CLEAR, 1 FOUND (with the line of the first fault), 2 UNEVALUABLE (the file could not be read).
@@ -12,6 +13,8 @@ import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 const SELECTORS = new Set([':root', ":root[data-theme='dark']"]);
+/** The one at-rule the generator writes: the sizes a touch screen needs larger, as one `:root` rule. */
+const COARSE = /\s*@media\s*\(\s*pointer\s*:\s*coarse\s*\)\s*\{\s*:root\s*\{([^{}]*)\}\s*\}/y;
 const DECLARATION = /^--cms-[a-z0-9-]+\s*:\s*[^;{}]+$/;
 
 /** The faults of a token stylesheet, each with its line; none for a sheet a browser keeps whole. */
@@ -29,6 +32,21 @@ export function faults(text) {
     let rootDeclarations = 0;
     while (at < source.length) {
         if (/^\s*$/.test(source.slice(at))) {
+            break;
+        }
+        COARSE.lastIndex = at;
+        const media = COARSE.exec(source);
+        if (media !== null) {
+            for (const declaration of media[1].split(';').map((d) => d.trim()).filter((d) => d !== '')) {
+                if (!DECLARATION.test(declaration)) {
+                    found.push(`line ${lineOf(media.index + media[0].indexOf(declaration))}: "${declaration.slice(0, 60)}" is not a --cms-* declaration`);
+                }
+            }
+            at = COARSE.lastIndex;
+            continue;
+        }
+        if (/^\s*@/.test(source.slice(at))) {
+            found.push(`line ${lineOf(at + (source.slice(at).search(/\S/)))}: an at-rule other than @media (pointer: coarse) holding :root`);
             break;
         }
         rule.lastIndex = at;

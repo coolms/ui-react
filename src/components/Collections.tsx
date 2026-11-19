@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import type { Offer } from '../server/capability';
 import { EmptyState, ErrorBanner, Loading } from './Status';
@@ -111,13 +111,15 @@ export interface ContextMenuProps {
 }
 
 /**
- * The selected object's actions (contract component `context-menu`: open, item-danger, item-locked, item-refused).
- * An item the server withheld is not drawn; a locked one carries its lock; a refused one is shown disabled with the
- * server's refusal. Escape, a press outside, or a choice closes it, and focus goes back where it was.
+ * The selected object's actions (contract component `context-menu`: open, item-danger, item-locked, item-refused,
+ * item-disabled). An item the server withheld is not drawn; a locked one carries its lock; a refused or disabled one
+ * stays in the menu, reached by the arrow keys, aria-disabled, with the server's reason under its label and as its
+ * description; choosing it does nothing and the menu stays open. Escape, a press outside, or a choice closes it, and focus goes back where it was.
  */
 export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'first' }: ContextMenuProps): ReactNode {
     const menu = useRef<HTMLDivElement>(null);
     const returnTo = useRef<Element | null>(null);
+    const reasons = useId();
     const [pos, setPos] = useState(at);
     const shown = items.filter(i => i.offer.offered);
 
@@ -178,6 +180,7 @@ export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'fi
                         role="menuitem"
                         tabIndex={-1}
                         aria-disabled={refused || undefined}
+                        aria-describedby={refused ? `${reasons}-${item.id}` : undefined}
                         title={refused ? item.offer.refusal : undefined}
                         className={cx('cms-menu__item', item.danger && 'is-danger', item.offer.locked && 'is-locked', refused && 'is-refused')}
                         onClick={() => {
@@ -195,7 +198,7 @@ export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'fi
                     >
                         {item.offer.locked ? <Glyph name="lock" /> : null}
                         <span className="cms-menu__label">{item.label}</span>
-                        {refused ? <span className="cms-menu__refusal">{item.offer.refusal}</span> : null}
+                        {refused ? <span id={`${reasons}-${item.id}`} className="cms-menu__refusal">{item.offer.refusal}</span> : null}
                     </div>
                 );
             })}

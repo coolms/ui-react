@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ContextMenu, List, offerFor, type MenuItem } from '../src';
+import css from '../src/kit.css?raw';
 
 const rows = [{ id: '1', primary: 'Hello', secondary: 'Ada' }, { id: '2', primary: 'Invoice', meta: 'Mon' }];
 
@@ -57,6 +58,9 @@ describe('ContextMenu', () => {
         expect(drawn[1]).toHaveClass('is-locked');
         expect(drawn[2]).toHaveAttribute('aria-disabled', 'true');
         expect(drawn[2]).toHaveTextContent('The space is read-only');
+        // item-disabled: its reason is its description, not only text beside it.
+        expect(drawn[2]).toHaveAccessibleDescription('The space is read-only');
+        expect(drawn[0]).not.toHaveAttribute('aria-describedby');
         expect(drawn[3]).toHaveClass('is-danger');
         expect(drawn[0]).toHaveFocus();
     });
@@ -80,5 +84,12 @@ describe('ContextMenu', () => {
         expect(onClose).toHaveBeenCalledTimes(2);
         rerender(<ContextMenu at={{ x: 10, y: 10 }} items={[items()[3]!]} onClose={onClose} />);
         expect(screen.queryByRole('menu')).toBeNull();
+    });
+});
+
+describe('a menu item\'s icon', () => {
+    it('stands on one line with its words, centred on them', () => {
+        expect(css).toMatch(/\.cms-menu__label \{ display: flex; flex: 1; align-items: center;[^}]*min-width: 0; \}/);
+        expect(css).toMatch(/\.cms-menu__label > svg \{ flex: none; \}/);
     });
 });

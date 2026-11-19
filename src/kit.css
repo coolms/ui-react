@@ -28,7 +28,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: var(--cms-row-height);
+    /* The contract's button height: 40px with a mouse, 44px on a touch screen (the token's coarse-pointer value). */
+    min-height: var(--cms-control-height-md);
     padding: 0 12px;
     border: 1px solid var(--cms-btn-border);
     border-radius: var(--cms-radius);
@@ -64,7 +65,8 @@
 .cms-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
 .cms-field__label { color: var(--cms-text); font-weight: 600; }
 .cms-input {
-    min-height: var(--cms-row-height);
+    /* A text field's and a select's height, as a button's. */
+    min-height: var(--cms-control-height-md);
     padding: 0 10px;
     border: 1px solid var(--cms-border-control);
     border-radius: var(--cms-radius);
@@ -294,10 +296,32 @@
 }
 .cms-menu__item { display: flex; align-items: center; gap: 8px; min-height: var(--cms-row-height-sm); padding: 0 10px; border-radius: var(--cms-radius-sm); cursor: pointer; }
 .cms-menu__item:hover, .cms-menu__item:focus { background: var(--cms-hover-bg); outline: none; }
-.cms-menu__label { flex: 1; }
+/* An item's icon and its words share one line, centred on each other. */
+.cms-menu__label { display: flex; flex: 1; align-items: center; gap: 8px; min-width: 0; }
+.cms-menu__label > svg { flex: none; }
 .cms-menu__item.is-danger { color: var(--cms-danger-text); }
 .cms-menu__item.is-refused { color: var(--cms-text-muted); cursor: not-allowed; }
 .cms-menu__refusal { font-size: 0.8125em; }
+
+/* One notification: its row (the title, the time, the body in one line until expanded), the chevron beside it, and a
+   button action under the text. Unread: the title in weight and a dot. */
+.cms-notification { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: var(--cms-space-1); padding: var(--cms-space-1) var(--cms-space-2); border-radius: var(--cms-radius-md); }
+.cms-notification__row { display: flex; align-items: flex-start; gap: var(--cms-space-3); min-width: 0; padding: var(--cms-space-2); border-radius: var(--cms-radius-md); color: var(--cms-text); cursor: pointer; }
+.cms-notification__row:hover { background: var(--cms-hover-bg); }
+.cms-notification__row:focus-visible { outline: 2px solid var(--cms-focus-ring); outline-offset: 1px; }
+.cms-notification__leading { flex: none; display: inline-flex; }
+.cms-notification__text { display: flex; flex: 1; flex-direction: column; gap: var(--cms-space-1); min-width: 0; }
+.cms-notification__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--cms-space-2); }
+.cms-notification__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cms-notification.is-unread .cms-notification__title { font-weight: var(--cms-font-weight-semibold); }
+.cms-notification__time { flex: none; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.cms-notification__body { overflow: hidden; color: var(--cms-text-muted); text-overflow: ellipsis; white-space: nowrap; }
+.cms-notification.is-expanded .cms-notification__body { white-space: pre-wrap; overflow-wrap: break-word; }
+.cms-notification__dot { flex: none; width: 8px; height: 8px; margin-top: var(--cms-space-2); border-radius: var(--cms-radius-pill); background: var(--cms-accent); }
+.cms-notification__chevron { display: inline-flex; align-items: center; justify-content: center; width: var(--cms-control-height-md); height: var(--cms-control-height-md); border: 0; border-radius: var(--cms-radius-sm); background: transparent; color: var(--cms-text-muted); cursor: pointer; }
+.cms-notification__chevron:hover { background: var(--cms-hover-bg); color: var(--cms-text); }
+.cms-notification.is-expanded .cms-notification__chevron svg { transform: rotate(180deg); }
+.cms-notification__action { grid-column: 1; justify-self: start; margin: 0 0 var(--cms-space-2) var(--cms-space-2); }
 
 /*
  * The Workspace: the shell, its lists, chat, the call and sign-in. Same rule as above: only --cms-* tokens. The chrome
@@ -531,6 +555,12 @@
 .cms-viewer__body { display: flex; min-height: 0; }
 .cms-viewer__thumbnails { flex: none; width: 124px; padding: var(--cms-space-3); overflow: auto; border-right: 1px solid #2a2f38; }
 .cms-viewer__content { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; }
+/* A state instead of the file, in the viewer's own dark colours whatever the page's scheme. */
+.cms-viewer .cms-state { min-height: 100%; color: #a8afbb; }
+.cms-viewer .cms-state__title { color: #f4f5f7; }
+/* The file changed elsewhere while being edited: the question across the top of the content, above the editor. */
+.cms-viewer__conflict { position: relative; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: var(--cms-space-2); margin: 0; padding: var(--cms-space-2) var(--cms-space-3); border-bottom: 1px solid var(--cms-warning); background: #262b34; }
+.cms-viewer__conflict-text { flex: 1 1 16rem; min-width: 0; margin: 0; }
 /* The next arrow stands clear of the content's own vertical scrollbar (at most 20px), down the content's right edge. */
 .cms-viewer__side { position: absolute; top: 50%; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; margin-top: -22px; border: 0; border-radius: 50%; background: #262b34; color: inherit; cursor: pointer; }
 .cms-viewer__side--previous { left: var(--cms-space-3); }
@@ -569,7 +599,7 @@
     .cms-shell__item { justify-content: center; min-height: var(--cms-touch-target-min); }
     .cms-shell__top { gap: var(--cms-space-3); padding: 0 var(--cms-space-4); }
     .cms-shell__search { min-width: 0; }
-    .cms-button, .cms-chip, .cms-tab, .cms-menu__item, .cms-list__row, .cms-panes__back, .cms-server-switch { min-height: var(--cms-touch-target-min); }
+    .cms-chip, .cms-tab, .cms-menu__item, .cms-list__row, .cms-panes__back, .cms-server-switch { min-height: var(--cms-touch-target-min); }
     .cms-icon-button { min-width: var(--cms-touch-target-min); min-height: var(--cms-touch-target-min); }
     .cms-search { height: var(--cms-touch-target-min); }
     .cms-search__input { align-self: stretch; }
