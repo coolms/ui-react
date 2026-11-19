@@ -2,7 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.18 (2026-11-20)
+
+A sender's own initials when a service sent on their behalf.
 
 - `Avatar` / `initialsOf`: a trailing "via <service>" is left out before the initials are taken, so a message sent on someone's behalf shows the sender's own: "Valentina Zagnetova via LinkedIn" is VZ, not VL. Only a lowercase "via", as relays write it: "Maria Via Rossi" stays MR. Each initial is the word's first letter or digit, so a name in quotes ("'Anna Kowalska' via Partners") is AK.
 
