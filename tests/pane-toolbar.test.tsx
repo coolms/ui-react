@@ -10,7 +10,9 @@ const realRect = HTMLElement.prototype.getBoundingClientRect;
 beforeEach(() => {
     HTMLElement.prototype.getBoundingClientRect = function rect(this: HTMLElement) {
         const kind = this.dataset['measure'] as keyof typeof WIDTH | undefined;
-        const width = kind === undefined ? 0 : WIDTH[kind] ?? 0;
+        // An action without an icon keeps its label when the others hide theirs: as wide as with it.
+        const labelOnly = kind === 'icon' && this.querySelector('.cms-pane-toolbar__label') !== null;
+        const width = kind === undefined ? 0 : labelOnly ? WIDTH.full : WIDTH[kind] ?? 0;
         return { width, height: 36, top: 0, left: 0, right: width, bottom: 36, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
     };
     Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
@@ -267,12 +269,42 @@ describe('PaneToolbar', () => {
         expect(forward.className).not.toContain('cms-pane-toolbar__action--bare');
     });
 
-    it('a single action that may go stays in the row: never one alone behind More', () => {
-        room = 200;
+    it('a single action that may go stays in the row where the row holds it: never one alone behind More', () => {
+        // All bare: 270. Star alone behind More saves nothing (36 for 36), and the row holds all seven at 270.
+        room = 270;
         view({ unread: { overflow: undefined }, move: { overflow: undefined } });
         expect(bar().querySelectorAll('[data-overflowed]')).toHaveLength(0);
         expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
         expect(screen.getByRole('button', { name: 'Star' })).toBeVisible();
+    });
+
+    it('a row too narrow for its pinned actions sends them behind More from the end: none is cut off, More is reached', async () => {
+        // All bare: 270, and only Star may go. At 200, Star and then the pinned from the end go: Move, Mark unread.
+        room = 200;
+        view({ unread: { overflow: undefined }, move: { overflow: undefined } });
+        expect([...bar().querySelectorAll<HTMLElement>('[data-overflowed]')].map((b) => b.dataset['action'])).toEqual(['unread', 'star', 'move']);
+        await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+        const menu = screen.getByRole('menu', { name: 'More actions' });
+        expect(within(menu).getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Star', 'Mark unread', 'Move']);
+    });
+
+    it('a pinned action that keeps its label, wider than the row allows, does not push More out of the row', () => {
+        // Show message, pinned, has an icon the kit lacks, so it keeps its 100 when the others are bare. With the whole
+        // overflow behind More the row still needs 4 x 36 + 100 + 18 + 36 = 298; at 280 Show message goes too.
+        room = 280;
+        chosen = [];
+        render(<PaneToolbar label="Message actions" moreLabel="More actions" onAction={(id) => chosen.push(id)}
+            actions={[...actions(), { id: 'message', icon: 'no-such-icon', label: 'Show message', group: 'view' }]} />);
+        expect(screen.getByRole('button', { name: 'More actions' })).toBeVisible();
+        expect(bar().querySelector<HTMLElement>('[data-action="message"]')?.hidden).toBe(true);
+    });
+
+    it('one action alone goes behind More where that alone saves room: it keeps its label', () => {
+        // Star keeps its label (no icon): bare row 270 - 36 + 100 = 334. Alone behind More it saves 64, and 270 fits.
+        room = 300;
+        view({ star: { icon: 'no-such-icon' }, unread: { overflow: undefined }, move: { overflow: undefined } });
+        expect([...bar().querySelectorAll<HTMLElement>('[data-overflowed]')].map((b) => b.dataset['action'])).toEqual(['star']);
+        expect(screen.getByRole('button', { name: 'More actions' })).toBeVisible();
     });
 
     it('each action is found by its data-action alone: the measuring copies carry another name', () => {

@@ -14,6 +14,7 @@ import {
     FilterChips,
     ICON_NAMES,
     Icon,
+    iconForName,
     IncomingCall,
     MailRow,
     SearchField,
@@ -40,6 +41,12 @@ describe('Icon', () => {
             unmount();
         }
         expect(ICON_NAMES).toContain('phone-off');
+    });
+
+    it('draws a read envelope apart from an unread one, and a clipboard for copying', () => {
+        expect(iconForName('envelope')).toBe('mail');
+        expect(iconForName('envelope-open')).toBe('mail-open');
+        expect(iconForName('clipboard')).toBe('copy');
     });
 });
 
