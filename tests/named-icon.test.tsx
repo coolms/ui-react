@@ -41,6 +41,18 @@ describe('the server\'s icon names', () => {
         expect(warn.mock.calls[0]![0]).toContain('"unheard-of"');
     });
 
+    it('a host with no process at all draws the blank and does not throw or warn', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+        vi.stubGlobal('process', undefined);
+        try {
+            const { container } = render(<NamedIcon name="unheard-of-without-process" />);
+            expect(container.querySelector('.cms-icon--blank')).not.toBeNull();
+        } finally {
+            vi.unstubAllGlobals();
+        }
+        expect(warn).not.toHaveBeenCalled();
+    });
+
     it('no name draws nothing', () => {
         const { container } = render(<NamedIcon name="" />);
         expect(container.firstChild).toBeNull();

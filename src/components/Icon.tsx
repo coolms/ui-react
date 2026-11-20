@@ -132,6 +132,18 @@ export function iconForName(name: string): IconName | null {
 
 declare const process: { readonly env: { readonly NODE_ENV?: string } };
 
+/**
+ * Whether the host runs outside production, as its bundler states `process.env.NODE_ENV`. A host with no `process` at
+ * all, which no bundler replaced, counts as production: the read never throws into a render.
+ */
+function outsideProduction(): boolean {
+    try {
+        return process.env.NODE_ENV !== 'production';
+    } catch {
+        return false;
+    }
+}
+
 const warned = new Set<string>();
 
 /**
@@ -143,7 +155,7 @@ export function NamedIcon({ name, size = 18 }: { readonly name: string; readonly
     if (name === '') return null;
     const icon = iconForName(name);
     if (icon !== null) return <Icon name={icon} size={size} />;
-    if (process.env.NODE_ENV !== 'production' && !warned.has(name)) {
+    if (!warned.has(name) && outsideProduction()) {
         warned.add(name);
         console.warn(`@coolms/ui-react: no icon for the server's icon name "${name}"; its space is kept empty`);
     }
