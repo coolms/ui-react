@@ -2,7 +2,7 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.19 (2026-11-20)
 
 The screen shell at phone width, on design tokens 0.10.0 (contract 0.5.0).
 
