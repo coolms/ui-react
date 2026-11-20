@@ -356,6 +356,7 @@
  * (the rail, the incoming call, the sign-in brand side) stays navy in both themes.
  */
 .cms-icon { flex: none; }
+.cms-icon--blank { display: inline-block; }
 :where(.cms-shell__item, .cms-chip, .cms-mail-row, .cms-call-button, .cms-call-bar__icon, .cms-composer__send-round, .cms-signin-form__show):focus-visible {
     outline: 2px solid var(--cms-focus-ring);
     outline-offset: 2px;

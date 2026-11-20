@@ -2,6 +2,14 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.20 (2026-11-20)
+
+The server's icon names the folder menu and the image bar use, and a space kept for a name the kit does not know.
+
+- `Icon`: `folder-plus`, `folder-x`, `user-check` and `user-x`, in the set's stroke style.
+- `BOOTSTRAP_ICONS` / `iconForName`: `pencil` is `pencil`, `trash3` is `trash`, `folder-plus` and `folder-x` are themselves, `image` is `image`, `person-check` is `user-check`, and `person-x` is `user-x`.
+- `NamedIcon` (new): a server's icon by its name, 18px by default, for a row of items. A name the table does not hold draws an empty space of the same size, so the labels beside it line up, and says so once per name in the console outside production. No name draws nothing.
+
 ## 0.1.0-alpha.19 (2026-11-20)
 
 The screen shell at phone width, on design tokens 0.10.0 (contract 0.5.0).
