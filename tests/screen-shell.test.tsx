@@ -27,6 +27,22 @@ describe('ScreenShell', () => {
         expect(screen.getByRole('link', { name: 'Personal' })).toHaveAttribute('href', '#drive/personal');
     });
 
+    it('searching: the bar is Close and the host\'s field, in place of the title and the icons; Close ends it', async () => {
+        const onClose = vi.fn();
+        render(
+            <ScreenShell title="Inbox" search={{ label: 'Search mail', onOpen: () => undefined }} globals={<button type="button">Notifications</button>}
+                searching={{ field: <input aria-label="Search mail" />, closeLabel: 'Close search', onClose }}>
+                <p />
+            </ScreenShell>,
+        );
+        const bar = screen.getByRole('banner');
+        expect(within(bar).getByRole('textbox', { name: 'Search mail' })).toBeInTheDocument();
+        expect(within(bar).queryByRole('heading')).toBeNull();
+        expect(within(bar).queryByRole('button', { name: 'Notifications' })).toBeNull();
+        await userEvent.click(within(bar).getByRole('button', { name: 'Close search' }));
+        expect(onClose).toHaveBeenCalledOnce();
+    });
+
     it('filters: chips under the bar, exactly one selected; a choice says its id', async () => {
         const onSelect = vi.fn();
         render(

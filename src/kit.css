@@ -273,6 +273,8 @@
 .cms-screen__back-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cms-screen__title { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; font-size: var(--cms-font-size-title-md); font-weight: var(--cms-font-weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
 .cms-screen__trailing { display: flex; flex: none; align-items: center; gap: var(--cms-space-1); }
+.cms-screen__search { display: flex; flex: 1 1 auto; min-width: 0; }
+.cms-screen__search > * { flex: 1 1 auto; min-width: 0; }
 .cms-screen__icon { width: var(--cms-control-height-md); height: var(--cms-control-height-md); }
 .cms-screen__filters { flex: none; padding: var(--cms-space-2) var(--cms-space-4); overflow-x: auto; }
 .cms-screen__content { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; }

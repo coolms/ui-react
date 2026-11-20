@@ -19,6 +19,11 @@ export interface ScreenShellProps {
     readonly navigation?: ReactNode;
     /** The section's search, an icon button. */
     readonly search?: { readonly label: string; readonly onOpen: () => void };
+    /**
+     * While the section's search is open: the bar is Close, then the host's search field in place of the title and the
+     * icons, until Close (or the host) ends it.
+     */
+    readonly searching?: { readonly field: ReactNode; readonly closeLabel: string; readonly onClose: () => void };
     /** The shell's own icons, the same in every section: the bell, then the person's avatar. */
     readonly globals?: ReactNode;
     /** The place's filters, as chips under the bar, exactly one selected. */
@@ -36,11 +41,11 @@ export interface ScreenShellProps {
 /**
  * One screen of a section at phone width (contract component `screen-shell`: root, nested, with-filters,
  * with-primary-action, with-primary-menu, pulling, refreshing, searching). One bar: the section's navigation or Back
- * with the parent's name, the title, then search and the shell's own icons; the filters under it; the content, which
+ * with the parent's name, the title, then search and the shell's own icons, or while searching, Close and the field; the filters under it; the content, which
  * scrolls on its own and refreshes by a pull from its top; the primary action floating at the bottom right, its menu
  * opening above it. What fills each slot is the host's, from the server's declared nodes.
  */
-export function ScreenShell({ title, back, navigation, search, globals, filters, primary, onRefresh, pullText, children }: ScreenShellProps): ReactNode {
+export function ScreenShell({ title, back, navigation, search, searching, globals, filters, primary, onRefresh, pullText, children }: ScreenShellProps): ReactNode {
     const content = useRef<HTMLDivElement>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [menuAt, setMenuAt] = useState<{ x: number; y: number } | null>(null);
@@ -53,6 +58,14 @@ export function ScreenShell({ title, back, navigation, search, globals, filters,
     const pull: PullState | null = onRefresh === undefined ? null : { distance, refreshing, text: pullText ?? null };
     return (
         <div className={cx('cms-screen', primary !== undefined && 'cms-screen--with-primary')}>
+            {searching !== undefined ? (
+                <header className="cms-screen__bar cms-screen__bar--searching">
+                    <button type="button" className="cms-icon-button cms-screen__icon" aria-label={searching.closeLabel} title={searching.closeLabel} onClick={searching.onClose}>
+                        <Icon name="chevron-left" />
+                    </button>
+                    <div className="cms-screen__search">{searching.field}</div>
+                </header>
+            ) : (
             <header className="cms-screen__bar">
                 <div className="cms-screen__leading">
                     {back !== undefined ? (
@@ -79,6 +92,7 @@ export function ScreenShell({ title, back, navigation, search, globals, filters,
                     {globals}
                 </div>
             </header>
+            )}
             {filters !== undefined ? (
                 <div className="cms-screen__filters">
                     <FilterChips label={filters.label} options={filters.options} value={filters.selected} onChange={filters.onSelect} />
