@@ -1,0 +1,114 @@
+import { useRef, useState, type ReactNode } from 'react';
+import { PullContext, usePull, type PullState } from './pull';
+import { ContextMenu, type MenuItem } from './Collections';
+import { Icon, type IconName } from './Icon';
+import { FilterChips, type FilterOption } from './Workspace';
+import { cx } from './internal';
+
+/** The screen's floating primary action: one action, or a menu of declared entries. */
+export type ScreenPrimary =
+    | { readonly label: string; readonly icon: IconName; readonly onPress: () => void }
+    | { readonly label: string; readonly icon: IconName; readonly menu: readonly MenuItem[] };
+
+export interface ScreenShellProps {
+    /** The current place's name. */
+    readonly title: string;
+    /** On a nested screen: where Back leads, named by the parent's name. Absent at a section's root. */
+    readonly back?: { readonly label: string; readonly href?: string; readonly onBack?: () => void };
+    /** At a section's root: the section's own navigation (mail's folders), an icon button the host supplies. */
+    readonly navigation?: ReactNode;
+    /** The section's search, an icon button. */
+    readonly search?: { readonly label: string; readonly onOpen: () => void };
+    /** The shell's own icons, the same in every section: the bell, then the person's avatar. */
+    readonly globals?: ReactNode;
+    /** The place's filters, as chips under the bar, exactly one selected. */
+    readonly filters?: { readonly label: string; readonly options: readonly FilterOption[]; readonly selected: string; readonly onSelect: (id: string) => void };
+    /** The floating primary action, given only when the server declares it; never on an item's own screen. */
+    readonly primary?: ScreenPrimary;
+    /** With it the content takes the pull: the refresh, and while it runs the refreshing state. */
+    readonly onRefresh?: () => Promise<unknown>;
+    /** What the pull says while pulled: the time of the last sync. */
+    readonly pullText?: ReactNode;
+    /** The screen's content: it scrolls on its own; a list in it draws the pull. */
+    readonly children: ReactNode;
+}
+
+/**
+ * One screen of a section at phone width (contract component `screen-shell`: root, nested, with-filters,
+ * with-primary-action, with-primary-menu, pulling, refreshing, searching). One bar: the section's navigation or Back
+ * with the parent's name, the title, then search and the shell's own icons; the filters under it; the content, which
+ * scrolls on its own and refreshes by a pull from its top; the primary action floating at the bottom right, its menu
+ * opening above it. What fills each slot is the host's, from the server's declared nodes.
+ */
+export function ScreenShell({ title, back, navigation, search, globals, filters, primary, onRefresh, pullText, children }: ScreenShellProps): ReactNode {
+    const content = useRef<HTMLDivElement>(null);
+    const [refreshing, setRefreshing] = useState(false);
+    const [menuAt, setMenuAt] = useState<{ x: number; y: number } | null>(null);
+    const refresh = onRefresh === undefined ? null : () => {
+        if (refreshing) return;
+        setRefreshing(true);
+        void onRefresh().finally(() => setRefreshing(false));
+    };
+    const distance = usePull(content, refresh);
+    const pull: PullState | null = onRefresh === undefined ? null : { distance, refreshing, text: pullText ?? null };
+    return (
+        <div className={cx('cms-screen', primary !== undefined && 'cms-screen--with-primary')}>
+            <header className="cms-screen__bar">
+                <div className="cms-screen__leading">
+                    {back !== undefined ? (
+                        back.href !== undefined ? (
+                            <a className="cms-screen__back" href={back.href} onClick={back.onBack}>
+                                <Icon name="chevron-left" />
+                                <span className="cms-screen__back-name">{back.label}</span>
+                            </a>
+                        ) : (
+                            <button type="button" className="cms-screen__back" onClick={back.onBack}>
+                                <Icon name="chevron-left" />
+                                <span className="cms-screen__back-name">{back.label}</span>
+                            </button>
+                        )
+                    ) : navigation}
+                </div>
+                <h1 className="cms-screen__title" title={title}>{title}</h1>
+                <div className="cms-screen__trailing">
+                    {search !== undefined ? (
+                        <button type="button" className="cms-icon-button cms-screen__icon" aria-label={search.label} title={search.label} onClick={search.onOpen}>
+                            <Icon name="search" />
+                        </button>
+                    ) : null}
+                    {globals}
+                </div>
+            </header>
+            {filters !== undefined ? (
+                <div className="cms-screen__filters">
+                    <FilterChips label={filters.label} options={filters.options} value={filters.selected} onChange={filters.onSelect} />
+                </div>
+            ) : null}
+            <div ref={content} className="cms-screen__content" data-pulling={distance > 0 ? '' : undefined} data-refreshing={refreshing ? '' : undefined}>
+                <PullContext.Provider value={pull}>{children}</PullContext.Provider>
+            </div>
+            {primary !== undefined ? (
+                <button
+                    type="button"
+                    className="cms-button cms-button--primary cms-screen__primary"
+                    aria-label={primary.label}
+                    title={primary.label}
+                    {...('menu' in primary ? { 'aria-haspopup': 'menu' as const, 'aria-expanded': menuAt !== null } : {})}
+                    onClick={(event) => {
+                        if ('menu' in primary) {
+                            const r = event.currentTarget.getBoundingClientRect();
+                            setMenuAt(menuAt === null ? { x: r.left, y: r.top } : null);
+                        } else {
+                            primary.onPress();
+                        }
+                    }}
+                >
+                    <Icon name={primary.icon} size={24} />
+                </button>
+            ) : null}
+            {primary !== undefined && 'menu' in primary ? (
+                <ContextMenu at={menuAt} items={primary.menu} onClose={() => setMenuAt(null)} label={primary.label} />
+            ) : null}
+        </div>
+    );
+}

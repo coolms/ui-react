@@ -18,7 +18,9 @@ import {
     FilterChips,
     Icon,
     IncomingCall,
+    List,
     MailRow,
+    ScreenShell,
     Notification,
     SearchField,
     SignInForm,
@@ -35,7 +37,7 @@ import {
 } from '../src';
 
 /** The demo's pages, one per mockup, by the address's hash; the theme by `?theme=dark`. */
-type Page = 'mail' | 'chat' | 'calls' | 'signin' | 'viewer' | 'state' | 'picker' | 'notifications';
+type Page = 'mail' | 'chat' | 'calls' | 'signin' | 'viewer' | 'state' | 'picker' | 'notifications' | 'shell';
 
 const RAIL: readonly RailItem[] = [
     { id: 'mail', label: 'Mail', icon: 'mail', href: '#mail', badge: { count: 12, label: '12 unread' } },
@@ -285,7 +287,7 @@ function SignInPage(): ReactNode {
 /** The page and the place within it, from the address: `#mail/2` is Mail with its third message open. */
 function routeOf(hash: string): { readonly page: Page; readonly sub: string } {
     const [h = '', sub = ''] = hash.replace('#', '').split('/');
-    return { page: h === 'chat' || h === 'calls' || h === 'signin' || h === 'viewer' || h === 'state' || h === 'picker' || h === 'notifications' ? h : 'mail', sub };
+    return { page: h === 'chat' || h === 'calls' || h === 'signin' || h === 'viewer' || h === 'state' || h === 'picker' || h === 'notifications' || h === 'shell' ? h : 'mail', sub };
 }
 
 /** The one state component: each kind at a page's size, or all of them in a card and beside text. */
@@ -317,6 +319,50 @@ function NotificationsPage(): ReactNode {
             <Notification title="You were mentioned in Product team" body="Olga: @Ada can you check the call panel before Thursday's demo? The agenda is in the shared folder." time="09:30" unread={!read.has('n2')} onRead={reading('n2')} action={{ label: 'Open', presentation: 'button', onAction: go }} leading={<Icon name="chat" size={18} />} {...words} />
             <Notification title="Export finished" body="The October invoices are ready to download." time="Yesterday" unread={!read.has('n3')} onRead={reading('n3')} leading={<Icon name="file" size={18} />} {...words} />
         </section>
+    );
+}
+
+/** The screen shell at phone width: a section's root (chat: filters, rows, the primary action) and a nested screen (drive). */
+function ShellPage({ sub }: { readonly sub: string | undefined }): ReactNode {
+    const [filter, setFilter] = useState('all');
+    const globals = (
+        <>
+            <button type="button" className="cms-icon-button cms-screen__icon" aria-label="Notifications"><Icon name="bell" /></button>
+            <Avatar name="Ada Lovelace" size={32} connection={{ state: 'connected', label: 'Live updates on' }} />
+        </>
+    );
+    const offer = { offered: true, locked: false } as const;
+    if (sub === 'drive') {
+        return (
+            <div style={{ height: '100vh' }}>
+                <ScreenShell title="Projects" back={{ label: 'Personal', href: '#shell' }} globals={globals} onRefresh={async () => undefined}
+                    primary={{ label: 'New', icon: 'plus', menu: [
+                        { id: 'upload', label: 'Upload', offer, onSelect: () => undefined },
+                        { id: 'new-folder', label: 'New folder', offer, onSelect: () => undefined },
+                        { id: 'new-document', label: 'Word document', offer, onSelect: () => undefined },
+                    ] }}>
+                    <List label="Files" rows={[
+                        { id: 'f1', lead: <Icon name="folder" />, primary: 'Designs', secondary: 'Modified 18 Nov' },
+                        { id: 'f2', lead: <Icon name="file" />, primary: 'Partner agenda.pdf', secondary: 'Modified 19 Nov', meta: '180 KB' },
+                        { id: 'f3', lead: <Icon name="image" />, primary: 'Office.jpg', secondary: 'Modified 12 Nov', meta: '2.3 MB' },
+                    ]} />
+                </ScreenShell>
+            </div>
+        );
+    }
+    return (
+        <div style={{ height: '100vh' }}>
+            <ScreenShell title="Chat" search={{ label: 'Search chats', onOpen: () => undefined }} globals={globals} onRefresh={async () => undefined}
+                filters={{ label: 'Show', options: [{ id: 'all', label: 'All' }, { id: 'direct', label: 'Direct' }, { id: 'groups', label: 'Groups' }], selected: filter, onSelect: setFilter }}
+                primary={{ label: 'New chat', icon: 'plus', onPress: () => undefined }}>
+                <List label="Conversations" rows={[
+                    { id: 'c1', lead: <Avatar name="Anna Kowalska" presence="online" size={40} />, primary: 'Anna Kowalska', secondary: 'See you on Thursday then.', meta: '10:05', unread: true, count: 2 },
+                    { id: 'c2', lead: <Avatar name="Product team" size={40} />, primary: 'Product team', secondary: 'Olga: the call panel is ready for review', meta: '09:58', unread: true, count: 1 },
+                    { id: 'c3', lead: <Avatar name="Former User" deleted size={40} />, primary: 'Former User', secondary: 'Thanks!', meta: 'Yesterday' },
+                    { id: 'c4', lead: <Avatar name="Valentina Zagnetova via LinkedIn" presence="busy" size={40} />, primary: 'Valentina Zagnetova', secondary: 'Wants to connect', meta: 'Mon' },
+                ]} />
+            </ScreenShell>
+        </div>
     );
 }
 
@@ -405,8 +451,9 @@ function Demo(): ReactNode {
             {route.page === 'viewer' ? <ViewerPage sub={route.sub} /> : null}
             {route.page === 'state' ? <StatePage sub={route.sub} /> : null}
             {route.page === 'notifications' ? <NotificationsPage /> : null}
+            {route.page === 'shell' ? <ShellPage sub={route.sub} /> : null}
             {route.page === 'picker' ? <PickerPage sub={route.sub} /> : null}
-            {route.page === 'viewer' || route.page === 'state' || route.page === 'picker' || route.page === 'notifications' ? null : route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
+            {route.page === 'viewer' || route.page === 'state' || route.page === 'picker' || route.page === 'notifications' || route.page === 'shell' ? null : route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
             <button type="button" className="cms-button ws-theme" aria-pressed={dark} onClick={() => setDark(d => !d)}>Dark</button>
         </>
     );

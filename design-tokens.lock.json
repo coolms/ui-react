@@ -1,7 +1,7 @@
 {
   "repository": "coolms/design-tokens",
-  "tag": "v0.8.0",
-  "commit": "f43a36bfa604ce965824bf57ea23394c322ea7f7",
+  "tag": "v0.9.0",
+  "commit": "83a8f616187dd17f9222670e2f0960e23009d155",
   "files": {
     "dist/coolms-tokens.css": {
       "to": "src/tokens/coolms-tokens.css",
@@ -9,7 +9,7 @@
     },
     "contract/components.json": {
       "to": "contract/components.json",
-      "sha256": "e9675caaa511e6581922d6bd2d7bf38975903f3269d563eb6c5be7effb28b293"
+      "sha256": "fea9c6cd10eed6f221fee9df771568199928a5d02b65ce7b82fc9e3562022e47"
     },
     "contract/server-states.json": {
       "to": "contract/server-states.json",
