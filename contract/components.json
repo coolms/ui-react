@@ -1,6 +1,6 @@
 {
   "$comment": "The components every CoolMS UI kit provides, by name, and the states each must render. A kit declares which of its components implements each entry (kit.contract.json); tools/check-kit.mjs fails when one is missing, or a state is. Names follow ui-angular's where it has one.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "components": {
     "button": {
       "purpose": "An action. Primary, secondary, danger; an icon may lead.",
@@ -397,6 +397,7 @@
         "leading": "At a section's root: the section's own navigation (mail's folders) as an icon button, or nothing. On a nested screen: Back, an icon button with the parent's name beside it, the name truncated first, leading to the parent.",
         "title": "The current place's name (the folder, the conversation, the drive folder): --cms-font-size-title-md, one line, truncated, its whole text as its title.",
         "trailing": "In this order: the section's search (an icon button), then the shell's own icons: the bell with its count on its corner, and the person's avatar, which carries the live connection (avatar, connection); no separate connection dot. Every icon one style: --cms-control-height-md square, no box, --cms-text-muted, the hover background.",
+        "search": "While the section's search is open (searching): Close, an icon button, leading, then the host's search field filling the rest of the bar; the title and the icons give way. The bar keeps its height. Close, or the host, ends it. Search opens in place, never as a screen of its own.",
         "filters": "Optional, under the bar: the place's filters as chips in one row that scrolls sideways, exactly one selected; a second fixed row.",
         "content": "The rest of the height, scrolling on its own; a list is drawn with list's row anatomy.",
         "primary": "Optional: one floating button, bottom right, --cms-space-4 from the content's edges, above the section bar: a circle of --cms-control-height-lg plus --cms-space-3, the primary colour, --cms-shadow-md, its icon at 24px, its label as its accessible name and tooltip. The content ends with room for it, so its last row scrolls clear. Not shown on an item's own screen (a message, a conversation, a file). While drafts are minimized to bars above the section bar, it stands above them. It may open a menu instead of running one action (with-primary-menu): drive's + lists its own entries first (Upload, New folder), then the create entries installed modules contribute (new document, spreadsheet, image), all from the declared tree, none listed in a kit or a host.",
@@ -410,7 +411,8 @@
         "filters": "optional { options: { id, label }[], selected, onSelect }",
         "primary": "optional { label, icon, onPress } or { label, icon, menu }; given only when the server declares the action (mail's compose, chat's new conversation, drive's create entries)",
         "onRefresh": "optional: () => Promise; with it the content takes the pull",
-        "pullText": "optional: what the pull says, the sync time"
+        "pullText": "optional: what the pull says, the sync time",
+        "searching": "optional { field: the host's search field, closeLabel, onClose }; while given, the bar is in its searching state"
       },
       "behaviour": [
         "Phone width only, below --cms-breakpoint-tablet. Wider, a section's panes keep their own rows (pane-toolbar) and the shell is not drawn.",
