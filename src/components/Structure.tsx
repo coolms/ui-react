@@ -1,5 +1,6 @@
 import { useRef, type KeyboardEvent, type ReactNode } from 'react';
 import { cx, Glyph } from './internal';
+import { Icon } from './Icon';
 
 export interface PageHeaderProps {
     readonly title: ReactNode;
@@ -107,10 +108,23 @@ export interface AvatarProps {
     /** The person's or account's name: the initials, and the accessible name. */
     readonly name: string;
     readonly pictureUrl?: string;
-    /** Whether they are reachable now, as the server said. */
-    readonly presence?: 'online' | 'away' | 'offline';
+    /**
+     * Whether they are reachable now, where the server declares it (chat members): a dot at the bottom right. Busy is
+     * drawn as away. Left out where the server says nothing (mail senders).
+     */
+    readonly presence?: AvatarPresence;
+    /**
+     * On the person's own avatar in a bar: the live connection, as its dot, in place of presence; `label` says the
+     * state in words (its accessible name and tooltip), for the host's menu to repeat on a press.
+     */
+    readonly connection?: { readonly state: AvatarConnection; readonly label: string };
+    /** Their account is gone: a neutral person icon, never initials of the name stored for them. */
+    readonly deleted?: boolean;
     readonly size?: number;
 }
+
+export type AvatarPresence = 'online' | 'away' | 'busy' | 'offline';
+export type AvatarConnection = 'connected' | 'reconnecting' | 'offline';
 
 /**
  * Up to two initials from a name: "Ada Lovelace" -> "AL", "ada" -> "A". A sender named for the service that sent on
@@ -135,16 +149,22 @@ export function tintOf(name: string): number {
 }
 
 /** A person or an account, by picture or initials (contract component `avatar`: picture, initials, presence). */
-export function Avatar({ name, pictureUrl, presence, size = 32 }: AvatarProps): ReactNode {
+export function Avatar({ name, pictureUrl, presence, connection, deleted = false, size = 32 }: AvatarProps): ReactNode {
+    // The dot: the live connection on one's own avatar, else presence; busy is drawn as away.
+    const dot = connection !== undefined ? `is-${connection.state === 'offline' ? 'disconnected' : connection.state}` : presence === undefined ? null : `is-${presence === 'busy' ? 'away' : presence}`;
+    const said = connection !== undefined ? `${name}, ${connection.label}` : presence ? `${name}, ${presence}` : name;
     return (
         <span
-            className={`cms-avatar cms-avatar--tint-${tintOf(name)}`}
+            className={cx('cms-avatar', deleted ? 'cms-avatar--deleted' : `cms-avatar--tint-${tintOf(name)}`)}
             style={{ width: size, height: size, fontSize: Math.round(size * 0.4) }}
             role="img"
-            aria-label={presence ? `${name}, ${presence}` : name}
+            aria-label={said}
+            {...(connection === undefined ? {} : { title: connection.label })}
         >
-            {pictureUrl ? <img src={pictureUrl} alt="" className="cms-avatar__picture" /> : <span aria-hidden="true">{initialsOf(name)}</span>}
-            {presence ? <span className={cx('cms-avatar__presence', `is-${presence}`)} aria-hidden="true" /> : null}
+            {deleted ? <Icon name="user" size={Math.round(size * 0.6)} />
+                : pictureUrl ? <img src={pictureUrl} alt="" className="cms-avatar__picture" />
+                : <span aria-hidden="true">{initialsOf(name)}</span>}
+            {dot === null ? null : <span className={cx('cms-avatar__presence', dot)} aria-hidden="true" />}
         </span>
     );
 }

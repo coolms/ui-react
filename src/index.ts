@@ -5,7 +5,7 @@ export { Toast, ToastRegion, Loading, EmptyState, ErrorBanner, type ToastProps, 
 export { State, STATE_DELAY_MS, type StateKind, type StatePlacement, type StateProps } from './components/State';
 export { FileViewer, type FileViewerAction, type FileViewerConflict, type FileViewerEditing, type FileViewerProps, type FileViewerSiblings, type FileViewerState } from './components/FileViewer';
 export { FilePicker, FilePickerDenied, type FilePickerBudget, type FilePickerChoice, type FilePickerEntry, type FilePickerLabels, type FilePickerPage, type FilePickerProps, type FilePickerSpace } from './components/FilePicker';
-export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps } from './components/Structure';
+export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps, type AvatarPresence, type AvatarConnection } from './components/Structure';
 export { Icon, ICON_NAMES, BOOTSTRAP_ICONS, iconForName, type IconName, type IconProps } from './components/Icon';
 export { AppShell, Badge, SearchField, FilterChips, SplitPanes, fitPanes, MailRow, ChatBubble, Composer, MAIL_ROW_LABELS, type MailRowLabels, type AppShellProps, type RailItem, type BadgeProps, type SearchFieldProps, type FilterChipsProps, type FilterOption, type SplitPanesProps, type PaneSize, type Pane, type MailRowProps, type ChatBubbleProps, type ComposerProps } from './components/Workspace';
 export { IncomingCall, CallPanel, CallBar, CALL_LABELS, type CallLabels, type IncomingCallProps, type CallPanelProps, type CallBarProps } from './components/Call';
@@ -19,3 +19,5 @@ export { readRefusal, refusalText, type Refusal } from './server/refusal';
 export { useReread, rereadAll, type Reread } from './server/reread';
 export { readConflict, type Conflict } from './server/conflict';
 export { needsClientUpdate, versionBelow, CLIENT_UPDATE_REQUIRED } from './server/client-update';
+export { ScreenShell, type ScreenShellProps, type ScreenPrimary } from './components/ScreenShell';
+export { PULL_AT, usePull, usePullState, type PullState } from './components/pull';
