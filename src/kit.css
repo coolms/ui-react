@@ -260,7 +260,7 @@
 .cms-list__primary.is-unread { font-weight: var(--cms-font-weight-semibold); }
 .cms-list__end { display: flex; flex: none; flex-direction: column; align-items: flex-end; gap: var(--cms-space-1); }
 .cms-list__count { min-width: 18px; height: 18px; font-size: var(--cms-font-size-label-sm); }
-.cms-list__pull { display: flex; align-items: center; justify-content: center; gap: var(--cms-space-2); min-height: var(--cms-space-6); overflow: hidden; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.cms-list__pull { display: flex; align-items: center; justify-content: center; gap: var(--cms-space-2); min-height: var(--cms-control-height-sm); overflow: hidden; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
 
 /* The screen shell (contract screen-shell): one bar, the filters, the content scrolling on its own, the primary floating
    at the bottom right above the section bar. */
