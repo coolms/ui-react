@@ -2,6 +2,17 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+The screen shell at phone width, on design tokens 0.10.0 (contract 0.5.0).
+
+- `ScreenShell` (contract `screen-shell`): one screen of a section at phone width. One bar: the section's navigation at its root, or Back named by the parent on a nested screen; the title; the section's search, then the shell's own icons (the bell, the avatar). Optional filter chips under it, exactly one selected. The content scrolls on its own and refreshes by a pull from its top (`onRefresh`, 64px); the primary action floats at the bottom right as one button or a menu of declared entries, and the content ends with room for it. While the section's search is open (`searching`), the bar is Close and the host's search field.
+- `usePull`, `PULL_AT`, `usePullState`: the pull, shared; a `List` inside a shell draws it (state `pulled`) with the sync time, then the refreshing state.
+- `List`: one row anatomy, flat on one surface with light separators, no border or card; a row may be `unread` (the title semibold) and carry a `count` under its meta.
+- `Avatar`: `connection` (on one's own avatar, the live connection as its dot, said in words as its name and tooltip), `deleted` (a neutral person icon, never initials), and presence `busy`, drawn as away.
+- Icons: `user`, a person.
+- Tokens: the copy is design-tokens v0.10.0 (a075e93); only the components contract changed (the screen shell, its search part, the list's row and the avatar's states).
+
 ## 0.1.0-alpha.18 (2026-11-20)
 
 A sender's own initials when a service sent on their behalf.

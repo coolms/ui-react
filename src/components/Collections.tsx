@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import type { Offer } from '../server/capability';
 import { EmptyState, ErrorBanner, Loading } from './Status';
 import { cx, Glyph } from './internal';
+import { PULL_AT, usePullState } from './pull';
 
 export interface ListRow {
     readonly id: string;
@@ -12,6 +13,10 @@ export interface ListRow {
     readonly lead?: ReactNode;
     /** Trailing text: a date, a size. */
     readonly meta?: ReactNode;
+    /** Not read yet: the title in semibold. */
+    readonly unread?: boolean;
+    /** A count under the meta (unread messages in a conversation). */
+    readonly count?: number;
 }
 
 export interface ListProps {
@@ -34,10 +39,13 @@ export interface ListProps {
 
 /**
  * Rows of objects, each opened by a press; a row's other actions in its menu (contract component `list`: loading,
- * empty, populated, selected, error). Up and Down move between rows; Enter opens one.
+ * empty, populated, selected, error, pulled). Up and Down move between rows; Enter opens one. Every row has one anatomy:
+ * a leading icon or avatar, a title (semibold while unread), a secondary line, the meta with a count under it; rows sit
+ * on one surface, never cards. Inside a screen that takes a pull, the list draws it at its top (pulled).
  */
 export function List({ label, rows, error, onRetry, loadingText = 'Loading', emptyTitle = 'Nothing here yet', emptyHint, selected, onOpen, onRowMenu }: ListProps): ReactNode {
     const refs = useRef<Array<HTMLLIElement | null>>([]);
+    const pull = usePullState();
     if (error != null) return <ErrorBanner message={error} onRetry={onRetry} />;
     if (rows === null) return <Loading what={loadingText} layout="block" />;
     if (rows.length === 0) return <EmptyState title={emptyTitle} hint={emptyHint} />;
@@ -56,6 +64,13 @@ export function List({ label, rows, error, onRetry, loadingText = 'Loading', emp
     };
 
     return (
+        <>
+        {pull !== null && (pull.distance > 0 || pull.refreshing) ? (
+            <div className="cms-list__pull" role="status" style={{ height: pull.refreshing ? undefined : pull.distance }} data-ready={pull.distance >= PULL_AT ? '' : undefined}>
+                {pull.refreshing ? <Glyph name="spinner" /> : null}
+                {pull.text != null ? <span className="cms-list__pull-text">{pull.text}</span> : null}
+            </div>
+        ) : null}
         <ul className="cms-list" role="listbox" aria-label={label}>
             {rows.map((row, i) => {
                 const on = row.id === selected;
@@ -78,14 +93,20 @@ export function List({ label, rows, error, onRetry, loadingText = 'Loading', emp
                     >
                         {row.lead != null ? <span className="cms-list__lead">{row.lead}</span> : null}
                         <span className="cms-list__text">
-                            <span className="cms-list__primary">{row.primary}</span>
+                            <span className={cx('cms-list__primary', row.unread === true && 'is-unread')}>{row.primary}</span>
                             {row.secondary != null ? <span className="cms-list__secondary">{row.secondary}</span> : null}
                         </span>
-                        {row.meta != null ? <span className="cms-list__meta">{row.meta}</span> : null}
+                        {row.meta != null || row.count !== undefined ? (
+                            <span className="cms-list__end">
+                                {row.meta != null ? <span className="cms-list__meta">{row.meta}</span> : null}
+                                {row.count !== undefined && row.count > 0 ? <span className="cms-badge cms-list__count">{row.count}</span> : null}
+                            </span>
+                        ) : null}
                     </li>
                 );
             })}
         </ul>
+        </>
     );
 }
 

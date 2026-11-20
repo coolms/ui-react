@@ -1,6 +1,6 @@
 {
   "$comment": "The components every CoolMS UI kit provides, by name, and the states each must render. A kit declares which of its components implements each entry (kit.contract.json); tools/check-kit.mjs fails when one is missing, or a state is. Names follow ui-angular's where it has one.",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "components": {
     "button": {
       "purpose": "An action. Primary, secondary, danger; an icon may lead.",
@@ -117,16 +117,24 @@
         "empty",
         "populated",
         "selected",
-        "error"
-      ]
+        "error",
+        "pulled"
+      ],
+      "parts": {
+        "row": "One anatomy for every list on a phone screen: a leading icon or avatar (40px); a title, one line, --cms-font-size-body, semibold while unread; a secondary line, one line, --cms-font-size-meta, --cms-text-muted; trailing meta, the time or date with a count badge under it. Rows sit on one surface (--cms-surface), separated by --cms-border-light, padded --cms-space-3 --cms-space-4; no bordered cards and no list inside a card."
+      },
+      "notes": "pulled = the list is being pulled from its top to refresh it (screen-shell, pull)."
     },
     "avatar": {
       "purpose": "A person or an account, by picture or initials.",
       "states": [
         "picture",
         "initials",
-        "presence"
-      ]
+        "presence",
+        "connection",
+        "deleted"
+      ],
+      "notes": "presence and connection are a dot at the avatar's bottom right. On the person's own avatar in a bar it is the live connection: --cms-success connected, --cms-warning reconnecting, --cms-text-muted offline; a press or tap says which, in words. On other people it is their presence where the server declares it (chat members), and none where it does not (mail senders). deleted = a person whose account is gone: a neutral person icon on --cms-surface-muted, never initials of the stored name. Initials leave out a trailing lowercase \" via <service>\" and take each word's first letter or digit."
     },
     "elevation-required": {
       "purpose": "Says that an action needs elevation, and offers it (theme-admin); never shown in a client that does not elevate.",
@@ -295,7 +303,7 @@
       ],
       "api": {
         "label": "string: the toolbar's accessible name, in the host's words, such as \"Message actions\"",
-        "actions": "{ id, label, icon, group, overflow?, danger?, disabled?, reason?, busy? }[]: the server's action nodes for which the host has a handler, in the tree's order. label is the accessible name always, and the tooltip once labels hide. group: groups follow the order of their first action, and a separator is drawn between two. overflow: a number; the lowest hides its label first and, once every label is hidden, goes behind More actions first, and actions sharing a number go together, such as a toggle's two states; an action with no number keeps its label longest and never goes behind More actions. overflow 0 means menu only: the action is never drawn in the row, only behind More actions, at any width, and its label is not part of the row's giving way. reason: why a disabled action is disabled, the server's sentence as given; shown on hover, focus and a press and named by aria-describedby",
+        "actions": "{ id, label, icon, group, overflow?, danger?, disabled?, reason?, busy? }[]: the server's action nodes for which the host has a handler, in the tree's order. label is the accessible name always, and the tooltip once labels hide. group: groups follow the order of their first action, and a separator is drawn between two. overflow: a number; the lowest hides its label first and, once every label is hidden, goes behind More actions first, and actions sharing a number go together, such as a toggle's two states; an action with no number keeps its label longest and goes behind More actions only in a row too narrow to hold it once every numbered action has gone, so that nothing is cut off. overflow 0 means menu only: the action is never drawn in the row, only behind More actions, at any width, and its label is not part of the row's giving way. reason: why a disabled action is disabled, the server's sentence as given; shown on hover, focus and a press and named by aria-describedby",
         "status": "optional: the trailing status slot's text, such as \"Synced at 14:32\", formatted by the host for the person's language",
         "moreLabel": "More actions' accessible name and tooltip, from the host's catalogue: \"More actions\" in English",
         "action": "emitted with the chosen action's id. The row knows nothing of what an action does"
@@ -310,7 +318,7 @@
       "behaviour": [
         "Alignment: every pane of a screen starts at the same top and draws its row there, at pane-toolbar-height, so the rows line up across the screen. A pane with nothing to act on keeps its row, empty, at that height. The side column beside the panes starts at that top too: its first element aligns its top edge with the rows, and an element that is one control takes pane-toolbar-height exactly, the control centred in it",
         "The row is measured on its own width as its pane resizes, never on the window's: panes split and resize independently, and a breakpoint of the window would fight them. In a web kit, a ResizeObserver on the row",
-        "Giving way, in this order as the row narrows: (1) every action shows its icon and its label; (2) when they no longer fit, labels hide one by one in the order actions would go behind More actions: by overflow number, the lowest first and those sharing a number together, the fewest that let the row fit; actions with no overflow number hide theirs last, from the end of the row back; (3) only once every label is hidden and the icons still do not fit, actions go behind More actions by their overflow number, the lowest first and those sharing a number together, the fewest that let the rest and More actions fit. More actions takes an icon's width itself, so one action alone never goes behind it: a menu of one saves no room. Menu-only actions (overflow 0) are behind it always, so More actions is drawn whenever one is shown, even alone; the rule that one action never goes behind it alone counts only the actions that could have stayed in the row. An action with no overflow number never goes behind it. As the row widens, everything comes back in the reverse order: actions from behind More actions first, then labels, the last hidden first",
+        "Giving way, in this order as the row narrows: (1) every action shows its icon and its label; (2) when they no longer fit, labels hide one by one in the order actions would go behind More actions: by overflow number, the lowest first and those sharing a number together, the fewest that let the row fit; actions with no overflow number hide theirs last, from the end of the row back; (3) only once every label is hidden and the icons still do not fit, actions go behind More actions by their overflow number, the lowest first and those sharing a number together, the fewest that let the rest and More actions fit. More actions takes an icon's width itself, so one action alone goes behind it only when that alone saves room (an action wider than an icon, such as one that keeps its label) and no other could go with it: a menu of one icon saves none. Menu-only actions (overflow 0) are behind it always, so More actions is drawn whenever one is shown, even alone; the rule that one action never goes behind it alone counts only the actions that could have stayed in the row. (4) Only where the row still cannot hold the rest and More actions once every numbered action has gone, the actions with no overflow number go behind it too, one by one from the end of the row back, the fewest that let the rest and More actions fit: no action is ever cut off at the row's edge, and More actions is always reached. They are listed after the numbered ones, in the row's order. As the row widens, everything comes back in the reverse order: actions from behind More actions first, then labels, the last hidden first",
         "Giving way never reorders the row: the actions still shown keep their places. More actions lists the actions behind it by their overflow number, each with its icon and its label, as in the row",
         "The host passes only the actions it has a handler for: a node it cannot run is left out, the rest keep their order and groups, and a group left empty is not drawn, nor is its separator",
         "Icons: a node's icon is a Bootstrap Icons name. Each kit holds one table from those names to its own icons. A name the table lacks shows the action's label alone, with no empty icon box and no stand-in glyph, also while the other actions hide their labels, and the row measures it that way: its label is its width with labels hidden too. Behind More actions it is listed without an icon",
@@ -371,6 +379,55 @@
       },
       "behaviour": "The same in both hosts. Pressing a notification's row (a click, a tap, or Enter on it) marks it read, whatever it carries; it navigates only when its action's presentation is row and the host knows the destination, and a button action navigates only from its button, which marks it read too. So a notification with no action, or one whose destination the host does not know, can still be read, and the unread count goes down by reading as well as by dismissing. Expanding the body with the chevron also marks it read. The button is a real button, in the notification's tab order after its text, named by its label. A notification may be updated in place by the server (the same id with a new title, body, extras and createdAt, as missed calls from one conversation are grouped into one while it is unread): a host replaces that row where it is and never adds a second one, places it again by createdAt (the list stays newest first, so it moves to the top), and counts it once among the unread. A host draws the server's title and body; extras such as count and times are there for a host that wants its own words. A notification shown outside the app (a phone's or a browser's) uses the notification's id as its collapse key or tag, so it too is replaced, never repeated.",
       "notes": "The action is served with the notification type registry's amendment; until a host reads it, a row shows no button. First built by the admin's notification drawer and the Workspace's notification list. No release of this contract until ui-react and ui-angular both implement it, as with the other entries."
+    },
+    "screen-shell": {
+      "purpose": "One screen of a section at phone width, one pane at a time: one top bar, optional filter chips, the content, an optional floating primary action, and the section bar below. The same in every section and every host, so moving between sections never changes where things are. What goes in its slots (the title, where Back leads, the primary action, the filters, the section's search) is the host's, from the server's declared nodes; the shell only lays them out.",
+      "states": [
+        "root",
+        "nested",
+        "with-filters",
+        "with-primary-action",
+        "with-primary-menu",
+        "pulling",
+        "refreshing",
+        "searching"
+      ],
+      "parts": {
+        "bar": "One row, --cms-topbar-height, never wrapping: leading, title and trailing, centred vertically. The only header of the screen: no second Back row or title in the content, at any depth.",
+        "leading": "At a section's root: the section's own navigation (mail's folders) as an icon button, or nothing. On a nested screen: Back, an icon button with the parent's name beside it, the name truncated first, leading to the parent.",
+        "title": "The current place's name (the folder, the conversation, the drive folder): --cms-font-size-title-md, one line, truncated, its whole text as its title.",
+        "trailing": "In this order: the section's search (an icon button), then the shell's own icons: the bell with its count on its corner, and the person's avatar, which carries the live connection (avatar, connection); no separate connection dot. Every icon one style: --cms-control-height-md square, no box, --cms-text-muted, the hover background.",
+        "search": "While the section's search is open (searching): Close, an icon button, leading, then the host's search field filling the rest of the bar; the title and the icons give way. The bar keeps its height. Close, or the host, ends it. Search opens in place, never as a screen of its own.",
+        "filters": "Optional, under the bar: the place's filters as chips in one row that scrolls sideways, exactly one selected; a second fixed row.",
+        "content": "The rest of the height, scrolling on its own; a list is drawn with list's row anatomy.",
+        "primary": "Optional: one floating button, bottom right, --cms-space-4 from the content's edges, above the section bar: a circle of --cms-control-height-lg plus --cms-space-3, the primary colour, --cms-shadow-md, its icon at 24px, its label as its accessible name and tooltip. The content ends with room for it, so its last row scrolls clear. Not shown on an item's own screen (a message, a conversation, a file). While drafts are minimized to bars above the section bar, it stands above them. It may open a menu instead of running one action (with-primary-menu): drive's + lists its own entries first (Upload, New folder), then the create entries installed modules contribute (new document, spreadsheet, image), all from the declared tree, none listed in a kit or a host.",
+        "pull": "A list refreshes by a pull from its top: a pull past 64px shows the refresh state and calls the host. There is no refresh button in the bar. The time of the last sync, when the host has one, is said while pulled."
+      },
+      "api": {
+        "title": "string",
+        "back": "optional { label: the parent's name, href or onBack }; absent at a root",
+        "navigation": "optional: the root's leading element, an icon button the host supplies",
+        "search": "optional { label, onOpen }",
+        "filters": "optional { options: { id, label }[], selected, onSelect }",
+        "primary": "optional { label, icon, onPress } or { label, icon, menu }; given only when the server declares the action (mail's compose, chat's new conversation, drive's create entries)",
+        "onRefresh": "optional: () => Promise; with it the content takes the pull",
+        "pullText": "optional: what the pull says, the sync time",
+        "searching": "optional { field: the host's search field, closeLabel, onClose }; while given, the bar is in its searching state"
+      },
+      "behaviour": [
+        "Phone width only, below --cms-breakpoint-tablet. Wider, a section's panes keep their own rows (pane-toolbar) and the shell is not drawn.",
+        "Back on a nested screen and the browser's or the system's back lead to the same parent.",
+        "The bar never reflows the content: its height is fixed, and filters, when present, are a second fixed row.",
+        "The bell and the avatar are the shell's, not the section's: the same in every section, in the same place."
+      ],
+      "host": {
+        "supplies": "the title and the back target, both declared nodes: /title, its label the section's root title, and /back, its meta.target section or parent, absent at a root. Back is drawn with the parent's name from the data, the node's label as the fallback. Also the root navigation, the section's search, the filters, the primary action or menu when declared, and the refresh call",
+        "left to it": "what search, the primary action and refresh do; the section's content"
+      },
+      "notes": "First built for the workspace's mail, chat and drive, web and app. The slots' content comes from NaviGraph trees: mail's navi.toolbar.email.*, drive's navi.toolbar.drive.folder (its create entries contributed per installed kind), chat's navi.toolbar.chat.list and navi.toolbar.chat.conversation. The drive and chat trees are the ones agreed with the server; a host draws a slot only from a tree the server serves. The shell carries no list of actions of its own. A kit with no phone sections (the admin) declares it not offered, with its reason."
     }
-  }
+  },
+  "conventions": [
+    "Dates and times, in every component: formatted in the interface language the person chose, never the browser's."
+  ]
 }
