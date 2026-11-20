@@ -2,7 +2,7 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.20 (2026-11-20)
 
 The server's icon names the folder menu and the image bar use, and a space kept for a name the kit does not know.
 
