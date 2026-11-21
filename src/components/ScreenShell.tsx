@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { PullContext, usePull, type PullState } from './pull';
 import { ContextMenu, type MenuItem } from './Collections';
 import { Icon, type IconName } from './Icon';
@@ -34,18 +34,59 @@ export interface ScreenShellProps {
     readonly onRefresh?: () => Promise<unknown>;
     /** What the pull says while pulled: the time of the last sync. */
     readonly pullText?: ReactNode;
+    /**
+     * Whether the bar (and the filters under it) is out of view. Not given, the shell decides: out while the content, or
+     * any pane in it, scrolls down past the bar's own height; back on any scroll up, at the top, or when focus moves into
+     * the bar. Never while searching, pulling or refreshing, whatever is given.
+     */
+    readonly barHidden?: boolean;
     /** The screen's content: it scrolls on its own; a list in it draws the pull. */
     readonly children: ReactNode;
 }
 
+/** How far a scroll must move before the bar answers it, so a resting finger's jitter does not flicker the bar. */
+const BAR_SCROLL_STEP = 4;
+/** How far down the content must be before the bar may step out: never while the content's top is still in reach. */
+const BAR_HIDE_AFTER = 48;
+
+/**
+ * The shell's own bar-hidden decision, from the scrolls inside it. Scroll events do not bubble, so one listener in the
+ * capture phase on the shell hears the content and every pane inside it that scrolls on its own; each keeps its last
+ * position.
+ */
+function useBarHiddenOnScroll(shell: RefObject<HTMLDivElement | null>, enabled: boolean): [boolean, (hidden: boolean) => void] {
+    const [hidden, setHidden] = useState(false);
+    useEffect(() => {
+        const root = shell.current;
+        if (root === null || !enabled) {
+            setHidden(false);
+            return undefined;
+        }
+        const last = new WeakMap<EventTarget, number>();
+        const scrolled = (event: Event) => {
+            const el = event.target;
+            if (!(el instanceof HTMLElement)) return;
+            const now = el.scrollTop;
+            const before = last.get(el) ?? 0;
+            last.set(el, now);
+            if (now <= 0 || now < before - BAR_SCROLL_STEP) setHidden(false);
+            else if (now > before + BAR_SCROLL_STEP && now > BAR_HIDE_AFTER) setHidden(true);
+        };
+        root.addEventListener('scroll', scrolled, { capture: true, passive: true });
+        return () => root.removeEventListener('scroll', scrolled, { capture: true });
+    }, [shell, enabled]);
+    return [hidden, setHidden];
+}
+
 /**
  * One screen of a section at phone width (contract component `screen-shell`: root, nested, with-filters,
- * with-primary-action, with-primary-menu, pulling, refreshing, searching). One bar: the section's navigation or Back
+ * with-primary-action, with-primary-menu, pulling, refreshing, searching, bar-hidden). One bar: the section's navigation or Back
  * with the parent's name, the title, then search and the shell's own icons, or while searching, Close and the field; the filters under it; the content, which
  * scrolls on its own and refreshes by a pull from its top; the primary action floating at the bottom right, its menu
  * opening above it. What fills each slot is the host's, from the server's declared nodes.
  */
-export function ScreenShell({ title, back, navigation, search, searching, globals, filters, primary, onRefresh, pullText, children }: ScreenShellProps): ReactNode {
+export function ScreenShell({ title, back, navigation, search, searching, globals, filters, primary, onRefresh, pullText, barHidden, children }: ScreenShellProps): ReactNode {
+    const shell = useRef<HTMLDivElement>(null);
     const content = useRef<HTMLDivElement>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [menuAt, setMenuAt] = useState<{ x: number; y: number } | null>(null);
@@ -56,8 +97,20 @@ export function ScreenShell({ title, back, navigation, search, searching, global
     };
     const distance = usePull(content, refresh);
     const pull: PullState | null = onRefresh === undefined ? null : { distance, refreshing, text: pullText ?? null };
+    const held = searching !== undefined || distance > 0 || refreshing;
+    const [scrolledAway, setScrolledAway] = useBarHiddenOnScroll(shell, barHidden === undefined && !held);
+    const hidden = !held && (barHidden ?? scrolledAway);
     return (
-        <div className={cx('cms-screen', primary !== undefined && 'cms-screen--with-primary')}>
+        <div
+            ref={shell}
+            className={cx('cms-screen', primary !== undefined && 'cms-screen--with-primary')}
+            data-bar-hidden={hidden ? '' : undefined}
+            onFocus={(event) => {
+                if (hidden && event.target instanceof Element && event.target.closest('.cms-screen__bar, .cms-screen__filters') !== null) {
+                    setScrolledAway(false);
+                }
+            }}
+        >
             {searching !== undefined ? (
                 <header className="cms-screen__bar cms-screen__bar--searching">
                     <button type="button" className="cms-icon-button cms-screen__icon" aria-label={searching.closeLabel} title={searching.closeLabel} onClick={searching.onClose}>

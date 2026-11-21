@@ -106,6 +106,84 @@ describe('ScreenShell', () => {
         fireEvent.touchEnd(content);
         expect(onRefresh).toHaveBeenCalledOnce();
     });
+
+    it('a list that scrolls in its own box, scrolled down, is not pulled: a drag there is its scroll; back at its top it is', async () => {
+        const onRefresh = vi.fn(async () => undefined);
+        const { container } = render(
+            <ScreenShell title="Inbox" onRefresh={onRefresh}>
+                <div className="inner" style={{ overflowY: 'auto', height: 100 }}><p className="row">Anna</p></div>
+            </ScreenShell>,
+        );
+        const inner = container.querySelector<HTMLElement>('.inner')!;
+        const row = container.querySelector<HTMLElement>('.row')!;
+        const drag = () => {
+            fireEvent.touchStart(row, { touches: [{ clientY: 0 }] });
+            fireEvent.touchMove(row, { touches: [{ clientY: PULL_AT * 2 }] });
+            fireEvent.touchEnd(row);
+        };
+        inner.scrollTop = 120;
+        drag();
+        expect(onRefresh).not.toHaveBeenCalled();
+        inner.scrollTop = 0;
+        drag();
+        expect(onRefresh).toHaveBeenCalledOnce();
+    });
+
+    describe('bar-hidden', () => {
+        const scrollTo = (el: HTMLElement, top: number) => {
+            el.scrollTop = top;
+            fireEvent.scroll(el);
+        };
+        const shellOf = (container: HTMLElement) => container.querySelector<HTMLElement>('.cms-screen')!;
+
+        it('the bar steps out while the content scrolls down, and back on any scroll up and at the top', () => {
+            const { container } = render(<ScreenShell title="Inbox"><p>content</p></ScreenShell>);
+            const content = container.querySelector<HTMLElement>('.cms-screen__content')!;
+            scrollTo(content, 30);
+            expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+            scrollTo(content, 200);
+            expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
+            scrollTo(content, 190);
+            expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+            scrollTo(content, 400);
+            expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
+            scrollTo(content, 0);
+            expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+        });
+
+        it('a pane that scrolls on its own inside the content moves the bar too', () => {
+            const { container } = render(<ScreenShell title="Inbox"><div className="pane" style={{ overflowY: 'auto', height: 100 }} /></ScreenShell>);
+            const pane = container.querySelector<HTMLElement>('.pane')!;
+            scrollTo(pane, 300);
+            expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
+        });
+
+        it('focus moving into the bar brings it back', () => {
+            const { container } = render(<ScreenShell title="Inbox" globals={<button type="button">Notifications</button>}><p /></ScreenShell>);
+            scrollTo(container.querySelector<HTMLElement>('.cms-screen__content')!, 300);
+            expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
+            act(() => screen.getByRole('button', { name: 'Notifications' }).focus());
+            expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+        });
+
+        it('never while searching, whatever the scroll or the host says', () => {
+            const { container } = render(
+                <ScreenShell title="Inbox" barHidden searching={{ field: <input aria-label="Search mail" />, closeLabel: 'Close search', onClose: () => undefined }}>
+                    <p />
+                </ScreenShell>,
+            );
+            scrollTo(container.querySelector<HTMLElement>('.cms-screen__content')!, 300);
+            expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+        });
+
+        it('given by the host, the host decides and the scroll does not', () => {
+            const { container, rerender } = render(<ScreenShell title="Inbox" barHidden={false}><p /></ScreenShell>);
+            scrollTo(container.querySelector<HTMLElement>('.cms-screen__content')!, 300);
+            expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+            rerender(<ScreenShell title="Inbox" barHidden><p /></ScreenShell>);
+            expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
+        });
+    });
 });
 
 describe('List rows', () => {
