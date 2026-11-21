@@ -2,6 +2,10 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- `iconForName`: the names the Drive sections and the Chat composer trees add for the Workspace (icons list 0.7.0): `file-earmark-text` (file), `folder2` (folder), `images` (image) and `paperclip`.
+
 ## 0.1.0-alpha.23 (2026-11-21)
 
 The screen shell's bar steps aside only for the reader's own scroll, never for a scroll the host makes, and never moves with motion when reduced motion is set.
