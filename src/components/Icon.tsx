@@ -6,7 +6,7 @@ export type IconName =
     | 'inbox' | 'archive' | 'trash' | 'paperclip' | 'mic' | 'speaker' | 'user-plus' | 'phone-off' | 'video' | 'info'
     | 'chevron-down' | 'chevron-left' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more'
     | 'download' | 'print' | 'open-separately' | 'important' | 'forward' | 'refresh' | 'file-code' | 'mail-open' | 'copy' | 'user'
-    | 'folder-plus' | 'folder-x' | 'user-check' | 'user-x';
+    | 'folder-plus' | 'folder-x' | 'user-check' | 'user-x' | 'upload' | 'users';
 
 const PATHS: Readonly<Record<IconName, ReactNode>> = {
     mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
@@ -25,6 +25,8 @@ const PATHS: Readonly<Record<IconName, ReactNode>> = {
     bell: <><path d="M6 9a6 6 0 1 1 12 0c0 6 2 8 2 8H4s2-2 2-8Z" /><path d="M10 20a2 2 0 0 0 4 0" /></>,
     pencil: <><path d="M4 20h4L19 9l-4-4L4 16Z" /><path d="m13 7 4 4" /></>,
     download: <><path d="M12 4v11" /><path d="m7 11 5 5 5-5" /><path d="M4 20h16" /></>,
+    // Download's arrow turned up, from the line: a file sent up.
+    upload: <><path d="M12 20V9" /><path d="m7 13 5-5 5 5" /><path d="M4 4h16" /></>,
     print: <><path d="M7 8V4h10v4" /><rect x="3" y="8" width="18" height="8" rx="2" /><path d="M7 14h10v6H7Z" /></>,
     'open-separately': <><path d="M14 4h6v6" /><path d="m20 4-9 9" /><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></>,
     star: <path d="m12 3 2.8 5.8 6.2.9-4.5 4.4 1 6.2L12 17.4l-5.5 2.9 1-6.2L3 9.7l6.2-.9Z" />,
@@ -42,6 +44,8 @@ const PATHS: Readonly<Record<IconName, ReactNode>> = {
     'user-check': <><circle cx="10" cy="8" r="4" /><path d="M3 21a7 7 0 0 1 14 0M16 11l2 2 4-4" /></>,
     // A person with a cross: someone no longer allowed.
     'user-x': <><circle cx="10" cy="8" r="4" /><path d="M3 21a7 7 0 0 1 14 0M17 8l4 4M21 8l-4 4" /></>,
+    // Two people: the members of a group.
+    users: <><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14a6.5 6.5 0 0 1 3.5 6" /></>,
     'phone-off': <path d="M3 14c5-5 13-5 18 0l-2 3-4-1v-3a10 10 0 0 0-6 0v3l-4 1Z" />,
     video: <><rect x="3" y="6" width="13" height="12" rx="2" /><path d="m16 10 5-3v10l-5-3" /></>,
     info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5v.5" /></>,
@@ -123,6 +127,12 @@ export const BOOTSTRAP_ICONS: Readonly<Record<string, IconName>> = {
     image: 'image',
     'person-check': 'user-check',
     'person-x': 'user-x',
+    'arrow-left': 'chevron-left',
+    'pencil-square': 'pencil',
+    'cloud-upload': 'upload',
+    people: 'users',
+    'file-earmark-word': 'file',
+    'file-earmark-spreadsheet': 'file',
 };
 
 /** The kit's icon for a server's (Bootstrap Icons) name; null for a name the table does not hold. */
