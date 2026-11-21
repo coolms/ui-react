@@ -1,6 +1,6 @@
 {
   "$comment": "The components every CoolMS UI kit provides, by name, and the states each must render. A kit declares which of its components implements each entry (kit.contract.json); tools/check-kit.mjs fails when one is missing, or a state is. Names follow ui-angular's where it has one.",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "components": {
     "button": {
       "purpose": "An action. Primary, secondary, danger; an icon may lead.",
@@ -390,7 +390,8 @@
         "with-primary-menu",
         "pulling",
         "refreshing",
-        "searching"
+        "searching",
+        "bar-hidden"
       ],
       "parts": {
         "bar": "One row, --cms-topbar-height, never wrapping: leading, title and trailing, centred vertically. The only header of the screen: no second Back row or title in the content, at any depth.",
@@ -412,13 +413,16 @@
         "primary": "optional { label, icon, onPress } or { label, icon, menu }; given only when the server declares the action (mail's compose, chat's new conversation, drive's create entries)",
         "onRefresh": "optional: () => Promise; with it the content takes the pull",
         "pullText": "optional: what the pull says, the sync time",
-        "searching": "optional { field: the host's search field, closeLabel, onClose }; while given, the bar is in its searching state"
+        "searching": "optional { field: the host's search field, closeLabel, onClose }; while given, the bar is in its searching state",
+        "barHidden": "optional boolean, the kit's own when not given: the bar steps out of view while the content scrolls down and comes back on any scroll up, at the content's top, or when focus moves into the bar"
       },
       "behaviour": [
         "Phone width only, below --cms-breakpoint-tablet. Wider, a section's panes keep their own rows (pane-toolbar) and the shell is not drawn.",
         "Back on a nested screen and the browser's or the system's back lead to the same parent.",
         "The bar never reflows the content: its height is fixed, and filters, when present, are a second fixed row.",
-        "The bell and the avatar are the shell's, not the section's: the same in every section, in the same place."
+        "The bell and the avatar are the shell's, not the section's: the same in every section, in the same place.",
+        "bar-hidden: while the content scrolls down, the bar (and the filters row under it) steps out of view, so the content has the screen; any scroll up, reaching the content's top, or focus moving into the bar brings it back at once. The section bar below stays. Never while searching, pulling or refreshing.",
+        "One header at phone width: while a screen shell is drawn, the host's own top bar gives way, and what it carried for the whole host (the account, the host's search) is handed to the shell's bar (trailing, search). The kit's app shell does this itself when a screen shell is mounted in it, not by a host's CSS."
       ],
       "host": {
         "supplies": "the title and the back target, both declared nodes: /title, its label the section's root title, and /back, its meta.target section or parent, absent at a root. Back is drawn with the parent's name from the data, the node's label as the fallback. Also the root navigation, the section's search, the filters, the primary action or menu when declared, and the refresh call",
