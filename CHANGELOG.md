@@ -2,7 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.21 (2026-11-21)
+
+The kit on design tokens v0.11.0 (contract 0.6.0, with the served icon list): the screen shell steps its bar out of the way while scrolling down, one header at phone width, and the Workspace's served icon names.
 
 - Tokens: the copy is design-tokens v0.11.0 (eea2e13), contract 0.6.0, and `contract/icons.json` is copied and pinned with it: the icon names the server's navigation trees use, each with the interfaces whose trees use it.
 - `ScreenShell`: `bar-hidden` (contract 0.6.0). The bar and the filters step out of view while the content, or any pane in it that scrolls on its own, scrolls down past 48px, and come back on any scroll up, at the top, or when focus moves into the bar; never while searching, pulling or refreshing. `barHidden` hands the decision to the host. Collapsed rather than removed, so focus can still reach the bar.
