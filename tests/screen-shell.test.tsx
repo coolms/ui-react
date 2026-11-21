@@ -177,6 +177,20 @@ describe('ScreenShell', () => {
             expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
         });
 
+        it('a tap that opens a view is not the reader scrolling that view', () => {
+            const { container } = render(
+                <ScreenShell title="Chat"><div className="list"><button type="button" className="row">Ada</button></div><div className="thread" style={{ overflowY: 'auto', height: 100 }} /></ScreenShell>,
+            );
+            fireEvent.pointerDown(container.querySelector<HTMLElement>('.row')!);
+            const thread = container.querySelector<HTMLElement>('.thread')!;
+            thread.scrollTop = 900;
+            fireEvent.scroll(thread);
+            expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+            // A wheel over the thread is the reader's.
+            scrollTo(thread, 1000);
+            expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
+        });
+
         it('a pane that scrolls on its own inside the content moves the bar too', () => {
             const { container } = render(<ScreenShell title="Inbox"><div className="pane" style={{ overflowY: 'auto', height: 100 }} /></ScreenShell>);
             const pane = container.querySelector<HTMLElement>('.pane')!;
