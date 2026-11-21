@@ -72,8 +72,11 @@ function useBarHiddenOnScroll(shell: RefObject<HTMLDivElement | null>, enabled: 
         const reader = () => {
             readerAt = performance.now();
         };
+        // A key typed into a field is the field's, not a scroll of the view: arrows and Space move the caret there.
         const key = (event: KeyboardEvent) => {
-            if (SCROLL_KEYS.has(event.key)) reader();
+            const target = event.target;
+            const editing = target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select') !== null);
+            if (!editing && SCROLL_KEYS.has(event.key)) reader();
         };
         const scrolled = (event: Event) => {
             const el = event.target;

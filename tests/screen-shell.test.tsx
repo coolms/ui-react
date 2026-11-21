@@ -163,6 +163,20 @@ describe('ScreenShell', () => {
             expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
         });
 
+        it('a scroll key typed into a field is not the reader scrolling the view', () => {
+            const { container } = render(<ScreenShell title="Inbox"><textarea aria-label="Reply" className="reply" style={{ height: 40 }} /></ScreenShell>);
+            const reply = container.querySelector<HTMLTextAreaElement>('.reply')!;
+            fireEvent.keyDown(reply, { key: 'ArrowDown' });
+            reply.scrollTop = 300;
+            fireEvent.scroll(reply);
+            expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+            // The same key outside a field is the reader's.
+            fireEvent.keyDown(shellOf(container), { key: 'ArrowDown' });
+            reply.scrollTop = 600;
+            fireEvent.scroll(reply);
+            expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
+        });
+
         it('a pane that scrolls on its own inside the content moves the bar too', () => {
             const { container } = render(<ScreenShell title="Inbox"><div className="pane" style={{ overflowY: 'auto', height: 100 }} /></ScreenShell>);
             const pane = container.querySelector<HTMLElement>('.pane')!;
