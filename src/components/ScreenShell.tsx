@@ -48,11 +48,16 @@ export interface ScreenShellProps {
 const BAR_SCROLL_STEP = 4;
 /** How far down the content must be before the bar may step out: never while the content's top is still in reach. */
 const BAR_HIDE_AFTER = 48;
+/** How long after the reader's own input (a wheel, a touch, a key, a press on a scrollbar) a scroll counts as theirs. */
+const BAR_READER_WINDOW_MS = 800;
+/** The keys that scroll a page or a list. */
+const SCROLL_KEYS = new Set(['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' ']);
 
 /**
  * The shell's own bar-hidden decision, from the scrolls inside it. Scroll events do not bubble, so one listener in the
  * capture phase on the shell hears the content and every pane inside it that scrolls on its own; each keeps its last
- * position.
+ * position. Only a scroll that follows the reader's own input moves the bar: a host that scrolls a view itself (a
+ * conversation opening at its latest message) is not the reader scrolling down.
  */
 function useBarHiddenOnScroll(shell: RefObject<HTMLDivElement | null>, enabled: boolean): [boolean, (hidden: boolean) => void] {
     const [hidden, setHidden] = useState(false);
@@ -63,17 +68,37 @@ function useBarHiddenOnScroll(shell: RefObject<HTMLDivElement | null>, enabled: 
             return undefined;
         }
         const last = new WeakMap<EventTarget, number>();
+        let readerAt = Number.NEGATIVE_INFINITY;
+        const reader = () => {
+            readerAt = performance.now();
+        };
+        // A key typed into a field is the field's, not a scroll of the view: arrows and Space move the caret there.
+        const key = (event: KeyboardEvent) => {
+            const target = event.target;
+            const editing = target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select') !== null);
+            if (!editing && SCROLL_KEYS.has(event.key)) reader();
+        };
         const scrolled = (event: Event) => {
             const el = event.target;
             if (!(el instanceof HTMLElement)) return;
             const now = el.scrollTop;
             const before = last.get(el) ?? 0;
             last.set(el, now);
-            if (now <= 0 || now < before - BAR_SCROLL_STEP) setHidden(false);
+            if (now <= 0) {
+                setHidden(false);
+                return;
+            }
+            if (performance.now() - readerAt > BAR_READER_WINDOW_MS) return;
+            if (now < before - BAR_SCROLL_STEP) setHidden(false);
             else if (now > before + BAR_SCROLL_STEP && now > BAR_HIDE_AFTER) setHidden(true);
         };
+        const inputs: [string, EventListener][] = [['wheel', reader], ['touchmove', reader], ['pointerdown', reader], ['keydown', key as EventListener]];
+        for (const [type, listener] of inputs) root.addEventListener(type, listener, { capture: true, passive: true });
         root.addEventListener('scroll', scrolled, { capture: true, passive: true });
-        return () => root.removeEventListener('scroll', scrolled, { capture: true });
+        return () => {
+            for (const [type, listener] of inputs) root.removeEventListener(type, listener, { capture: true });
+            root.removeEventListener('scroll', scrolled, { capture: true });
+        };
     }, [shell, enabled]);
     return [hidden, setHidden];
 }
