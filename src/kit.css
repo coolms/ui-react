@@ -279,6 +279,9 @@
 .cms-screen__filters { flex: none; padding: var(--cms-space-2) var(--cms-space-4); overflow-x: auto; }
 .cms-screen__content { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; }
 .cms-screen__primary { position: absolute; right: var(--cms-space-4); bottom: var(--cms-space-4); z-index: 2; width: calc(var(--cms-control-height-lg) + var(--cms-space-3)); height: calc(var(--cms-control-height-lg) + var(--cms-space-3)); min-height: 0; padding: 0; border-radius: 50%; justify-content: center; box-shadow: var(--cms-shadow-md); }
+/* bar-hidden: the bar and the filters step out of view, collapsed rather than removed, so focus can still reach them
+   (and brings them back). */
+.cms-screen[data-bar-hidden] > .cms-screen__bar, .cms-screen[data-bar-hidden] > .cms-screen__filters { height: 0; min-height: 0; padding-top: 0; padding-bottom: 0; border-bottom-width: 0; overflow: hidden; }
 .cms-screen--with-primary .cms-screen__content { padding-bottom: calc(var(--cms-control-height-lg) + var(--cms-space-3) + 2 * var(--cms-space-4)); }
 
 /* Avatar */
@@ -669,6 +672,10 @@
     .cms-signin { grid-template-columns: minmax(0, 1fr); }
     .cms-signin__brand { display: none; }
     .cms-signin__form { padding: var(--cms-space-6) var(--cms-space-4); }
+    /* One header: while a screen shell is drawn, the shell's own top bar gives way to the screen's bar, which carries the
+       host's globals (the account, the search). */
+    .cms-shell:has(.cms-screen) { grid-template-rows: 0 minmax(0, 1fr) calc(var(--cms-tabbar-height) + env(safe-area-inset-bottom, 0px)); }
+    .cms-shell:has(.cms-screen) .cms-shell__top { overflow: hidden; border-bottom: 0; }
 }
 
 /* File picker: a dialog of fixed height whose list scrolls; on a phone the whole screen, its foot kept at the bottom. */
