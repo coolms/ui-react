@@ -69,14 +69,16 @@ function useBarHiddenOnScroll(shell: RefObject<HTMLDivElement | null>, enabled: 
         }
         const last = new WeakMap<EventTarget, number>();
         let readerAt = Number.NEGATIVE_INFINITY;
-        const reader = () => {
+        let readerTarget: EventTarget | null = null;
+        const reader = (event: Event) => {
             readerAt = performance.now();
+            readerTarget = event.target;
         };
         // A key typed into a field is the field's, not a scroll of the view: arrows and Space move the caret there.
         const key = (event: KeyboardEvent) => {
             const target = event.target;
             const editing = target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select') !== null);
-            if (!editing && SCROLL_KEYS.has(event.key)) reader();
+            if (!editing && SCROLL_KEYS.has(event.key)) reader(event);
         };
         const scrolled = (event: Event) => {
             const el = event.target;
@@ -89,6 +91,12 @@ function useBarHiddenOnScroll(shell: RefObject<HTMLDivElement | null>, enabled: 
                 return;
             }
             if (performance.now() - readerAt > BAR_READER_WINDOW_MS) return;
+            // The input moved this element only when it was aimed at it: its target inside it (a wheel or a touch over
+            // it, a press on its scrollbar), or a key aimed at the whole page. A tap on a row that opens another view
+            // is not the reader scrolling that view.
+            const aimed = readerTarget === root || readerTarget === document.body
+                || (readerTarget instanceof Node && el.contains(readerTarget));
+            if (!aimed) return;
             if (now < before - BAR_SCROLL_STEP) setHidden(false);
             else if (now > before + BAR_SCROLL_STEP && now > BAR_HIDE_AFTER) setHidden(true);
         };
