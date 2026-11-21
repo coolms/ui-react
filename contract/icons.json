@@ -1,0 +1,583 @@
+{
+  "$comment": "The icon names the served navigation trees use (Bootstrap Icons names, as the trees write them), each with the interfaces whose trees use it, from the trees' interfaces declarations. A host that draws an interface's trees draws every name listed for it; a name a tree uses that is not here fails the backend's check, not the interface.",
+  "version": "0.6.0",
+  "icons": {
+    "alarm": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "archive": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "arrow-clockwise": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "arrow-counterclockwise": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "arrow-left": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "arrow-repeat": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "arrow-right-circle": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "arrows-move": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "bar-chart-line": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "bounding-box": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "box-arrow-right": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "box-arrow-up-right": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "broadcast": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "calendar-week": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "chat-dots": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "chat-left-dots": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "chat-text": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "check-circle": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "check-lg": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "check2-all": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "clipboard": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "cloud-upload": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "collection": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "collection-fill": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "copy": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "cpu": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "diagram-2": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "diagram-3": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "diagram-3-fill": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "download": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "envelope": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "envelope-fill": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "envelope-open": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "envelope-paper": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "eye": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "eye-slash": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "file-earmark-arrow-down": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "file-earmark-code": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "file-earmark-plus": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "file-earmark-spreadsheet": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "file-earmark-text": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "file-earmark-word": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "floppy": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "folder-plus": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "folder-symlink": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "folder-x": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "folder2": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "folder2-open": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "fonts": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "forward": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "gear": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "gear-wide-connected": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "graph-up": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "grid": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "grid-3x3-gap-fill": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "grid-fill": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "hand-index": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "hdd-stack": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "image": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "images": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "inbox": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "info-circle": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "journal-bookmark": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "key": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "layout-text-sidebar": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "lightning": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "link-45deg": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "list": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "list-task": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "list-ul": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "lock": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "map": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "palette": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "pencil": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "pencil-square": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "people": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "people-fill": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "person-bounding-box": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "person-check": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "person-dash": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "person-lines-fill": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "person-lock": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "person-plus": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "person-x": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "plus-lg": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "reply": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "reply-all": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "robot": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "scissors": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "search": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "send": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "shield-check": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "shield-lock": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "shield-x": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "signpost-split": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "sliders": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "speedometer2": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "star": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "star-fill": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "tags": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "telephone": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "telephone-fill": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "telephone-inbound": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "terminal": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "translate": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "trash": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "trash3": {
+      "interfaces": [
+        "admin",
+        "workspace"
+      ]
+    },
+    "ui-checks-grid": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "upload": {
+      "interfaces": [
+        "admin"
+      ]
+    },
+    "x-lg": {
+      "interfaces": [
+        "admin"
+      ]
+    }
+  }
+}
