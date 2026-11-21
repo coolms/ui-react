@@ -4,6 +4,7 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
 
 ## Unreleased
 
+- `iconForName`: the served names the Workspace's trees use since the Chat and Drive trees: `arrow-left` (chevron-left), `pencil-square` (pencil), `cloud-upload` (the new `upload` icon), `people` (the new `users` icon), `file-earmark-word` and `file-earmark-spreadsheet` (file). A test reads `contract/icons.json` and fails, naming it, for any name listed for the Workspace that has no icon.
 - `ScreenShell` / `usePull`: a pull starts only when every region that scrolls under the finger, up to the shell's content, is at its top. A list that scrolls in its own box inside the shell, scrolled down, takes a downward drag as its own scroll, not as a refresh.
 
 ## 0.1.0-alpha.20 (2026-11-20)

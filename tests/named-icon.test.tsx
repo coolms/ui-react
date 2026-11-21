@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import icons from '../contract/icons.json';
 import { BOOTSTRAP_ICONS, ICON_NAMES, NamedIcon, iconForName } from '../src';
 
 describe('the server\'s icon names', () => {
@@ -15,6 +16,14 @@ describe('the server\'s icon names', () => {
         expect(iconForName('image')).toBe('image');
         expect(iconForName('person-check')).toBe('user-check');
         expect(iconForName('person-x')).toBe('user-x');
+    });
+
+    it('every name the contract lists for the Workspace has the kit\'s icon', () => {
+        const listed = Object.entries((icons as { readonly icons: Readonly<Record<string, { readonly interfaces: readonly string[] }>> }).icons)
+            .filter(([, entry]) => entry.interfaces.includes('workspace'))
+            .map(([name]) => name);
+        expect(listed.length).toBeGreaterThan(0);
+        expect(listed.filter((name) => iconForName(name) === null)).toEqual([]);
     });
 
     it('every name in the table is one the kit draws', () => {
