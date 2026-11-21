@@ -133,6 +133,10 @@ export const BOOTSTRAP_ICONS: Readonly<Record<string, IconName>> = {
     people: 'users',
     'file-earmark-word': 'file',
     'file-earmark-spreadsheet': 'file',
+    'file-earmark-text': 'file',
+    folder2: 'folder',
+    images: 'image',
+    paperclip: 'paperclip',
 };
 
 /** The kit's icon for a server's (Bootstrap Icons) name; null for a name the table does not hold. */

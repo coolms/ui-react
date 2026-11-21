@@ -1,6 +1,6 @@
 {
   "$comment": "The icon names the served navigation trees use (Bootstrap Icons names, as the trees write them), each with the interfaces whose trees use it, from the trees' interfaces declarations. A host that draws an interface's trees draws every name listed for it; a name a tree uses that is not here fails the backend's check, not the interface.",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "icons": {
     "alarm": {
       "interfaces": [
@@ -214,7 +214,8 @@
     },
     "file-earmark-text": {
       "interfaces": [
-        "admin"
+        "admin",
+        "workspace"
       ]
     },
     "file-earmark-word": {
@@ -248,7 +249,8 @@
     },
     "folder2": {
       "interfaces": [
-        "admin"
+        "admin",
+        "workspace"
       ]
     },
     "folder2-open": {
@@ -315,7 +317,8 @@
     },
     "images": {
       "interfaces": [
-        "admin"
+        "admin",
+        "workspace"
       ]
     },
     "inbox": {
@@ -381,6 +384,12 @@
     "palette": {
       "interfaces": [
         "admin"
+      ]
+    },
+    "paperclip": {
+      "interfaces": [
+        "admin",
+        "workspace"
       ]
     },
     "pencil": {
