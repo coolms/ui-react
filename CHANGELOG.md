@@ -2,7 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.23 (2026-11-21)
+
+The screen shell's bar steps aside only for the reader's own scroll, never for a scroll the host makes, and never moves with motion when reduced motion is set.
 
 - `ScreenShell` `bar-hidden`: a reader's input counts only for a scroll of the element it was aimed at (its target inside it, or a key aimed at the whole page). A tap that opens a view, such as a conversation that then scrolls to its latest message, no longer folds the bar.
 
