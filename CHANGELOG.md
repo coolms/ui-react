@@ -2,6 +2,10 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- `ScreenShell` / `usePull`: a pull starts only when every region that scrolls under the finger, up to the shell's content, is at its top. A list that scrolls in its own box inside the shell, scrolled down, takes a downward drag as its own scroll, not as a refresh.
+
 ## 0.1.0-alpha.20 (2026-11-20)
 
 The server's icon names the folder menu and the image bar use, and a space kept for a name the kit does not know.
