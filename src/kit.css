@@ -282,6 +282,7 @@
 /* bar-hidden: the bar and the filters step out of view, collapsed rather than removed, so focus can still reach them
    (and brings them back). */
 .cms-screen[data-bar-hidden] > .cms-screen__bar, .cms-screen[data-bar-hidden] > .cms-screen__filters { height: 0; min-height: 0; padding-top: 0; padding-bottom: 0; border-bottom-width: 0; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .cms-screen__bar, .cms-screen__filters { transition: none; animation: none; } }
 .cms-screen--with-primary .cms-screen__content { padding-bottom: calc(var(--cms-control-height-lg) + var(--cms-space-3) + 2 * var(--cms-space-4)); }
 
 /* Avatar */

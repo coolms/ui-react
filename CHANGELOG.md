@@ -2,6 +2,11 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- `ScreenShell` `bar-hidden`: only a scroll that follows the reader's own input (a wheel, a touch, a key, a press on a scrollbar) moves the bar. A scroll the host makes itself, such as a conversation opening at its latest message, keeps it in view.
+- `ScreenShell`: the bar's show and hide never animate when the reader prefers reduced motion.
+
 ## 0.1.0-alpha.21 (2026-11-21)
 
 The kit on design tokens v0.11.0 (contract 0.6.0, with the served icon list): the screen shell steps its bar out of the way while scrolling down, one header at phone width, and the Workspace's served icon names.

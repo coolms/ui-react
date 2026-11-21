@@ -130,7 +130,9 @@ describe('ScreenShell', () => {
     });
 
     describe('bar-hidden', () => {
+        // The reader's scroll: a wheel, then the scroll it causes.
         const scrollTo = (el: HTMLElement, top: number) => {
+            fireEvent.wheel(el);
             el.scrollTop = top;
             fireEvent.scroll(el);
         };
@@ -149,6 +151,16 @@ describe('ScreenShell', () => {
             expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
             scrollTo(content, 0);
             expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+        });
+
+        it('a scroll the host makes itself (a view opening at its end) keeps the bar; the reader\'s next scroll moves it', () => {
+            const { container } = render(<ScreenShell title="Anna"><div className="thread" style={{ overflowY: 'auto', height: 100 }} /></ScreenShell>);
+            const thread = container.querySelector<HTMLElement>('.thread')!;
+            thread.scrollTop = 900;
+            fireEvent.scroll(thread);
+            expect(shellOf(container)).not.toHaveAttribute('data-bar-hidden');
+            scrollTo(thread, 1000);
+            expect(shellOf(container)).toHaveAttribute('data-bar-hidden');
         });
 
         it('a pane that scrolls on its own inside the content moves the bar too', () => {
