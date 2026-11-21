@@ -4,9 +4,21 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode,
 export const PULL_AT = 64;
 
 /**
+ * Whether every region that scrolls between the touched element and `region` (both included) is at its top: a list that
+ * scrolls in its own box inside the region, scrolled down, is not at the top though the region is.
+ */
+function atTop(target: EventTarget | null, region: HTMLElement): boolean {
+    for (let el = target instanceof Element ? target : null; el !== null; el = el.parentElement) {
+        if (el instanceof HTMLElement && el.scrollTop > 0) return false;
+        if (el === region) return true;
+    }
+    return region.scrollTop <= 0;
+}
+
+/**
  * Pull to refresh on a scroll region at its top: a touch dragged down from the very top shows how far it has gone (up
- * to half again the threshold) and, let go past the threshold, calls `onPull`. A drag that starts lower, or goes up,
- * is the region's own scroll. Returns how far it is pulled now, 0 at rest.
+ * to half again the threshold) and, let go past the threshold, calls `onPull`. A drag that starts lower, in the region or
+ * in a list scrolling inside it, or goes up, is that scroll's own. Returns how far it is pulled now, 0 at rest.
  */
 export function usePull(region: RefObject<HTMLElement | null>, onPull: (() => void) | null): number {
     const [pulled, setPulled] = useState(0);
@@ -18,7 +30,7 @@ export function usePull(region: RefObject<HTMLElement | null>, onPull: (() => vo
         let from: number | null = null;
         let distance = 0;
         const start = (event: TouchEvent) => {
-            from = el.scrollTop <= 0 && event.touches.length === 1 ? event.touches[0]!.clientY : null;
+            from = atTop(event.target, el) && event.touches.length === 1 ? event.touches[0]!.clientY : null;
             distance = 0;
         };
         const move = (event: TouchEvent) => {

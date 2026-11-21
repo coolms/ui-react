@@ -106,6 +106,28 @@ describe('ScreenShell', () => {
         fireEvent.touchEnd(content);
         expect(onRefresh).toHaveBeenCalledOnce();
     });
+
+    it('a list that scrolls in its own box, scrolled down, is not pulled: a drag there is its scroll; back at its top it is', async () => {
+        const onRefresh = vi.fn(async () => undefined);
+        const { container } = render(
+            <ScreenShell title="Inbox" onRefresh={onRefresh}>
+                <div className="inner" style={{ overflowY: 'auto', height: 100 }}><p className="row">Anna</p></div>
+            </ScreenShell>,
+        );
+        const inner = container.querySelector<HTMLElement>('.inner')!;
+        const row = container.querySelector<HTMLElement>('.row')!;
+        const drag = () => {
+            fireEvent.touchStart(row, { touches: [{ clientY: 0 }] });
+            fireEvent.touchMove(row, { touches: [{ clientY: PULL_AT * 2 }] });
+            fireEvent.touchEnd(row);
+        };
+        inner.scrollTop = 120;
+        drag();
+        expect(onRefresh).not.toHaveBeenCalled();
+        inner.scrollTop = 0;
+        drag();
+        expect(onRefresh).toHaveBeenCalledOnce();
+    });
 });
 
 describe('List rows', () => {
