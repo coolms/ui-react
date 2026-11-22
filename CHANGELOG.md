@@ -4,6 +4,7 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
 
 ## Unreleased
 
+- `MailRow` by the list density rule: from tablet width up two lines (the sender and the time; the subject, then the muted preview on one cut line) at `--cms-list-row-height-two-line`; on a phone three lines from `--cms-list-row-height-phone-two-line`. The row's height is the token's, its padding only centres it.
 - `iconForName`: the names the Drive sections and the Chat composer trees add for the Workspace (icons list 0.7.0): `file-earmark-text` (file), `folder2` (folder), `images` (image) and `paperclip`.
 
 ## 0.1.0-alpha.23 (2026-11-21)
