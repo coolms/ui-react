@@ -2,6 +2,10 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- Design tokens v0.19.0: the icon list 0.8.0 names `chat-dots` and `folder2-open` for the workspace too, and the kit draws them as `chat` and `folder`; the components contract 0.12.0 (pane header row, list selection), with `settings-shell` not offered until a screen of the kit draws a settings layout.
+
 ## 0.1.0-alpha.26 (2026-11-23)
 
 Mail rows back to three lines at every width, on design tokens v0.14.0.

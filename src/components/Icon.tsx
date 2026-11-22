@@ -135,6 +135,8 @@ export const BOOTSTRAP_ICONS: Readonly<Record<string, IconName>> = {
     'file-earmark-spreadsheet': 'file',
     'file-earmark-text': 'file',
     folder2: 'folder',
+    'folder2-open': 'folder',
+    'chat-dots': 'chat',
     images: 'image',
     paperclip: 'paperclip',
 };

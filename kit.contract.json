@@ -35,6 +35,7 @@
     "client-version": { "where": "src/server/client-update.ts" }
   },
   "notOffered": {
-    "elevation-required": "this kit's clients never elevate: an `elevate` answer is not offered at all (offerFor with elevates: false)"
+    "elevation-required": "this kit's clients never elevate: an `elevate` answer is not offered at all (offerFor with elevates: false)",
+    "settings-shell": "no screen of this kit's clients draws a settings layout yet: it is offered with the first one (My Profile)"
   }
 }
