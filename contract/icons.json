@@ -1,6 +1,6 @@
 {
   "$comment": "The icon names the served navigation trees use (Bootstrap Icons names, as the trees write them), each with the interfaces whose trees use it, from the trees' interfaces declarations. A host that draws an interface's trees draws every name listed for it; a name a tree uses that is not here fails the backend's check, not the interface.",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "icons": {
     "alarm": {
       "interfaces": [
@@ -77,7 +77,8 @@
     },
     "chat-dots": {
       "interfaces": [
-        "admin"
+        "admin",
+        "workspace"
       ]
     },
     "chat-left-dots": {
@@ -255,7 +256,8 @@
     },
     "folder2-open": {
       "interfaces": [
-        "admin"
+        "admin",
+        "workspace"
       ]
     },
     "fonts": {

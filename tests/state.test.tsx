@@ -64,4 +64,19 @@ describe('State', () => {
         render(<State kind="error" title="Not synced" description="The server did not answer." placement="inline" />);
         expect(screen.getByText('The server did not answer.')).toBeInTheDocument();
     });
+
+    it('the empty kind draws its icon above the title, decorative and sized by its placement; no other kind does', () => {
+        const { container, rerender } = render(<State kind="empty" placement="page" icon="chat-dots" title="No conversation open" description="Pick a conversation from the list." />);
+        const icon = container.querySelector('.cms-state__icon');
+        expect(icon).toHaveAttribute('aria-hidden', 'true');
+        expect(icon?.querySelector('svg')).toHaveAttribute('width', '32');
+        expect(icon!.compareDocumentPosition(container.querySelector('.cms-state__title')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        rerender(<State kind="empty" icon="folder2-open" title="This folder is empty" />);
+        expect(container.querySelector('.cms-state__icon svg')).toHaveAttribute('width', '24');
+        rerender(<State kind="error" icon="chat-dots" title="It could not be read" />);
+        expect(container.querySelector('.cms-state__icon')).toBeNull();
+        // A name the kit does not draw leaves no empty box: the state is its words alone.
+        rerender(<State kind="empty" icon="no-such-icon" title="Nothing here" />);
+        expect(container.querySelector('.cms-state__icon')).toBeNull();
+    });
 });
