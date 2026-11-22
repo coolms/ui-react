@@ -459,9 +459,13 @@
 /* Mail row */
 .cms-mail-row {
     display: flex;
+    align-items: center;
     gap: var(--cms-space-3);
+    box-sizing: border-box;
     width: 100%;
-    padding: var(--cms-space-4) var(--cms-space-5);
+    /* The row's height is the density token's; the padding only centres its two lines and its avatar in it. */
+    min-height: var(--cms-list-row-height-two-line);
+    padding: calc((var(--cms-list-row-height-two-line) - 40px) / 2) var(--cms-space-4);
     border: 0;
     border-bottom: 1px solid var(--cms-border-light);
     background: var(--cms-surface);
@@ -472,12 +476,14 @@
 }
 .cms-mail-row:hover { background: var(--cms-surface-muted); }
 .cms-mail-row.is-selected { background: var(--cms-row-selected); }
-.cms-mail-row__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.cms-mail-row__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; line-height: 1.3; }
 .cms-mail-row__line { display: flex; align-items: center; gap: var(--cms-space-2); min-width: 0; }
 .cms-mail-row__from { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cms-text); font-size: var(--cms-font-size-body-lg); }
 .cms-mail-row__time { color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); white-space: nowrap; }
-.cms-mail-row__subject { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cms-text); }
+.cms-mail-row__subject { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cms-text); }
 .cms-mail-row__preview { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cms-text-muted); }
+.cms-mail-row__preview--after { flex: 1 1 0; min-width: 0; }
+.cms-mail-row__preview--below { display: none; }
 .cms-mail-row__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cms-accent); }
 .cms-mail-row.is-unread .cms-mail-row__from, .cms-mail-row.is-unread .cms-mail-row__subject { font-weight: var(--cms-font-weight-semibold); }
 .cms-mail-row .cms-icon { color: var(--cms-text-muted); }
@@ -606,6 +612,17 @@
 .cms-viewer__bar { display: flex; align-items: center; justify-content: safe center; gap: var(--cms-space-1); min-height: 48px; padding: 0 var(--cms-space-2); overflow-x: auto; border-top: 1px solid #2a2f38; color: #d6dae1; white-space: nowrap; }
 @media (max-width: 1199.98px) {
     .cms-viewer__icon, .cms-viewer__button { min-height: var(--cms-touch-target-min); min-width: var(--cms-touch-target-min); }
+}
+/* A mail row on a phone: three lines (the sender and the time; the subject; the preview) in three sizes, 72px at the
+   default sizes, never shorter than the phone's two-line row and taller as the text grows. */
+@media (max-width: 599.98px) {
+    .cms-mail-row { align-items: flex-start; min-height: var(--cms-list-row-height-phone-two-line); padding: 6px var(--cms-space-4); }
+    .cms-mail-row__body { line-height: 1.4; }
+    .cms-mail-row__from { font-size: var(--cms-font-size-body); }
+    .cms-mail-row__subject { flex: 1 1 auto; font-size: var(--cms-font-size-meta); }
+    .cms-mail-row__preview { font-size: var(--cms-font-size-label); }
+    .cms-mail-row__preview--after { display: none; }
+    .cms-mail-row__preview--below { display: block; }
 }
 @media (max-width: 599.98px) {
     .cms-viewer__top { padding: 0 var(--cms-space-1); gap: var(--cms-space-1); }

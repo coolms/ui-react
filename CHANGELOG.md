@@ -2,6 +2,10 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- `MailRow` by the list density rule: from tablet width up two lines (the sender and the time; the subject, then the muted preview on one cut line) at `--cms-list-row-height-two-line`; on a phone three lines from `--cms-list-row-height-phone-two-line`. The row's height is the token's, its padding only centres it.
+
 ## 0.1.0-alpha.24 (2026-11-22)
 
 Design tokens v0.13.0: the list density tokens, the list's density and columns parts, and the served icon list 0.7.0, every Workspace name in it drawn by the kit.
