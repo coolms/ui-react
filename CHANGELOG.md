@@ -2,8 +2,11 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.26 (2026-11-23)
 
+Mail rows back to three lines at every width, on design tokens v0.14.0.
+
+- Design tokens v0.14.0 (#102): `--cms-list-row-height-three-line` (84px), and the `state` entry's optional icon and empty pane part.
 - `MailRow` back to three lines at every width (the sender and the time; the subject, with the unread dot; the preview), at least `--cms-list-row-height-three-line` (84px): .875, .8125 and .75rem at line-height 1.5, 2px apart, 10px above and below. The compact density heights stay for the other lists. The two-line desktop row and the phone's own rule of alpha.25 are gone.
 
 ## 0.1.0-alpha.25 (2026-11-22)
