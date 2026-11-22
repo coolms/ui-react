@@ -108,6 +108,10 @@
     --cms-row-height: 36px;
     --cms-row-height-sm: 28px;
     --cms-row-height-lg: 48px;
+    --cms-list-row-height: 40px;
+    --cms-list-row-height-two-line: 52px;
+    --cms-list-row-height-phone: 48px;
+    --cms-list-row-height-phone-two-line: 60px;
     --cms-row-selected: #eef2f7;
     --cms-border-input: #8b929c;
     --cms-success-strong: #15803d;

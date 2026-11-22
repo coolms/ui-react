@@ -1,6 +1,6 @@
 {
   "$comment": "The components every CoolMS UI kit provides, by name, and the states each must render. A kit declares which of its components implements each entry (kit.contract.json); tools/check-kit.mjs fails when one is missing, or a state is. Names follow ui-angular's where it has one.",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "components": {
     "button": {
       "purpose": "An action. Primary, secondary, danger; an icon may lead.",
@@ -121,7 +121,9 @@
         "pulled"
       ],
       "parts": {
-        "row": "One anatomy for every list on a phone screen: a leading icon or avatar (40px); a title, one line, --cms-font-size-body, semibold while unread; a secondary line, one line, --cms-font-size-meta, --cms-text-muted; trailing meta, the time or date with a count badge under it. Rows sit on one surface (--cms-surface), separated by --cms-border-light, padded --cms-space-3 --cms-space-4; no bordered cards and no list inside a card."
+        "row": "One anatomy for every list on a phone screen: a leading icon or avatar (40px); a title, one line, --cms-font-size-body, semibold while unread; a secondary line, one line, --cms-font-size-meta, --cms-text-muted; trailing meta, the time or date with a count badge under it. Rows sit on one surface (--cms-surface), separated by --cms-border-light, padded --cms-space-3 --cms-space-4; no bordered cards and no list inside a card.",
+        "density": "Every list's row height comes from the list density tokens, the same in every list (Mail, Chat, Drive and the rest), and in no list from its own padding: from tablet width up --cms-list-row-height (one line, 40px) and --cms-list-row-height-two-line (a title and a secondary line, 52px); at phone width --cms-list-row-height-phone (48px) and --cms-list-row-height-phone-two-line (60px). Each is the row's least height, its content centred in it; a row whose text wraps grows. At phone width the whole row is the touch target, and every control in it (a checkbox, a star, a menu button) is at least --cms-touch-target-min (44px).",
+        "columns": "A list whose rows show the same fields side by side, from tablet width up. Header row: one line, the column names in the list's meta text, kept in sight at the top while the list scrolls; not a control (no sorting yet). Columns in the host's order. The first is the name column: the lead icon and the name; it takes the width left and is the only one that truncates, with an ellipsis and the full name as its title. The others keep their own content width and never wrap. Alignment: a number (a size, a count) at the end; a date, a time or a name at the start; the header cell aligned as its column. A row with no value in a column shows nothing there, never a dash or \"unknown\". A column the server does not serve for any row is not drawn at all. Height: --cms-list-row-height (one line). The whole row is one control: it opens what it names; Enter opens the focused row. Below tablet width there are no columns: the row is two lines, the name as its first and the other columns' values joined by \" \u00b7 \" as its second (--cms-list-row-height-phone-two-line)."
       },
       "notes": "pulled = the list is being pulled from its top to refresh it (screen-shell, pull)."
     },
