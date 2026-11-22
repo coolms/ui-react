@@ -16,6 +16,9 @@ describe('the server\'s icon names', () => {
         expect(iconForName('image')).toBe('image');
         expect(iconForName('person-check')).toBe('user-check');
         expect(iconForName('person-x')).toBe('user-x');
+        // The empty panes': an empty folder, no conversation open.
+        expect(iconForName('folder2-open')).toBe('folder');
+        expect(iconForName('chat-dots')).toBe('chat');
     });
 
     it('every name the contract lists for the Workspace has the kit\'s icon', () => {
