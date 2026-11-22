@@ -200,23 +200,22 @@ describe('MailRow', () => {
         expect(onOpen).toHaveBeenCalled();
     });
 
-    it('holds the preview after the subject on its line, and on a line of its own; the stylesheet shows one per width', () => {
-        const { container } = render(<MailRow from="Anna" subject="Partner demo" preview="Can we walk through" time="09:42" onOpen={() => undefined} />);
-        const lines = container.querySelectorAll('.cms-mail-row__line');
-        expect(lines[1]!.querySelector('.cms-mail-row__subject + .cms-mail-row__preview--after')).toHaveTextContent('Can we walk through');
-        expect(container.querySelector('.cms-mail-row__body > .cms-mail-row__preview--below')).toHaveTextContent('Can we walk through');
-        // From tablet width up: two lines at the density token; the preview below is not drawn.
-        expect(kitCss).toMatch(/\.cms-mail-row \{[^}]*min-height: var\(--cms-list-row-height-two-line\);/);
-        expect(kitCss).toMatch(/\.cms-mail-row__preview--below \{ display: none; \}/);
-        // On a phone: three lines from the phone's two-line token; the preview after the subject is not drawn.
-        const phone = kitCss.slice(kitCss.indexOf('/* A mail row on a phone'));
-        expect(phone).toMatch(/\.cms-mail-row \{[^}]*min-height: var\(--cms-list-row-height-phone-two-line\);/);
-        expect(phone).toMatch(/\.cms-mail-row__preview--after \{ display: none; \}/);
-        expect(phone).toMatch(/\.cms-mail-row__preview--below \{ display: block; \}/);
-        expect(phone).toMatch(/\.cms-mail-row \{[^}]*padding: 6px var\(--cms-space-4\);/);
-        expect(phone).toMatch(/\.cms-mail-row__from \{ font-size: var\(--cms-font-size-body\); \}/);
-        expect(phone).toMatch(/\.cms-mail-row__subject \{[^}]*font-size: var\(--cms-font-size-meta\);/);
-        expect(phone).toMatch(/\.cms-mail-row__preview \{ font-size: var\(--cms-font-size-label\); \}/);
+    it('is three lines at every width: the sender and the time, the subject, the preview, on the three-line token', () => {
+        const { container } = render(<MailRow from="Anna" subject="Partner demo" preview="Can we walk through" time="09:42" unread onOpen={() => undefined} />);
+        const body = container.querySelector('.cms-mail-row__body')!;
+        expect(Array.from(body.children).map((c) => c.className)).toEqual(['cms-mail-row__line', 'cms-mail-row__line', 'cms-mail-row__preview']);
+        expect(body.children[1]!.querySelector('.cms-mail-row__subject')).toHaveTextContent('Partner demo');
+        expect(body.children[2]).toHaveTextContent('Can we walk through');
+        expect(container.querySelectorAll('.cms-mail-row__preview')).toHaveLength(1);
+        // One rule at every width: the three-line token, 10px above and below, the three sizes at 1.5, 2px apart.
+        expect(kitCss).toMatch(/\.cms-mail-row \{[^}]*min-height: var\(--cms-list-row-height-three-line\);[^}]*padding: 10px var\(--cms-space-4\);/);
+        expect(kitCss).toMatch(/\.cms-mail-row__body \{[^}]*gap: 2px;[^}]*line-height: 1\.5;/);
+        expect(kitCss).toMatch(/\.cms-mail-row__from \{[^}]*font-size: var\(--cms-font-size-body\);/);
+        expect(kitCss).toMatch(/\.cms-mail-row__subject \{[^}]*font-size: var\(--cms-font-size-meta\);/);
+        expect(kitCss).toMatch(/\.cms-mail-row__preview \{[^}]*font-size: var\(--cms-font-size-label\);/);
+        // No width redraws it: the compact heights are for the other lists.
+        expect(kitCss).not.toMatch(/\n\s+\.cms-mail-row[ _{.:]/);
+        expect(kitCss).not.toMatch(/cms-mail-row[^}]*list-row-height-(two-line|phone)/);
     });
 });
 

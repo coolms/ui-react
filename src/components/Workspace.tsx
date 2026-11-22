@@ -426,11 +426,9 @@ export function MailRow({ from, subject, preview, time, unread, hasAttachment, s
                 </span>
                 <span className="cms-mail-row__line">
                     <span className="cms-mail-row__subject">{subject}</span>
-                    {/* From tablet width up the preview follows the subject on its line; on a phone it has a line of its own. */}
-                    <span className="cms-mail-row__preview cms-mail-row__preview--after">{preview}</span>
                     {unread ? <span className="cms-mail-row__dot" role="img" aria-label={l.unread} /> : null}
                 </span>
-                <span className="cms-mail-row__preview cms-mail-row__preview--below">{preview}</span>
+                <span className="cms-mail-row__preview">{preview}</span>
             </span>
         </button>
     );
