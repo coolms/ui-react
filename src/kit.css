@@ -613,12 +613,14 @@
 @media (max-width: 1199.98px) {
     .cms-viewer__icon, .cms-viewer__button { min-height: var(--cms-touch-target-min); min-width: var(--cms-touch-target-min); }
 }
-/* A mail row on a phone: three lines (the sender and the time; the subject; the preview), never shorter than the phone's
-   two-line row. */
+/* A mail row on a phone: three lines (the sender and the time; the subject; the preview) in three sizes, 72px at the
+   default sizes, never shorter than the phone's two-line row and taller as the text grows. */
 @media (max-width: 599.98px) {
-    .cms-mail-row { align-items: flex-start; min-height: var(--cms-list-row-height-phone-two-line); padding: var(--cms-space-2) var(--cms-space-4); }
+    .cms-mail-row { align-items: flex-start; min-height: var(--cms-list-row-height-phone-two-line); padding: 6px var(--cms-space-4); }
     .cms-mail-row__body { line-height: 1.4; }
-    .cms-mail-row__subject { flex: 1 1 auto; }
+    .cms-mail-row__from { font-size: var(--cms-font-size-body); }
+    .cms-mail-row__subject { flex: 1 1 auto; font-size: var(--cms-font-size-meta); }
+    .cms-mail-row__preview { font-size: var(--cms-font-size-label); }
     .cms-mail-row__preview--after { display: none; }
     .cms-mail-row__preview--below { display: block; }
 }

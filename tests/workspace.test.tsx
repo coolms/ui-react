@@ -213,6 +213,10 @@ describe('MailRow', () => {
         expect(phone).toMatch(/\.cms-mail-row \{[^}]*min-height: var\(--cms-list-row-height-phone-two-line\);/);
         expect(phone).toMatch(/\.cms-mail-row__preview--after \{ display: none; \}/);
         expect(phone).toMatch(/\.cms-mail-row__preview--below \{ display: block; \}/);
+        expect(phone).toMatch(/\.cms-mail-row \{[^}]*padding: 6px var\(--cms-space-4\);/);
+        expect(phone).toMatch(/\.cms-mail-row__from \{ font-size: var\(--cms-font-size-body\); \}/);
+        expect(phone).toMatch(/\.cms-mail-row__subject \{[^}]*font-size: var\(--cms-font-size-meta\);/);
+        expect(phone).toMatch(/\.cms-mail-row__preview \{ font-size: var\(--cms-font-size-label\); \}/);
     });
 });
 
