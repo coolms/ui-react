@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import kitCss from '../src/kit.css?raw';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -197,6 +198,25 @@ describe('MailRow', () => {
         expect(screen.getByRole('img', { name: 'Has an attachment' })).toBeInTheDocument();
         await userEvent.click(row);
         expect(onOpen).toHaveBeenCalled();
+    });
+
+    it('holds the preview after the subject on its line, and on a line of its own; the stylesheet shows one per width', () => {
+        const { container } = render(<MailRow from="Anna" subject="Partner demo" preview="Can we walk through" time="09:42" onOpen={() => undefined} />);
+        const lines = container.querySelectorAll('.cms-mail-row__line');
+        expect(lines[1]!.querySelector('.cms-mail-row__subject + .cms-mail-row__preview--after')).toHaveTextContent('Can we walk through');
+        expect(container.querySelector('.cms-mail-row__body > .cms-mail-row__preview--below')).toHaveTextContent('Can we walk through');
+        // From tablet width up: two lines at the density token; the preview below is not drawn.
+        expect(kitCss).toMatch(/\.cms-mail-row \{[^}]*min-height: var\(--cms-list-row-height-two-line\);/);
+        expect(kitCss).toMatch(/\.cms-mail-row__preview--below \{ display: none; \}/);
+        // On a phone: three lines from the phone's two-line token; the preview after the subject is not drawn.
+        const phone = kitCss.slice(kitCss.indexOf('/* A mail row on a phone'));
+        expect(phone).toMatch(/\.cms-mail-row \{[^}]*min-height: var\(--cms-list-row-height-phone-two-line\);/);
+        expect(phone).toMatch(/\.cms-mail-row__preview--after \{ display: none; \}/);
+        expect(phone).toMatch(/\.cms-mail-row__preview--below \{ display: block; \}/);
+        expect(phone).toMatch(/\.cms-mail-row \{[^}]*padding: 6px var\(--cms-space-4\);/);
+        expect(phone).toMatch(/\.cms-mail-row__from \{ font-size: var\(--cms-font-size-body\); \}/);
+        expect(phone).toMatch(/\.cms-mail-row__subject \{[^}]*font-size: var\(--cms-font-size-meta\);/);
+        expect(phone).toMatch(/\.cms-mail-row__preview \{ font-size: var\(--cms-font-size-label\); \}/);
     });
 });
 

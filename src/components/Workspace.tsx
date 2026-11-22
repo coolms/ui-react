@@ -403,7 +403,11 @@ export interface MailRowLabels {
 
 export const MAIL_ROW_LABELS: MailRowLabels = { attachment: 'Has an attachment', unread: 'Unread' };
 
-/** One message in a mailbox's list: who, what, the start of it, when; unread in bold with its dot. */
+/**
+ * One message in a mailbox's list: who, what, the start of it, when; unread in bold with its dot. From tablet width up
+ * two lines (contract list, part density): the sender and the time, then the subject and the muted preview on one cut
+ * line, at the two-line row height; on a phone three lines, the preview on its own.
+ */
 export function MailRow({ from, subject, preview, time, unread, hasAttachment, selected, onOpen, labels }: MailRowProps): ReactNode {
     const l = withDefaults(MAIL_ROW_LABELS, labels);
     return (
@@ -422,9 +426,11 @@ export function MailRow({ from, subject, preview, time, unread, hasAttachment, s
                 </span>
                 <span className="cms-mail-row__line">
                     <span className="cms-mail-row__subject">{subject}</span>
+                    {/* From tablet width up the preview follows the subject on its line; on a phone it has a line of its own. */}
+                    <span className="cms-mail-row__preview cms-mail-row__preview--after">{preview}</span>
                     {unread ? <span className="cms-mail-row__dot" role="img" aria-label={l.unread} /> : null}
                 </span>
-                <span className="cms-mail-row__preview">{preview}</span>
+                <span className="cms-mail-row__preview cms-mail-row__preview--below">{preview}</span>
             </span>
         </button>
     );
