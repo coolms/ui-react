@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Button } from './Button';
+import { iconForName, NamedIcon } from './Icon';
 import { cx, Glyph } from './internal';
 
 /**
@@ -20,6 +21,8 @@ export interface StateProps {
     /** One thing to do about it: Retry for an error, say. Its label is the caller's word too. A refusal offers none. */
     readonly action?: { readonly label: string; readonly onAction: () => void };
     readonly placement?: StatePlacement;
+    /** The empty kind only: an icon name from the icon list (as the server's nodes name them), drawn above the title, decorative. */
+    readonly icon?: string;
 }
 
 /** How long a loading state shows nothing, so a read answered sooner does not flash: the `state-delay` token. */
@@ -50,7 +53,7 @@ function Spinner(): ReactNode {
  * nor title -- until the state delay has passed, then both together, while its title is in the live region from the
  * start, visually hidden.
  */
-export function State({ kind, title, description, action, placement = 'block' }: StateProps): ReactNode {
+export function State({ kind, title, description, action, placement = 'block', icon }: StateProps): ReactNode {
     const [shown, setShown] = useState(kind !== 'loading');
     useEffect(() => {
         if (kind !== 'loading') {
@@ -71,6 +74,7 @@ export function State({ kind, title, description, action, placement = 'block' }:
         >
             {kind === 'loading' ? <Spinner /> : null}
             {kind === 'error' || kind === 'denied' ? <Glyph name={kind === 'error' ? 'warning' : 'lock'} /> : null}
+            {kind === 'empty' && icon !== undefined && iconForName(icon) !== null ? <span className="cms-state__icon" aria-hidden="true"><NamedIcon name={icon} size={placement === 'page' ? 32 : 24} /></span> : null}
             <span className="cms-state__text">
                 <span className="cms-state__title">{title}</span>
                 {description !== undefined ? <span className="cms-state__description">{description}</span> : null}

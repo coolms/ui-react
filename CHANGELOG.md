@@ -4,6 +4,7 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
 
 ## Unreleased
 
+- `State`: the empty kind takes an optional `icon` (a name from the icon list, as the server's nodes give it), drawn above the title, decorative, 32px on a page and 24px elsewhere; a name the kit does not draw leaves no box.
 - Design tokens v0.19.0: the icon list 0.8.0 names `chat-dots` and `folder2-open` for the workspace too, and the kit draws them as `chat` and `folder`; the components contract 0.12.0 (pane header row, list selection), with `settings-shell` not offered until a screen of the kit draws a settings layout.
 
 ## 0.1.0-alpha.26 (2026-11-23)
