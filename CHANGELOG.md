@@ -5,11 +5,17 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
 ## Unreleased
 
 - `MailRow` by the list density rule: from tablet width up two lines (the sender and the time; the subject, then the muted preview on one cut line) at `--cms-list-row-height-two-line`; on a phone three lines from `--cms-list-row-height-phone-two-line`. The row's height is the token's, its padding only centres it.
+
+## 0.1.0-alpha.24 (2026-11-22)
+
+Design tokens v0.13.0: the list density tokens, the list's density and columns parts, and the served icon list 0.7.0, every Workspace name in it drawn by the kit.
+
+- Design tokens v0.13.0 (a3767861cd02baaf26980596179bab8815e7a66a), from v0.11.0: the list density tokens (`list-row-height` 40px and `list-row-height-two-line` 52px from tablet width up, `list-row-height-phone` 48px and `list-row-height-phone-two-line` 60px at phone width), the list contract's `density` and `columns` parts, and `contract/icons.json` 0.7.0 (111 names, 31 for the Workspace).
 - `iconForName`: the names the Drive sections and the Chat composer trees add for the Workspace (icons list 0.7.0): `file-earmark-text` (file), `folder2` (folder), `images` (image) and `paperclip`.
 
 ## 0.1.0-alpha.23 (2026-11-21)
 
-The screen shell's bar steps aside only for the reader's own scroll, never for a scroll the host makes, and never moves with motion when reduced motion is set.
+A tap that opens a view no longer folds the screen shell's bar.
 
 - `ScreenShell` `bar-hidden`: a reader's input counts only for a scroll of the element it was aimed at (its target inside it, or a key aimed at the whole page). A tap that opens a view, such as a conversation that then scrolls to its latest message, no longer folds the bar.
 
