@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Button } from './Button';
-import { Modal } from './Dialogs';
-import { Icon } from './Icon';
-import { State } from './State';
-import { Glyph, cx } from './internal';
+import { Button } from './Button.js';
+import { Modal } from './Dialogs.js';
+import { Icon } from './Icon.js';
+import { State } from './State.js';
+import { Glyph, cx } from './internal.js';
 
 /** A space the person may read, such as their Drive or a shared space. */
 export interface FilePickerSpace {

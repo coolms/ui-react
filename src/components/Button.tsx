@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
-import { cx, Glyph } from './internal';
+import { cx, Glyph } from './internal.js';
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
     /** secondary (the default), primary -- one per view -- or danger, for an action that destroys or cannot be undone. */

@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
-import { Button } from './Button';
-import { cx, Glyph } from './internal';
+import { Button } from './Button.js';
+import { cx, Glyph } from './internal.js';
 
 /** How long the closing state is drawn before the dialog leaves the page. */
 export const MODAL_CLOSE_MS = 150;
