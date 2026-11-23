@@ -2,6 +2,11 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- `check:package`, in `verify` after `check:types-resolution`: the package as it would be published (packed without scripts), read by Are The Types Wrong (`@arethetypeswrong/cli`, its esm-only profile, the three stylesheet exports left out) and `publint` (strict); a problem either reports fails it. Both are dev dependencies, pinned.
+- The repository url in `package.json` is the full git url (`git+https://`), as publint suggests.
+
 ## 0.1.0-alpha.28 (2026-11-23)
 
 Declarations that resolve under node16 and nodenext.
