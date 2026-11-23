@@ -2,7 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.29 (2026-11-23)
+
+Filter chips on one line with a fade while more is past the edge; check:package in the release checks.
 
 - `FilterChips` draws the components contract's `filter-chips` entry (design tokens v0.20.0, contract 0.13.0): chips that do not fit stay on one line and scroll sideways, the scrollbar hidden; the clipped edge fades at the start and at the end only while there is more past it, measured from the scroll; a chip reached by key, or chosen while partly clipped, scrolls fully into view. Before, the chips wrapped onto more lines.
 - Design tokens v0.20.0.
