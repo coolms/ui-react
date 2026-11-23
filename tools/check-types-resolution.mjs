@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // The built package as a consumer's TypeScript reads it: an ESM project ("type": "module") with
 // module and moduleResolution "nodenext", the library's own declarations checked (skipLibCheck off),
-// importing @coolms/ui-react from a node_modules link to this checkout, with the issue's repro (#53) as the
-// consumer. Every declaration must resolve
+// importing @coolms/ui-react from a node_modules link to this checkout, its code a consumer's repro of an untyped
+// package. Every declaration must resolve
 // (a relative import without its extension does not, under nodenext), and no export may come through
 // as `any`, which is what an unresolved declaration turns into.
 //
@@ -43,7 +43,7 @@ try {
         },
         files: ['consumer.tsx'],
     }));
-    // The issue's own repro (#53): Button is a component, never a symbol, so the expect-error holds only while it is
+    // A consumer's repro: Button is a component, never a symbol, so the expect-error holds only while it is
     // typed; TextField's onChange value must be typed, or strict mode refuses it (TS7006). Then every export, and the
     // names of any that come through as `any`: none may.
     writeFileSync(join(work, 'consumer.tsx'), [
