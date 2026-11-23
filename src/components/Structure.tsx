@@ -1,6 +1,6 @@
 import { useRef, type KeyboardEvent, type ReactNode } from 'react';
-import { cx, Glyph } from './internal';
-import { Icon } from './Icon';
+import { cx, Glyph } from './internal.js';
+import { Icon } from './Icon.js';
 
 export interface PageHeaderProps {
     readonly title: ReactNode;

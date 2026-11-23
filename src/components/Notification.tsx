@@ -1,6 +1,6 @@
 import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Icon } from './Icon';
-import { cx } from './internal';
+import { Icon } from './Icon.js';
+import { cx } from './internal.js';
 
 /**
  * A notification's action, as the server declares it, already resolved by the host: `row`, the whole row takes the

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { Button } from './Button';
-import { cx, Glyph } from './internal';
+import { Button } from './Button.js';
+import { cx, Glyph } from './internal.js';
 
 export interface ToastProps {
     readonly kind: 'success' | 'error' | 'info';

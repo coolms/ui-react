@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
-import { PullContext, usePull, type PullState } from './pull';
-import { ContextMenu, type MenuItem } from './Collections';
-import { Icon, type IconName } from './Icon';
-import { FilterChips, type FilterOption } from './Workspace';
-import { cx } from './internal';
+import { PullContext, usePull, type PullState } from './pull.js';
+import { ContextMenu, type MenuItem } from './Collections.js';
+import { Icon, type IconName } from './Icon.js';
+import { FilterChips, type FilterOption } from './Workspace.js';
+import { cx } from './internal.js';
 
 /** The screen's floating primary action: one action, or a menu of declared entries. */
 export type ScreenPrimary =

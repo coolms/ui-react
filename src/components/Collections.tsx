@@ -1,9 +1,9 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import type { Offer } from '../server/capability';
-import { EmptyState, ErrorBanner, Loading } from './Status';
-import { cx, Glyph } from './internal';
-import { PULL_AT, usePullState } from './pull';
+import type { Offer } from '../server/capability.js';
+import { EmptyState, ErrorBanner, Loading } from './Status.js';
+import { cx, Glyph } from './internal.js';
+import { PULL_AT, usePullState } from './pull.js';
 
 export interface ListRow {
     readonly id: string;

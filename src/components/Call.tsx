@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import { Icon, type IconName } from './Icon';
-import { cx, withDefaults } from './internal';
-import { Avatar } from './Structure';
+import { Icon, type IconName } from './Icon.js';
+import { cx, withDefaults } from './internal.js';
+import { Avatar } from './Structure.js';
 
 /** The words a call's components say, in the app's language; English by default. */
 export interface CallLabels {
