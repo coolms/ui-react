@@ -1,7 +1,7 @@
 import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
-import { Icon, type IconName } from './Icon';
-import { cx, withDefaults } from './internal';
-import { Avatar } from './Structure';
+import { Icon, type IconName } from './Icon.js';
+import { cx, withDefaults } from './internal.js';
+import { Avatar } from './Structure.js';
 
 export interface BadgeProps {
     readonly count: number;

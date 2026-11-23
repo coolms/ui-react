@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { Icon, iconForName } from './Icon';
-import { ContextMenu, type MenuItem } from './Collections';
-import { STATE_DELAY_MS } from './State';
-import { Glyph, cx } from './internal';
+import { Icon, iconForName } from './Icon.js';
+import { ContextMenu, type MenuItem } from './Collections.js';
+import { STATE_DELAY_MS } from './State.js';
+import { Glyph, cx } from './internal.js';
 
 /**
  * One action of a pane's row, as the server's action node gives it: which actions exist, their order, groups, icons and

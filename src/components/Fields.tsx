@@ -1,5 +1,5 @@
 import { useId, type ReactNode } from 'react';
-import { cx, Glyph } from './internal';
+import { cx, Glyph } from './internal.js';
 
 interface FieldFrame {
     readonly label: ReactNode;

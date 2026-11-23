@@ -1,6 +1,6 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react';
-import { Icon, type IconName } from './Icon';
-import { withDefaults } from './internal';
+import { Icon, type IconName } from './Icon.js';
+import { withDefaults } from './internal.js';
 
 export interface SignInFeature {
     readonly icon: IconName;

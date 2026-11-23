@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Button } from './Button';
-import { iconForName, NamedIcon } from './Icon';
-import { cx, Glyph } from './internal';
+import { Button } from './Button.js';
+import { iconForName, NamedIcon } from './Icon.js';
+import { cx, Glyph } from './internal.js';
 
 /**
  * What a page, a card or a line of text shows instead of its content. `elevation-required` is not offered here: the

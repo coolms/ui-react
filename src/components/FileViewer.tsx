@@ -1,8 +1,8 @@
 import { useEffect, useId, useRef, useState, type ReactNode, type TouchEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { Icon } from './Icon';
-import { State } from './State';
-import { Glyph, cx } from './internal';
+import { Icon } from './Icon.js';
+import { State } from './State.js';
+import { Glyph, cx } from './internal.js';
 
 /** One of the top bar's file actions, as Download, Print and Open separately are: the caller's words and handler. */
 export interface FileViewerAction {
