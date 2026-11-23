@@ -2,7 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.28 (2026-11-23)
+
+Declarations that resolve under node16 and nodenext.
 
 - The published declarations resolve under `moduleResolution` `node16` and `nodenext`: the declaration build uses NodeNext, so every relative import in the `.d.ts` files carries its `.js` extension. Before, an ESM project with nodenext resolution got every export as `any` (#53).
 - `check:types-resolution`, in `verify`: the built package read by an ESM project with nodenext resolution and its declarations checked; any error, or an export that comes through as `any`, fails it.
