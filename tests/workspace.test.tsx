@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import kitCss from '../src/kit.css?raw';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -178,6 +178,33 @@ describe('FilterChips', () => {
         expect(row).not.toHaveClass('is-past-end');
         expect(kitCss).toMatch(/\.cms-chips \{[^}]*flex-wrap: nowrap;[^}]*overflow-x: auto;/);
         expect(kitCss).toMatch(/\.cms-chips\.is-past-end \{ mask-image:/);
+        // Right to left, the start is the right edge: its masks run the other way.
+        expect(kitCss).toMatch(/\.cms-chips\.is-past-start:dir\(rtl\) \{ mask-image: linear-gradient\(to left,/);
+    });
+
+    it('measures again when a chip changes size while the row does not (a font arriving)', () => {
+        const watched: Element[] = [];
+        const callbacks: Array<() => void> = [];
+        const real = globalThis.ResizeObserver;
+        globalThis.ResizeObserver = class {
+            constructor(cb: () => void) { callbacks.push(cb); }
+            observe(el: Element) { watched.push(el); }
+            unobserve() {}
+            disconnect() {}
+        } as unknown as typeof ResizeObserver;
+        try {
+            render(<FilterChips label="Show" value="all" onChange={() => undefined} options={five} />);
+            const row = screen.getByRole('radiogroup', { name: 'Show' });
+            expect(watched).toContain(row);
+            for (const chip of screen.getAllByRole('radio')) expect(watched).toContain(chip);
+            const box = { client: 200, scroll: 200, left: 0 };
+            sized(row, box);
+            box.scroll = 400;
+            act(() => callbacks.forEach((cb) => cb()));
+            expect(row).toHaveClass('is-past-end');
+        } finally {
+            globalThis.ResizeObserver = real;
+        }
     });
 
     it('a chip reached by key, or chosen by a press, scrolls fully into view', async () => {

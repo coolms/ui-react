@@ -164,8 +164,10 @@ export function FilterChips({ options, value, onChange, label }: FilterChipsProp
         measure();
         const el = row.current;
         if (el === null || typeof ResizeObserver === 'undefined') return undefined;
+        // The row and each chip: a chip that grows while the row does not (its font arriving) changes what is past an edge.
         const watch = new ResizeObserver(measure);
         watch.observe(el);
+        for (const chip of refs.current) if (chip !== null) watch.observe(chip);
         return () => watch.disconnect();
     }, [options]);
     // A chip reached by key, or chosen while partly clipped, scrolls fully into view.
