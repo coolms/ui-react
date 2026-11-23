@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // The built package as a consumer's TypeScript reads it: an ESM project ("type": "module") with
 // module and moduleResolution "nodenext", the library's own declarations checked (skipLibCheck off),
-// importing @coolms/ui-react from a node_modules link to this checkout. Every declaration must resolve
+// importing @coolms/ui-react from a node_modules link to this checkout, with the issue's repro (#53) as the
+// consumer. Every declaration must resolve
 // (a relative import without its extension does not, under nodenext), and no export may come through
 // as `any`, which is what an unresolved declaration turns into.
 //
@@ -40,11 +41,20 @@ try {
             module: 'nodenext', moduleResolution: 'nodenext', jsx: 'react-jsx', strict: true, noEmit: true,
             skipLibCheck: false, types: [],
         },
-        files: ['consumer.ts'],
+        files: ['consumer.tsx'],
     }));
-    // Every export of the package, and the names of any that come through as `any`: none may.
-    writeFileSync(join(work, 'consumer.ts'), [
+    // The issue's own repro (#53): Button is a component, never a symbol, so the expect-error holds only while it is
+    // typed; TextField's onChange value must be typed, or strict mode refuses it (TS7006). Then every export, and the
+    // names of any that come through as `any`: none may.
+    writeFileSync(join(work, 'consumer.tsx'), [
+        "import { Button, TextField } from '@coolms/ui-react';",
         "import * as kit from '@coolms/ui-react';",
+        '// @ts-expect-error -- a component is not a symbol; this line errs only while Button is typed',
+        'export const probe: symbol = Button;',
+        'export const field = <TextField label="Name" value="" onChange={(v) => v.trim()} />;',
+        // A parameter declared `any` would still let v.trim() through: the value onChange is handed must be typed.
+        "type Typed<T> = 0 extends 1 & T ? never : true;",
+        "export const onChangeValueIsTyped: Typed<Parameters<NonNullable<import('@coolms/ui-react').TextFieldProps['onChange']>>[0]> = true;",
         'type Kit = typeof kit;',
         'type AnyExport = { [K in keyof Kit]: 0 extends 1 & Kit[K] ? K : never }[keyof Kit];',
         'export const noExportIsAny: [AnyExport] extends [never] ? true : AnyExport = true;',
@@ -59,7 +69,7 @@ try {
     const out = `${run.stdout}${run.stderr}`.trim();
     if (run.status !== 0) {
         const lines = out.split('\n').map((line) => line.replace(work, '<consumer>').replace(root, '<package>'));
-        console.log(`FOUND: the built declarations do not resolve under nodenext (${lines.filter((l) => / error TS/.test(l)).length} error(s)):`);
+        console.log(`FOUND: the built declarations do not resolve, or do not type the repro, under nodenext (${lines.filter((l) => / error TS/.test(l)).length} error(s)):`);
         for (const line of lines.slice(0, 20)) console.log(`  ${line}`);
         process.exit(1);
     }
