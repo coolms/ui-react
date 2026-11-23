@@ -187,7 +187,7 @@ export function FilterChips({ options, value, onChange, label }: FilterChipsProp
         }
     };
     return (
-        <div ref={row} className={cx('cms-chips', past.start && 'is-past-start', past.end && 'is-past-end')} role="radiogroup" aria-label={label} onScroll={measure}>
+        <div ref={row} className={cx('cms-chips', past.start && 'is-past-start', past.end && 'is-past-end')} role="radiogroup" aria-label={label} onScroll={measure} data-scrolls-sideways="">
             {options.map((o, i) => {
                 const on = o.id === value;
                 return (
