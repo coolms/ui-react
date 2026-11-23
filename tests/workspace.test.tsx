@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import kitCss from '../src/kit.css?raw';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -147,6 +147,79 @@ describe('FilterChips', () => {
         expect(marks()).toEqual([true, false]);
         await userEvent.click(screen.getByRole('radio', { name: 'Unread' }));
         expect(marks()).toEqual([false, true]);
+    });
+
+    // jsdom lays nothing out: the row's widths and scroll are given here, as a browser would measure them.
+    const sized = (el: HTMLElement, box: { client: number; scroll: number; left: number }) => {
+        Object.defineProperty(el, 'clientWidth', { configurable: true, get: () => box.client });
+        Object.defineProperty(el, 'scrollWidth', { configurable: true, get: () => box.scroll });
+        Object.defineProperty(el, 'scrollLeft', { configurable: true, get: () => box.left, set: (v: number) => { box.left = v; } });
+    };
+    const five = [{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }, { id: 'files', label: 'Attachments' }, { id: 'flagged', label: 'Flagged' }, { id: 'mine', label: 'To me' }];
+
+    it('one line that scrolls: the clipped edge fades only while there is more past it, at the start and at the end', () => {
+        render(<FilterChips label="Show" value="all" onChange={() => undefined} options={five} />);
+        const row = screen.getByRole('radiogroup', { name: 'Show' });
+        const box = { client: 200, scroll: 200, left: 0 };
+        sized(row, box);
+        fireEvent.scroll(row);
+        expect(row.className).toBe('cms-chips');
+        box.scroll = 500;
+        fireEvent.scroll(row);
+        expect(row).toHaveClass('is-past-end');
+        expect(row).not.toHaveClass('is-past-start');
+        box.left = 150;
+        fireEvent.scroll(row);
+        expect(row).toHaveClass('is-past-start');
+        expect(row).toHaveClass('is-past-end');
+        box.left = 300;
+        fireEvent.scroll(row);
+        expect(row).toHaveClass('is-past-start');
+        expect(row).not.toHaveClass('is-past-end');
+        expect(kitCss).toMatch(/\.cms-chips \{[^}]*flex-wrap: nowrap;[^}]*overflow-x: auto;/);
+        expect(kitCss).toMatch(/\.cms-chips\.is-past-end \{ mask-image:/);
+        // Right to left, the start is the right edge: its masks run the other way.
+        expect(kitCss).toMatch(/\.cms-chips\.is-past-start:dir\(rtl\) \{ mask-image: linear-gradient\(to left,/);
+    });
+
+    it('measures again when a chip changes size while the row does not (a font arriving)', () => {
+        const watched: Element[] = [];
+        const callbacks: Array<() => void> = [];
+        const real = globalThis.ResizeObserver;
+        globalThis.ResizeObserver = class {
+            constructor(cb: () => void) { callbacks.push(cb); }
+            observe(el: Element) { watched.push(el); }
+            unobserve() {}
+            disconnect() {}
+        } as unknown as typeof ResizeObserver;
+        try {
+            render(<FilterChips label="Show" value="all" onChange={() => undefined} options={five} />);
+            const row = screen.getByRole('radiogroup', { name: 'Show' });
+            expect(watched).toContain(row);
+            for (const chip of screen.getAllByRole('radio')) expect(watched).toContain(chip);
+            const box = { client: 200, scroll: 200, left: 0 };
+            sized(row, box);
+            box.scroll = 400;
+            act(() => callbacks.forEach((cb) => cb()));
+            expect(row).toHaveClass('is-past-end');
+        } finally {
+            globalThis.ResizeObserver = real;
+        }
+    });
+
+    it('a chip reached by key, or chosen by a press, scrolls fully into view', async () => {
+        function Controlled() {
+            const [v, setV] = useState('all');
+            return <FilterChips label="Show" value={v} onChange={setV} options={five} />;
+        }
+        render(<Controlled />);
+        const seen: string[] = [];
+        for (const chip of screen.getAllByRole('radio')) {
+            chip.scrollIntoView = () => { seen.push(chip.textContent ?? ''); };
+        }
+        await userEvent.click(screen.getByRole('radio', { name: 'Flagged' }));
+        await userEvent.keyboard('{ArrowRight}');
+        expect(seen).toEqual(['Flagged', 'To me']);
     });
 });
 
