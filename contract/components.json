@@ -1,6 +1,6 @@
 {
   "$comment": "The components every CoolMS UI kit provides, by name, and the states each must render. A kit declares which of its components implements each entry (kit.contract.json); tools/check-kit.mjs fails when one is missing, or a state is. Names follow ui-angular's where it has one.",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "components": {
     "button": {
       "purpose": "An action. Primary, secondary, danger; an icon may lead.",
@@ -127,6 +127,19 @@
         "selection": "A list whose rows can be checked (Mail's, Drive's) selects as a desktop file list does, the same in every host. Click: opens the row, clears every check, and makes it the anchor. Ctrl/Cmd+click: toggles the row's check without opening it; it becomes the anchor. Shift+click, on the row or its checkbox: checks the range from the anchor to that row; the anchor stays, so a second Shift+click re-spans from it. Up/Down: moves the focus, and the focused row opens as a click would, checks unchanged; while two or more rows are checked it moves the focus only, and the reading pane keeps the count. Shift+Up/Down: moves the focus one row and checks the range from the anchor to it (going back shrinks the range). Space: toggles the focused row's check; it becomes the anchor. Ctrl/Cmd+A, while the list has the focus: checks every loaded row (never the rows not loaded); elsewhere the browser's own. Esc: clears the checks; with none checked it does what it did before (closing a view or a menu). A row that cannot be acted on (Mail's rows read from the server, not stored) has no checkbox, is never checked, and is skipped by a range and by Ctrl/Cmd+A. The actions bar acts on every checked row from one; from two checked rows the reading pane shows the count (\"N selected\", in the interface's words) in place of a message. Each checked row's state is its checkbox's (checked), and the count is a status line read out when it changes. aria-multiselectable and aria-selected belong to a list drawn as a listbox or a grid; a list of rows each holding a button and a checkbox has neither, its checkboxes say it."
       },
       "notes": "pulled = the list is being pulled from its top to refresh it (screen-shell, pull)."
+    },
+    "filter-chips": {
+      "purpose": "A few filters of one list, as pills: one is chosen at a time (the list shows what it lets through).",
+      "states": [
+        "default",
+        "chosen",
+        "focused",
+        "overflowing"
+      ],
+      "parts": {
+        "keys": "A radio group named by what it filters: Tab enters at the chosen chip; Left/Right and Up/Down move to the next or the previous chip and choose it, wrapping at the ends; the chosen chip is checked (aria-checked).",
+        "overflow": "Chips that do not fit their row stay on one line and scroll sideways within it; they never wrap and never push the row taller. The edge where chips are clipped fades, at the start and at the end, only while there is more past that edge: a row whose chips fit shows no fade, and a row scrolled to one end shows none there. The fade follows the scroll (measured, never a fixed gradient), so the scrollbar may be hidden: the fade is what says there is more. A chip reached by key, or chosen while partly clipped, scrolls fully into view."
+      }
     },
     "avatar": {
       "purpose": "A person or an account, by picture or initials.",

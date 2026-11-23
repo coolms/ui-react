@@ -436,7 +436,22 @@
 .cms-search__input::placeholder { color: var(--cms-text-muted); }
 
 /* Filter chips */
-.cms-chips { display: flex; flex-wrap: wrap; gap: var(--cms-space-2); }
+/* One line: chips that do not fit scroll sideways, the scrollbar hidden; the clipped edge fades while there is more past
+   it (is-past-start, is-past-end, measured from the scroll). The block padding keeps a chip's focus ring inside the
+   scroll box, and the margin gives the row its height back. */
+.cms-chips {
+    display: flex; flex-wrap: nowrap; gap: var(--cms-space-2); min-width: 0; overflow-x: auto; scrollbar-width: none;
+    padding-block: 3px; margin-block: -3px; padding-inline: 3px; margin-inline: -3px;
+}
+.cms-chips::-webkit-scrollbar { display: none; }
+.cms-chips > .cms-chip { flex: none; }
+.cms-chips.is-past-end { mask-image: linear-gradient(to right, #000 calc(100% - var(--cms-space-6)), transparent); }
+.cms-chips.is-past-start { mask-image: linear-gradient(to right, transparent, #000 var(--cms-space-6)); }
+.cms-chips.is-past-start.is-past-end { mask-image: linear-gradient(to right, transparent, #000 var(--cms-space-6), #000 calc(100% - var(--cms-space-6)), transparent); }
+/* Right to left, the start is the right edge. */
+.cms-chips.is-past-end:dir(rtl) { mask-image: linear-gradient(to left, #000 calc(100% - var(--cms-space-6)), transparent); }
+.cms-chips.is-past-start:dir(rtl) { mask-image: linear-gradient(to left, transparent, #000 var(--cms-space-6)); }
+.cms-chips.is-past-start.is-past-end:dir(rtl) { mask-image: linear-gradient(to left, transparent, #000 var(--cms-space-6), #000 calc(100% - var(--cms-space-6)), transparent); }
 .cms-chip { display: inline-flex; align-items: center; gap: var(--cms-space-1); height: 32px; padding: 0 var(--cms-space-4); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-pill); background: var(--cms-surface); color: var(--cms-text-body); font: inherit; font-size: var(--cms-font-size-meta); cursor: pointer; }
 .cms-chip:hover { background: var(--cms-surface-muted); }
 .cms-chip.is-on { border-color: var(--cms-button-chrome-bg); background: var(--cms-button-chrome-bg); color: var(--cms-on-chrome); font-weight: var(--cms-font-weight-semibold); }

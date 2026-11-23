@@ -1,12 +1,12 @@
 {
   "name": "@coolms/ui-react",
-  "version": "0.1.0-alpha.28",
+  "version": "0.1.0-alpha.29",
   "description": "The CoolMS UI kit for React: the components of the CoolMS UI contract, styled by the CoolMS design tokens",
   "license": "MIT",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/coolms/ui-react.git"
+    "url": "git+https://github.com/coolms/ui-react.git"
   },
   "engines": {
     "node": "^22.0.0 || ^24.0.0 || ^26.0.0"
@@ -42,10 +42,11 @@
     "demo": "vite --config demo/vite.config.ts",
     "demo:build": "vite build --config demo/vite.config.ts",
     "check:layout": "node tools/check-layout.mjs",
-    "verify": "npm run tokens:check && npm run check && npm run typecheck && npm test && npm run build && npm run check:built && npm run check:types-resolution && npm run demo:build && npm run check:layout",
+    "verify": "npm run tokens:check && npm run check && npm run typecheck && npm test && npm run build && npm run check:built && npm run check:types-resolution && npm run check:package && npm run demo:build && npm run check:layout",
     "build": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json",
     "check:built": "node tools/check-built.mjs",
     "check:types-resolution": "node tools/check-types-resolution.mjs",
+    "check:package": "node tools/check-package.mjs",
     "prepack": "npm run build"
   },
   "peerDependencies": {
@@ -53,6 +54,7 @@
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.6.7",
@@ -60,6 +62,7 @@
     "@types/react-dom": "19.2.7",
     "@vitejs/plugin-react": "4.7.0",
     "jsdom": "26.1.0",
+    "publint": "0.3.25",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "typescript": "6.0.3",
