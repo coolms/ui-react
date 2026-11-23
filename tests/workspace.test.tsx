@@ -148,6 +148,52 @@ describe('FilterChips', () => {
         await userEvent.click(screen.getByRole('radio', { name: 'Unread' }));
         expect(marks()).toEqual([false, true]);
     });
+
+    // jsdom lays nothing out: the row's widths and scroll are given here, as a browser would measure them.
+    const sized = (el: HTMLElement, box: { client: number; scroll: number; left: number }) => {
+        Object.defineProperty(el, 'clientWidth', { configurable: true, get: () => box.client });
+        Object.defineProperty(el, 'scrollWidth', { configurable: true, get: () => box.scroll });
+        Object.defineProperty(el, 'scrollLeft', { configurable: true, get: () => box.left, set: (v: number) => { box.left = v; } });
+    };
+    const five = [{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }, { id: 'files', label: 'Attachments' }, { id: 'flagged', label: 'Flagged' }, { id: 'mine', label: 'To me' }];
+
+    it('one line that scrolls: the clipped edge fades only while there is more past it, at the start and at the end', () => {
+        render(<FilterChips label="Show" value="all" onChange={() => undefined} options={five} />);
+        const row = screen.getByRole('radiogroup', { name: 'Show' });
+        const box = { client: 200, scroll: 200, left: 0 };
+        sized(row, box);
+        fireEvent.scroll(row);
+        expect(row.className).toBe('cms-chips');
+        box.scroll = 500;
+        fireEvent.scroll(row);
+        expect(row).toHaveClass('is-past-end');
+        expect(row).not.toHaveClass('is-past-start');
+        box.left = 150;
+        fireEvent.scroll(row);
+        expect(row).toHaveClass('is-past-start');
+        expect(row).toHaveClass('is-past-end');
+        box.left = 300;
+        fireEvent.scroll(row);
+        expect(row).toHaveClass('is-past-start');
+        expect(row).not.toHaveClass('is-past-end');
+        expect(kitCss).toMatch(/\.cms-chips \{[^}]*flex-wrap: nowrap;[^}]*overflow-x: auto;/);
+        expect(kitCss).toMatch(/\.cms-chips\.is-past-end \{ mask-image:/);
+    });
+
+    it('a chip reached by key, or chosen by a press, scrolls fully into view', async () => {
+        function Controlled() {
+            const [v, setV] = useState('all');
+            return <FilterChips label="Show" value={v} onChange={setV} options={five} />;
+        }
+        render(<Controlled />);
+        const seen: string[] = [];
+        for (const chip of screen.getAllByRole('radio')) {
+            chip.scrollIntoView = () => { seen.push(chip.textContent ?? ''); };
+        }
+        await userEvent.click(screen.getByRole('radio', { name: 'Flagged' }));
+        await userEvent.keyboard('{ArrowRight}');
+        expect(seen).toEqual(['Flagged', 'To me']);
+    });
 });
 
 describe('SplitPanes', () => {

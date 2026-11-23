@@ -143,9 +143,33 @@ export interface FilterChipsProps {
     readonly label: string;
 }
 
-/** One of a few filters, as pills; arrow keys move between them, as a radio group does. */
+/**
+ * One of a few filters, as pills; arrow keys move between them, as a radio group does. Chips that do not fit stay on one
+ * line and scroll sideways; the clipped edge fades, at the start and at the end, only while there is more past it.
+ */
 export function FilterChips({ options, value, onChange, label }: FilterChipsProps): ReactNode {
     const refs = useRef<Array<HTMLButtonElement | null>>([]);
+    const row = useRef<HTMLDivElement | null>(null);
+    // Which edges have chips past them, measured from the scroll: a fade only where there is more.
+    const [past, setPast] = useState({ start: false, end: false });
+    const measure = () => {
+        const el = row.current;
+        if (el === null) return;
+        const scrolled = Math.abs(el.scrollLeft);
+        const start = scrolled > 1;
+        const end = scrolled + el.clientWidth < el.scrollWidth - 1;
+        setPast((was) => (was.start === start && was.end === end ? was : { start, end }));
+    };
+    useLayoutEffect(() => {
+        measure();
+        const el = row.current;
+        if (el === null || typeof ResizeObserver === 'undefined') return undefined;
+        const watch = new ResizeObserver(measure);
+        watch.observe(el);
+        return () => watch.disconnect();
+    }, [options]);
+    // A chip reached by key, or chosen while partly clipped, scrolls fully into view.
+    const reveal = (i: number) => refs.current[i]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     const onKey = (e: KeyboardEvent, i: number) => {
         const last = options.length - 1;
         const to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (i === last ? 0 : i + 1)
@@ -157,10 +181,11 @@ export function FilterChips({ options, value, onChange, label }: FilterChipsProp
         if (option) {
             onChange(option.id);
             refs.current[to]?.focus();
+            reveal(to);
         }
     };
     return (
-        <div className="cms-chips" role="radiogroup" aria-label={label}>
+        <div ref={row} className={cx('cms-chips', past.start && 'is-past-start', past.end && 'is-past-end')} role="radiogroup" aria-label={label} onScroll={measure}>
             {options.map((o, i) => {
                 const on = o.id === value;
                 return (
@@ -174,7 +199,10 @@ export function FilterChips({ options, value, onChange, label }: FilterChipsProp
                         aria-checked={on}
                         tabIndex={on ? 0 : -1}
                         className={cx('cms-chip', on && 'is-on')}
-                        onClick={() => onChange(o.id)}
+                        onClick={() => {
+                            onChange(o.id);
+                            reveal(i);
+                        }}
                         onKeyDown={e => onKey(e, i)}
                     >
                         {on ? <Icon name="check" size={16} /> : null}
