@@ -514,7 +514,7 @@
 /* Hover, only where hover exists: a touch screen keeps a tapped control's hover after the tap (a row's tint, an
    icon button's, a chip's, a toolbar action's tooltip). */
 @media (hover: hover) and (pointer: fine) {
-    .cms-list__row:hover { background: var(--cms-surface-hover); }
+    .cms-list__row:not(.is-selected):hover { background: var(--cms-surface-hover); }
     .cms-notification__row:hover { background: var(--cms-hover-bg); }
     .cms-mail-row:hover { background: var(--cms-surface-muted); }
     .cms-mail-row:hover .cms-mail-row__check { opacity: 1; }
