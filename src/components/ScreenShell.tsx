@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { PullContext, usePull, type PullState } from './pull.js';
 import { ContextMenu, type MenuItem } from './Collections.js';
 import { Icon, type IconName } from './Icon.js';
@@ -24,6 +24,13 @@ export interface ScreenShellProps {
      * icons, until Close (or the host) ends it.
      */
     readonly searching?: { readonly field: ReactNode; readonly closeLabel: string; readonly onClose: () => void };
+    /**
+     * The section's secondary actions, the entries the section header shows under its More, in the tree's order; a
+     * refused one stays, with the server's reason. With none shown, no More; never on an item's own screen.
+     */
+    readonly more?: readonly MenuItem[];
+    /** More's accessible name and tooltip, from the host's catalogue. */
+    readonly moreLabel?: string;
     /** The shell's own icons, the same in every section: the bell, then the person's avatar. */
     readonly globals?: ReactNode;
     /** The place's filters, as chips under the bar, exactly one selected. */
@@ -113,18 +120,24 @@ function useBarHiddenOnScroll(shell: RefObject<HTMLDivElement | null>, enabled: 
 
 /**
  * One screen of a section at phone width (contract component `screen-shell`: root, nested, with-filters,
- * with-primary-action, with-primary-menu, pulling, refreshing, searching, bar-hidden). One bar: the section's navigation or Back
+ * with-primary-action, with-primary-menu, with-more, pulling, refreshing, searching, bar-hidden). One bar: the section's navigation or Back
  * with the parent's name, the title, then search and the shell's own icons, or while searching, Close and the field; the filters under it; the content, which
  * scrolls on its own and refreshes by a pull from its top; the primary action floating at the bottom right, its menu
  * opening above it. What fills each slot is the host's, from the server's declared nodes.
  */
-export function ScreenShell({ title, back, navigation, search, searching, globals, filters, primary: declared, onRefresh, pullText, barHidden, children }: ScreenShellProps): ReactNode {
+export function ScreenShell({ title, back, navigation, search, searching, more = [], moreLabel = 'More actions', globals, filters, primary: declared, onRefresh, pullText, barHidden, children }: ScreenShellProps): ReactNode {
     // A primary menu with no entry to show is not drawn at all: no empty menus.
     const primary = declared !== undefined && 'menu' in declared && !declared.menu.some(m => m.offer.offered) ? undefined : declared;
     const shell = useRef<HTMLDivElement>(null);
     const content = useRef<HTMLDivElement>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [menuAt, setMenuAt] = useState<{ x: number; y: number } | null>(null);
+    const [moreAt, setMoreAt] = useState<{ x: number; y: number } | null>(null);
+    const closeMore = useCallback(() => setMoreAt(null), []);
+    // A press on More while its menu is open closes the menu; the click of that press does not open it again.
+    const moreWasOpen = useRef(false);
+    const withMore = more.some(m => m.offer.offered);
+    const moreOpen = moreAt !== null && withMore && searching === undefined;
     const refresh = onRefresh === undefined ? null : () => {
         if (refreshing) return;
         setRefreshing(true);
@@ -132,7 +145,7 @@ export function ScreenShell({ title, back, navigation, search, searching, global
     };
     const distance = usePull(content, refresh);
     const pull: PullState | null = onRefresh === undefined ? null : { distance, refreshing, text: pullText ?? null };
-    const held = searching !== undefined || distance > 0 || refreshing;
+    const held = searching !== undefined || distance > 0 || refreshing || moreOpen;
     const [scrolledAway, setScrolledAway] = useBarHiddenOnScroll(shell, barHidden === undefined && !held);
     const hidden = !held && (barHidden ?? scrolledAway);
     return (
@@ -177,6 +190,25 @@ export function ScreenShell({ title, back, navigation, search, searching, global
                             <Icon name="search" />
                         </button>
                     ) : null}
+                    {withMore ? (
+                        <button
+                            type="button"
+                            className="cms-icon-button cms-screen__icon"
+                            data-action="more"
+                            aria-haspopup="menu"
+                            aria-expanded={moreOpen}
+                            aria-label={moreLabel}
+                            title={moreLabel}
+                            onMouseDown={() => { moreWasOpen.current = moreOpen; }}
+                            onClick={(event) => {
+                                const r = event.currentTarget.getBoundingClientRect();
+                                setMoreAt(moreWasOpen.current ? null : { x: r.left, y: r.bottom + 4 });
+                                moreWasOpen.current = false;
+                            }}
+                        >
+                            <Icon name="more" />
+                        </button>
+                    ) : null}
                     {globals}
                 </div>
             </header>
@@ -208,6 +240,7 @@ export function ScreenShell({ title, back, navigation, search, searching, global
                     <Icon name={primary.icon} size={24} />
                 </button>
             ) : null}
+            <ContextMenu at={moreOpen ? moreAt : null} items={more} onClose={closeMore} label={moreLabel} />
             {primary !== undefined && 'menu' in primary ? (
                 <ContextMenu at={menuAt} items={primary.menu} onClose={() => setMenuAt(null)} label={primary.label} />
             ) : null}
