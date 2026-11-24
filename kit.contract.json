@@ -13,6 +13,7 @@
     "state": { "implementedBy": "State", "states": ["loading", "empty", "error", "denied", "page", "block", "inline", "with-action", "delayed"] },
     "error-banner": { "implementedBy": "ErrorBanner", "states": ["default", "with-retry"] },
     "page-header": { "implementedBy": "PageHeader", "states": ["default", "with-actions", "with-back-link"] },
+    "section-header": { "implementedBy": "SectionHeader", "states": ["default", "with-primary", "with-primary-menu", "with-more", "action-disabled", "with-context", "full-width"] },
     "tab-strip": { "implementedBy": "TabStrip", "states": ["default", "active", "with-count"] },
     "list": { "implementedBy": "List", "states": ["loading", "empty", "populated", "selected", "error", "pulled"] },
     "avatar": { "implementedBy": "Avatar", "states": ["picture", "initials", "presence", "connection", "deleted"] },

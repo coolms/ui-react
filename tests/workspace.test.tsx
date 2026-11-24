@@ -290,6 +290,68 @@ describe('MailRow', () => {
         expect(kitCss).not.toMatch(/\n\s+\.cms-mail-row[ _{.:]/);
         expect(kitCss).not.toMatch(/cms-mail-row[^}]*list-row-height-(two-line|phone)/);
     });
+
+    it('keeps the unread dot its own size beside a long subject', () => {
+        const { container } = render(<MailRow from="Anna" subject={'Partner demo '.repeat(20)} preview="Can we walk through" time="09:42" unread onOpen={() => undefined} />);
+        expect(container.querySelector('.cms-mail-row__dot')).not.toBeNull();
+        expect(kitCss).toMatch(/\.cms-mail-row__dot \{[^}]*flex: none;[^}]*width: 8px;[^}]*height: 8px;/);
+    });
+});
+
+describe('MailRow with its checkbox', () => {
+    const row = (check: Parameters<typeof MailRow>[0]['check'], extra: Partial<Parameters<typeof MailRow>[0]> = {}) => render(
+        <MailRow from="Anna Kowalska" subject="Partner demo" preview="Can we walk through" time="09:42" onOpen={extra.onOpen ?? vi.fn()} check={check} {...extra} />,
+    );
+
+    it('is a real checkbox in the place of the avatar, named by its sender and subject; checking never opens the row', async () => {
+        const onCheck = vi.fn();
+        const onOpen = vi.fn();
+        const { container } = row({ checked: false, onCheck, label: 'Select: Anna Kowalska, Partner demo' }, { onOpen });
+        const box = screen.getByRole('checkbox', { name: 'Select: Anna Kowalska, Partner demo' });
+        expect(box).toHaveClass('cms-mail-row__check');
+        expect(container.querySelector('.cms-mail-row__lead')).toContainElement(box);
+        expect(container.querySelector('.cms-mail-row__open')).not.toContainElement(box);
+        await userEvent.click(box);
+        expect(onCheck).toHaveBeenCalledWith({ shift: false, toggle: false });
+        expect(onOpen).not.toHaveBeenCalled();
+        box.focus();
+        await userEvent.keyboard(' ');
+        expect(onCheck).toHaveBeenCalledTimes(2);
+    });
+
+    it('passes Shift and Ctrl/Cmd, and a pending check is busy and not pressed', async () => {
+        const onCheck = vi.fn();
+        const { rerender } = row({ checked: false, onCheck, label: 'Select: Anna Kowalska, Partner demo' });
+        const user = userEvent.setup();
+        await user.keyboard('{Shift>}');
+        await user.click(screen.getByRole('checkbox'));
+        await user.keyboard('{/Shift}{Control>}');
+        await user.click(screen.getByRole('checkbox'));
+        await user.keyboard('{/Control}');
+        expect(onCheck.mock.calls.map((c) => c[0])).toEqual([{ shift: true, toggle: false }, { shift: false, toggle: true }]);
+        rerender(<MailRow from="Anna Kowalska" subject="Partner demo" preview="p" time="09:42" onOpen={vi.fn()}
+            check={{ checked: true, onCheck, label: 'Select: Anna Kowalska, Partner demo', pending: true }} />);
+        const box = screen.getByRole('checkbox');
+        expect(box).toHaveAttribute('aria-busy', 'true');
+        await userEvent.click(box);
+        expect(onCheck).toHaveBeenCalledTimes(2);
+    });
+
+    it('keeps its hooks: the row carries is-unread, is-selected and is-selecting; aria-current on the open button', () => {
+        const { container } = row({ checked: true, onCheck: vi.fn(), label: 'Select' }, { unread: true, selected: true, selecting: true });
+        const el = container.querySelector('.cms-mail-row')!;
+        expect(el.tagName).toBe('DIV');
+        expect(el).toHaveClass('is-unread', 'is-selected', 'is-selecting', 'is-checked');
+        expect(container.querySelector('.cms-mail-row__open')).toHaveAttribute('aria-current', 'true');
+        expect(kitCss).toMatch(/\.cms-mail-row:is\(:hover, :focus-within, \.is-selecting, \.is-checked\) \.cms-mail-row__check \{ opacity: 1; \}/);
+        expect(kitCss).toMatch(/\.cms-mail-row__dot \{ flex: none;/);
+    });
+
+    it('without a check the avatar alone, inside the open button: no checkbox', () => {
+        const { container } = row(undefined);
+        expect(screen.queryByRole('checkbox')).toBeNull();
+        expect(container.querySelector('.cms-mail-row__open .cms-avatar')).not.toBeNull();
+    });
 });
 
 describe('ChatBubble', () => {

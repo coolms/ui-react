@@ -422,6 +422,22 @@ export interface MailRowProps {
     readonly hasAttachment?: boolean;
     readonly selected?: boolean;
     readonly onOpen: () => void;
+    /**
+     * The row's checkbox, in the avatar's place (contract list, part avatar checkbox); with none, the avatar alone (a
+     * row the host does not let be checked). `label` is its accessible name, in the host's
+     * words: "Select: {sender}, {subject}". `onCheck` is called for a click, a tap and Space alike, with Shift and with
+     * Ctrl/Cmd (`toggle`), and the row is never opened by it. `pending`: the check is on its way, the box busy and not
+     * pressable; `disabled`: it cannot be checked now.
+     */
+    readonly check?: {
+        readonly checked: boolean;
+        readonly onCheck: (e: { readonly shift: boolean; readonly toggle: boolean }) => void;
+        readonly label: string;
+        readonly pending?: boolean;
+        readonly disabled?: boolean;
+    };
+    /** Something in the list is checked: every row shows its checkbox, until nothing is. */
+    readonly selecting?: boolean;
     /** Its words for assistive technology, in the app's language; each left out is English. */
     readonly labels?: Partial<MailRowLabels>;
 }
@@ -434,33 +450,62 @@ export interface MailRowLabels {
 export const MAIL_ROW_LABELS: MailRowLabels = { attachment: 'Has an attachment', unread: 'Unread' };
 
 /**
- * One message in a mailbox's list: who, what, the start of it, when; unread in bold with its dot. From tablet width up
- * two lines (contract list, part density): the sender and the time, then the subject and the muted preview on one cut
- * line, at the two-line row height; on a phone three lines, the preview on its own.
+ * One message in a mailbox's list: who, what, the start of it, when; unread in bold with its dot. Three lines at every
+ * width: the sender and the time, the subject, the preview. The row (`cms-mail-row`, carrying is-unread and
+ * is-selected) holds the open button (`cms-mail-row__open`, aria-current when selected) and, with `check`, the
+ * checkbox in the avatar's place (`cms-mail-row__check`): shown as the checkbox while the pointer is over the row or
+ * the focus is within it, while `selecting`, and while checked; the avatar otherwise. The avatar's top is on the
+ * sender line's top.
  */
-export function MailRow({ from, subject, preview, time, unread, hasAttachment, selected, onOpen, labels }: MailRowProps): ReactNode {
+export function MailRow({ from, subject, preview, time, unread, hasAttachment, selected, onOpen, check, selecting, labels }: MailRowProps): ReactNode {
     const l = withDefaults(MAIL_ROW_LABELS, labels);
+    const avatar = <Avatar name={from} size={40} />;
     return (
-        <button
-            type="button"
-            className={cx('cms-mail-row', unread && 'is-unread', selected && 'is-selected')}
-            aria-current={selected ? 'true' : undefined}
-            onClick={onOpen}
-        >
-            <Avatar name={from} size={40} />
-            <span className="cms-mail-row__body">
-                <span className="cms-mail-row__line">
-                    <span className="cms-mail-row__from">{from}</span>
-                    {hasAttachment ? <Icon name="paperclip" size={16} label={l.attachment} /> : null}
-                    <span className="cms-mail-row__time">{time}</span>
+        <div className={cx('cms-mail-row', unread && 'is-unread', selected && 'is-selected', selecting && 'is-selecting', check?.checked && 'is-checked')}>
+            {check !== undefined ? (
+                <span className="cms-mail-row__lead">
+                    {avatar}
+                    <input
+                        type="checkbox"
+                        className="cms-mail-row__check"
+                        checked={check.checked}
+                        disabled={check.disabled}
+                        aria-disabled={check.pending ? 'true' : undefined}
+                        aria-busy={check.pending ? 'true' : undefined}
+                        aria-label={check.label}
+                        onChange={() => undefined}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (check.pending) {
+                                e.preventDefault();
+                                return;
+                            }
+                            check.onCheck({ shift: e.shiftKey, toggle: e.ctrlKey || e.metaKey });
+                        }}
+                    />
                 </span>
-                <span className="cms-mail-row__line">
-                    <span className="cms-mail-row__subject">{subject}</span>
-                    {unread ? <span className="cms-mail-row__dot" role="img" aria-label={l.unread} /> : null}
+            ) : null}
+            <button
+                type="button"
+                className="cms-mail-row__open"
+                aria-current={selected ? 'true' : undefined}
+                onClick={onOpen}
+            >
+                {check === undefined ? avatar : null}
+                <span className="cms-mail-row__body">
+                    <span className="cms-mail-row__line">
+                        <span className="cms-mail-row__from">{from}</span>
+                        {hasAttachment ? <Icon name="paperclip" size={16} label={l.attachment} /> : null}
+                        <span className="cms-mail-row__time">{time}</span>
+                    </span>
+                    <span className="cms-mail-row__line">
+                        <span className="cms-mail-row__subject">{subject}</span>
+                        {unread ? <span className="cms-mail-row__dot" role="img" aria-label={l.unread} /> : null}
+                    </span>
+                    <span className="cms-mail-row__preview">{preview}</span>
                 </span>
-                <span className="cms-mail-row__preview">{preview}</span>
-            </span>
-        </button>
+            </button>
+        </div>
     );
 }
 
