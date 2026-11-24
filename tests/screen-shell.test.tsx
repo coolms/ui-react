@@ -84,7 +84,7 @@ describe('ScreenShell', () => {
 
     it('the bar gives Back\'s name up before the title', () => {
         const rule = (selector: string) => new RegExp(`\\n${selector.replace('.', '\\.')} \\{([^}]*)\\}`).exec(kitCss)?.[1] ?? '';
-        expect(rule('.cms-screen__leading')).toMatch(/flex: 0 1000 auto;/);
+        expect(rule('.cms-screen__leading')).toMatch(/flex: 0 1000000 auto;/);
         expect(rule('.cms-screen__leading')).toMatch(/min-width: var\(--cms-touch-target-min\);/);
         expect(rule('.cms-screen__title')).toMatch(/flex: 1 1 auto; min-width: 0;/);
         // With no room for a readable piece the name wraps under Back's one row and is not drawn.
