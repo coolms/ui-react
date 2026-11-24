@@ -1,7 +1,8 @@
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { PaneToolbar, type PaneToolbarAction } from '../src';
+import kitCss from '../src/kit.css?raw';
+import { PaneToolbar, type PaneToolbarAction, type PaneToolbarEntry } from '../src';
 
 // jsdom lays nothing out: each measured part is given its width, and the row its room, as a browser would.
 const WIDTH = { full: 100, icon: 36, separator: 9, more: 36 };
@@ -322,5 +323,118 @@ describe('PaneToolbar', () => {
         const status = bar().querySelector('.cms-pane-toolbar__status');
         expect(status).toHaveTextContent('Synced at 14:32');
         expect(status).toHaveAttribute('title', 'Synced at 14:32');
+    });
+
+    describe('a menu button (an action with entries)', () => {
+        const entries: PaneToolbarEntry[] = [
+            { id: 'new-folder', label: 'Folder', icon: 'folder' },
+            { id: 'new-document', label: 'Document', disabled: true, reason: 'Documents cannot be made here.' },
+            { id: 'new-link', label: 'Link', danger: true },
+        ];
+        const menuOf = (name: string) => within(screen.getByRole('menu', { name })).getAllByRole('menuitem');
+
+        it('opens the context menu with its entries in their order; choosing one says the entry\'s id', async () => {
+            view({ move: { label: 'New', entries } });
+            const button = screen.getByRole('button', { name: 'New' });
+            expect(button).toHaveAttribute('aria-haspopup', 'menu');
+            expect(button).toHaveAttribute('aria-expanded', 'false');
+            expect(button).toHaveClass('cms-pane-toolbar__action--menu');
+            // The chevron after it.
+            expect(button.lastElementChild).toHaveClass('cms-pane-toolbar__chevron');
+            await userEvent.click(button);
+            expect(button).toHaveAttribute('aria-expanded', 'true');
+            expect(menuOf('New').map((m) => m.textContent)).toEqual(['Folder', expect.stringContaining('Document'), 'Link']);
+            await userEvent.click(within(screen.getByRole('menu', { name: 'New' })).getByRole('menuitem', { name: /Link/ }));
+            expect(chosen).toEqual(['new-link']);
+            expect(screen.queryByRole('menu')).toBeNull();
+        });
+
+        it('each entry has its own state: a disabled one is shown with its reason and does nothing; danger is danger', async () => {
+            view({ move: { label: 'New', entries } });
+            await userEvent.click(screen.getByRole('button', { name: 'New' }));
+            const [, document, link] = menuOf('New');
+            expect(document).toHaveAttribute('aria-disabled', 'true');
+            expect(document).toHaveAccessibleDescription('Documents cannot be made here.');
+            expect(link).toHaveClass('is-danger');
+            await userEvent.click(document!);
+            expect(chosen).toEqual([]);
+            expect(screen.getByRole('menu', { name: 'New' })).toBeInTheDocument();
+        });
+
+        it('opens with Down on its first entry and with Up on its last; Escape gives focus back to it', async () => {
+            view({ move: { label: 'New', entries } });
+            const button = screen.getByRole('button', { name: 'New' });
+            button.focus();
+            await userEvent.keyboard('{ArrowDown}');
+            expect(within(screen.getByRole('menu', { name: 'New' })).getByRole('menuitem', { name: 'Folder' })).toHaveFocus();
+            await userEvent.keyboard('{Escape}');
+            expect(button).toHaveFocus();
+            await userEvent.keyboard('{ArrowUp}');
+            expect(within(screen.getByRole('menu', { name: 'New' })).getByRole('menuitem', { name: 'Link' })).toHaveFocus();
+        });
+
+        it('with no entry to show it is not drawn at all, nor listed behind More', async () => {
+            // Six actions, bare: 6 x 36 + 18 = 234; at 200 two go behind More.
+            room = 200;
+            view({ move: { label: 'New', entries: [] } });
+            expect(document.querySelector('[data-action="move"]')).toBeNull();
+            expect(screen.queryByRole('button', { name: 'New' })).toBeNull();
+            await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+            expect(menuOf('More actions').map((m) => m.textContent)).toEqual(['Star', 'Mark unread']);
+        });
+
+        it('disabled itself, it stays disabled with its reason and does not open', async () => {
+            view({ move: { label: 'New', entries, disabled: true, reason: 'This folder is read-only.' } });
+            const button = screen.getByRole('button', { name: 'New' });
+            expect(button).toHaveAttribute('aria-disabled', 'true');
+            expect(button).toHaveAccessibleDescription('This folder is read-only.');
+            await userEvent.click(button);
+            button.focus();
+            await userEvent.keyboard('{ArrowDown}');
+            expect(screen.queryByRole('menu')).toBeNull();
+            expect(chosen).toEqual([]);
+        });
+
+        it('gives way as any other action: its label hides (the chevron stays), then it goes behind More and opens there', async () => {
+            room = 300;
+            const { unmount } = view({ move: { label: 'New', entries } });
+            const bare = screen.getByRole('button', { name: 'New' });
+            expect(bare).toHaveClass('cms-pane-toolbar__action--bare');
+            expect(bare.querySelector('.cms-pane-toolbar__label')).toBeNull();
+            expect(bare.querySelector('.cms-pane-toolbar__chevron')).not.toBeNull();
+            unmount();
+            room = 250;
+            view({ move: { label: 'New', entries } });
+            expect([...bar().querySelectorAll<HTMLElement>('[data-overflowed]')].map((b) => b.dataset['action'])).toEqual(['star', 'move']);
+            await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+            await userEvent.click(within(screen.getByRole('menu', { name: 'More actions' })).getByRole('menuitem', { name: 'New' }));
+            expect(chosen).toEqual([]);
+            expect(menuOf('New').map((m) => m.textContent)).toEqual(['Folder', expect.stringContaining('Document'), 'Link']);
+            await userEvent.click(within(screen.getByRole('menu', { name: 'New' })).getByRole('menuitem', { name: 'Folder' }));
+            expect(chosen).toEqual(['new-folder']);
+        });
+
+        it('is measured with its chevron, in both its widths', () => {
+            view({ move: { label: 'New', entries } });
+            for (const kind of ['full', 'icon']) {
+                const copy = document.querySelector(`[data-measure="${kind}"][data-measure-action="move"]`);
+                expect(copy?.querySelector('.cms-pane-toolbar__chevron')).not.toBeNull();
+            }
+        });
+    });
+
+    it('its buttons are quiet: icon then label, no border and no fill at rest, the button hover, danger in the danger colour', () => {
+        const rule = (selector: string) => {
+            const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return new RegExp(`(?:^|\\n)[ ]*${escaped} \\{([^}]*)\\}`).exec(kitCss)?.[1] ?? '';
+        };
+        const rest = rule('.cms-pane-toolbar__action');
+        expect(rest).toMatch(/border: 1px solid transparent;/);
+        expect(rest).toMatch(/background: none;/);
+        expect(rest).toMatch(/border-radius: var\(--cms-radius-control\);/);
+        expect(rule(".cms-pane-toolbar__action:hover:not([aria-disabled='true'])")).toMatch(/background: var\(--cms-btn-hover-bg\);/);
+        expect(rule('.cms-pane-toolbar__action:focus-visible')).toMatch(/outline: 2px solid var\(--cms-focus-ring\);/);
+        expect(rule('.cms-pane-toolbar__action.is-danger')).toMatch(/color: var\(--cms-danger-text\);/);
+        expect(rule('.cms-pane-toolbar__more:hover')).toMatch(/background: var\(--cms-btn-hover-bg\);/);
     });
 });

@@ -12,7 +12,8 @@ export { AppShell, Badge, SearchField, FilterChips, SplitPanes, fitPanes, MailRo
 export { IncomingCall, CallPanel, CallBar, CALL_LABELS, type CallLabels, type IncomingCallProps, type CallPanelProps, type CallBarProps } from './components/Call.js';
 export { SignInLayout, SignInForm, SIGN_IN_LABELS, type SignInLabels, type SignInLayoutProps, type SignInFormProps, type SignInFeature } from './components/SignIn.js';
 export { List, ContextMenu, type ListRow, type ListProps, type MenuItem, type ContextMenuProps } from './components/Collections.js';
-export { PaneToolbar, type PaneToolbarAction, type PaneToolbarProps } from './components/PaneToolbar.js';
+export { PaneToolbar, type PaneToolbarAction, type PaneToolbarEntry, type PaneToolbarProps } from './components/PaneToolbar.js';
+export { Splitter, type SplitterProps } from './components/Splitter.js';
 export { Notification, type NotificationAction, type NotificationProps } from './components/Notification.js';
 
 export { offerFor, isCapability, type Capability, type Offer, type OfferOptions } from './server/capability.js';

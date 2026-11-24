@@ -1,6 +1,6 @@
 {
   "$comment": "The icon names the served navigation trees use (Bootstrap Icons names, as the trees write them), each with the interfaces whose trees use it, from the trees' interfaces declarations. A host that draws an interface's trees draws every name listed for it; a name a tree uses that is not here fails the backend's check, not the interface.",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "icons": {
     "alarm": {
       "interfaces": [
@@ -305,6 +305,12 @@
     "hand-index": {
       "interfaces": [
         "admin"
+      ]
+    },
+    "hash": {
+      "interfaces": [
+        "admin",
+        "workspace"
       ]
     },
     "hdd-stack": {

@@ -29,6 +29,11 @@ describe('Button', () => {
         expect(screen.getByRole('button', { name: 'A' })).toHaveClass('cms-button--primary');
         expect(screen.getByRole('button', { name: 'B' })).toHaveClass('cms-button--danger');
     });
+
+    it('draws the quiet variant', () => {
+        render(<Button variant="quiet">Reply</Button>);
+        expect(screen.getByRole('button', { name: 'Reply' })).toHaveClass('cms-button', 'cms-button--quiet');
+    });
 });
 
 describe('TextField', () => {

@@ -4,6 +4,18 @@ import { ContextMenu, type MenuItem } from './Collections.js';
 import { STATE_DELAY_MS } from './State.js';
 import { Glyph, cx } from './internal.js';
 
+/** One entry of a menu button's menu: a child of the action's node, as the host resolved it. */
+export interface PaneToolbarEntry {
+    readonly id: string;
+    readonly label: string;
+    /** Its icon by its Bootstrap Icons name; one the kit's table lacks leaves its label alone. */
+    readonly icon?: string;
+    /** Shown, and doing nothing when chosen; `reason` is said beside it. */
+    readonly disabled?: boolean;
+    readonly reason?: string;
+    readonly danger?: boolean;
+}
+
 /**
  * One action of a pane's row, as the server's action node gives it: which actions exist, their order, groups, icons and
  * danger are the server's; the row draws them and says which was chosen.
@@ -29,6 +41,11 @@ export interface PaneToolbarAction {
     readonly busy?: boolean;
     /** The delete kind: drawn as danger, the only action that is. */
     readonly danger?: boolean;
+    /**
+     * A menu button (New with its chevron): its node's children, in the tree's order, as its menu's entries. The action
+     * opens the menu, and choosing an entry says the entry's id. With no entry to show the action is not drawn at all.
+     */
+    readonly entries?: readonly PaneToolbarEntry[];
 }
 
 export interface PaneToolbarProps {
@@ -82,12 +99,20 @@ function unitsOf(actions: readonly PaneToolbarAction[]): readonly (readonly stri
  * Menu-only actions (overflow 0) are behind ... at every width, first in its menu, and take no part in the giving way:
  * their labels are not counted, and "never one alone" counts only the actions that could have stayed in the row. ...
  * is drawn for them even when one is alone.
+ *
+ * An action with `entries` is a menu button: its chevron after it, it opens the kit's context menu with its entries,
+ * each disabled with its own reason as the server says, and it gives way as any other action does (behind ..., choosing
+ * it opens its entries there). One whose entries are empty is not drawn; one that is itself disabled does not open.
  */
-export function PaneToolbar({ label, actions, onAction, status, moreLabel, leading }: PaneToolbarProps): ReactNode {
+export function PaneToolbar({ label, actions: given, onAction, status, moreLabel, leading }: PaneToolbarProps): ReactNode {
+    // A menu button with no entry to show is not drawn: no empty menu is ever opened.
+    const actions = given.filter(a => a.entries === undefined || a.entries.length > 0);
     const row = useRef<HTMLDivElement>(null);
     const measure = useRef<HTMLDivElement>(null);
+    const moreButton = useRef<HTMLButtonElement>(null);
     const [layout, setLayout] = useState<Layout>(FULL);
-    const [menuAt, setMenuAt] = useState<{ x: number; y: number } | null>(null);
+    // The open menu: More's, or a menu button's by its action's id, and where it opens.
+    const [menu, setMenu] = useState<{ which: string; x: number; y: number } | null>(null);
     const [menuFocus, setMenuFocus] = useState<'first' | 'last'>('first');
     const [current, setCurrent] = useState<string | null>(null);
     const [tipOff, setTipOff] = useState<string | null>(null);
@@ -97,7 +122,7 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
     // Behind ... at every width, and never in the row.
     const menuOnly = all.filter(a => a.overflow === 0);
     const inRow = all.filter(a => a.overflow !== 0);
-    const key = JSON.stringify([actions.map(a => [a.id, a.label, a.icon, a.group, a.overflow ?? null]), status ?? '', leading !== undefined]);
+    const key = JSON.stringify([actions.map(a => [a.id, a.label, a.icon, a.group, a.overflow ?? null, a.entries !== undefined]), status ?? '', leading !== undefined]);
 
     const fit = useCallback(() => {
         const box = row.current;
@@ -205,9 +230,37 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
         offer: a.disabled ? { offered: true, locked: false, refusal: a.reason ?? '' } : { offered: true, locked: false },
         ...(a.danger ? { danger: true } : {}),
         onSelect: () => {
-            if (!a.disabled && !a.busy) onAction(a.id);
+            if (a.disabled || a.busy) return;
+            if (a.entries === undefined) {
+                onAction(a.id);
+                return;
+            }
+            // A menu button behind ...: its entries open where ... is.
+            const r = moreButton.current?.getBoundingClientRect();
+            setMenuFocus('first');
+            setMenu({ which: a.id, x: r?.left ?? 0, y: r?.bottom ?? 0 });
         },
     }));
+    const opened = menu === null || menu.which === 'more' ? undefined : all.find(a => a.id === menu.which);
+    const entryItems: MenuItem[] = (opened?.entries ?? []).map(e => ({
+        id: e.id,
+        label: (
+            <>
+                {e.icon !== undefined ? <ActionIcon name={e.icon} /> : null}
+                {e.label}
+            </>
+        ),
+        offer: e.disabled ? { offered: true, locked: false, refusal: e.reason ?? '' } : { offered: true, locked: false },
+        ...(e.danger ? { danger: true } : {}),
+        onSelect: () => {
+            if (!e.disabled) onAction(e.id);
+        },
+    }));
+    const openAt = (which: string, target: HTMLElement, focus: 'first' | 'last') => {
+        const r = target.getBoundingClientRect();
+        setMenuFocus(focus);
+        setMenu({ which, x: r.left, y: r.bottom });
+    };
 
     return (
         <div
@@ -238,7 +291,12 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                                     pinned={pinned.has(a.id)}
                                     tabbable={focusable === a.id}
                                     tipOff={tipOff === a.id}
-                                    onChoose={() => onAction(a.id)}
+                                    menuOpen={menu?.which === a.id}
+                                    onChoose={(target, focus) => {
+                                        if (a.entries === undefined) onAction(a.id);
+                                        else if (menu?.which === a.id && focus === null) setMenu(null);
+                                        else openAt(a.id, target, focus ?? 'first');
+                                    }}
                                     onFocus={() => {
                                         setCurrent(a.id);
                                         setTipOff(null);
@@ -251,28 +309,26 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
             })}
             {behind.length > 0 ? (
                 <button
+                    ref={moreButton}
                     type="button"
                     className="cms-icon-button cms-pane-toolbar__more"
                     data-stop="more"
                     aria-label={moreLabel}
                     title={moreLabel}
                     aria-haspopup="menu"
-                    aria-expanded={menuAt !== null}
+                    aria-expanded={menu?.which === 'more'}
                     tabIndex={focusable === 'more' ? 0 : -1}
                     onFocus={() => setCurrent('more')}
                     onClick={event => {
-                        const r = event.currentTarget.getBoundingClientRect();
-                        setMenuFocus('first');
-                        setMenuAt(menuAt === null ? { x: r.left, y: r.bottom } : null);
+                        if (menu?.which === 'more') setMenu(null);
+                        else openAt('more', event.currentTarget, 'first');
                     }}
                     onKeyDown={event => {
                         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                             event.preventDefault();
                             event.stopPropagation();
-                            const r = event.currentTarget.getBoundingClientRect();
                             // Down opens it on its first item, Up on its last.
-                            setMenuFocus(event.key === 'ArrowUp' ? 'last' : 'first');
-                            setMenuAt({ x: r.left, y: r.bottom });
+                            openAt('more', event.currentTarget, event.key === 'ArrowUp' ? 'last' : 'first');
                         }
                     }}
                 >
@@ -280,7 +336,8 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                 </button>
             ) : null}
             {status !== undefined ? <span className="cms-pane-toolbar__status" title={status}>{status}</span> : null}
-            <ContextMenu at={menuAt} items={menuItems} onClose={() => setMenuAt(null)} label={moreLabel} focus={menuFocus} />
+            <ContextMenu at={menu?.which === 'more' ? menu : null} items={menuItems} onClose={() => setMenu(null)} label={moreLabel} focus={menuFocus} />
+            <ContextMenu at={opened !== undefined ? menu : null} items={entryItems} onClose={() => setMenu(null)} label={opened?.label ?? ''} focus={menuFocus} />
             {/* What each part takes, drawn out of sight: the row is fitted to these widths. */}
             <div ref={measure} className="cms-pane-toolbar__measure" aria-hidden="true">
                 {leading !== undefined ? <div data-measure="leading">{leading}</div> : null}
@@ -288,13 +345,15 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
                 <span data-measure="more" className="cms-icon-button cms-pane-toolbar__more"><Icon name="more" /></span>
                 {all.map(a => (
                     <span key={a.id}>
-                        <span data-measure="full" data-measure-action={a.id} className="cms-pane-toolbar__action">
+                        <span data-measure="full" data-measure-action={a.id} className={cx('cms-pane-toolbar__action', a.entries !== undefined && 'cms-pane-toolbar__action--menu')}>
                             <ActionIcon name={a.icon} />
                             <span className="cms-pane-toolbar__label">{a.label}</span>
+                            {a.entries !== undefined ? <Chevron /> : null}
                         </span>
                         {/* An action without an icon keeps its label when the others hide theirs. */}
-                        <span data-measure="icon" data-measure-action={a.id} className={cx('cms-pane-toolbar__action', iconForName(a.icon) !== null && 'cms-pane-toolbar__action--bare')}>
+                        <span data-measure="icon" data-measure-action={a.id} className={cx('cms-pane-toolbar__action', iconForName(a.icon) !== null && 'cms-pane-toolbar__action--bare', a.entries !== undefined && 'cms-pane-toolbar__action--menu')}>
                             {iconForName(a.icon) !== null ? <ActionIcon name={a.icon} /> : <span className="cms-pane-toolbar__label">{a.label}</span>}
+                            {a.entries !== undefined ? <Chevron /> : null}
                         </span>
                     </span>
                 ))}
@@ -303,14 +362,17 @@ export function PaneToolbar({ label, actions, onAction, status, moreLabel, leadi
     );
 }
 
-function ToolbarAction({ action, labels, overflowed, pinned, tabbable, tipOff, onChoose, onFocus }: {
+function ToolbarAction({ action, labels, overflowed, pinned, tabbable, tipOff, menuOpen, onChoose, onFocus }: {
     readonly action: PaneToolbarAction;
     readonly labels: boolean;
     readonly overflowed: boolean;
     readonly pinned: boolean;
     readonly tabbable: boolean;
     readonly tipOff: boolean;
-    readonly onChoose: () => void;
+    /** Its menu is open (a menu button's). */
+    readonly menuOpen: boolean;
+    /** Chosen: by a press (`focus` null), or a menu button opened by Down or Up on its first or last entry. */
+    readonly onChoose: (target: HTMLElement, focus: 'first' | 'last' | null) => void;
     readonly onFocus: () => void;
 }): ReactNode {
     const [spinning, setSpinning] = useState(false);
@@ -330,10 +392,11 @@ function ToolbarAction({ action, labels, overflowed, pinned, tabbable, tipOff, o
     const tip = reason ?? (showLabel ? null : action.label);
     const tipId = useId();
     const [pressed, setPressed] = useState(false);
+    const isMenu = action.entries !== undefined;
     return (
         <button
             type="button"
-            className={cx('cms-pane-toolbar__action', !showLabel && 'cms-pane-toolbar__action--bare', iconless && 'cms-pane-toolbar__action--text', action.danger && 'is-danger')}
+            className={cx('cms-pane-toolbar__action', !showLabel && 'cms-pane-toolbar__action--bare', iconless && 'cms-pane-toolbar__action--text', isMenu && 'cms-pane-toolbar__action--menu', action.danger && 'is-danger')}
             data-action={action.id}
             data-stop={action.id}
             {...(overflowed ? { 'data-overflowed': '' } : {})}
@@ -342,6 +405,7 @@ function ToolbarAction({ action, labels, overflowed, pinned, tabbable, tipOff, o
             aria-label={action.label}
             aria-disabled={action.disabled || undefined}
             aria-busy={action.busy || undefined}
+            {...(isMenu ? { 'aria-haspopup': 'menu' as const, 'aria-expanded': menuOpen } : {})}
             {...(reason === null ? {} : { 'aria-describedby': tipId })}
             {...(pressed && reason !== null ? { 'data-reason-shown': '' } : {})}
             tabIndex={tabbable ? 0 : -1}
@@ -349,16 +413,32 @@ function ToolbarAction({ action, labels, overflowed, pinned, tabbable, tipOff, o
             onBlur={() => setPressed(false)}
             onKeyDown={(event) => {
                 if (event.key === 'Escape') setPressed(false);
+                // A menu button opens with Down on its first entry, with Up on its last.
+                if (isMenu && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+                    event.preventDefault();
+                    if (reason !== null) setPressed(true);
+                    else if (!action.disabled && !action.busy) onChoose(event.currentTarget, event.key === 'ArrowUp' ? 'last' : 'first');
+                }
             }}
-            onClick={() => {
+            onClick={(event) => {
                 if (reason !== null) setPressed(true);
-                else if (!action.disabled && !action.busy) onChoose();
+                else if (!action.disabled && !action.busy) onChoose(event.currentTarget, null);
             }}
         >
             {spinning ? <Glyph name="spinner" /> : <ActionIcon name={action.icon} />}
             {showLabel ? <span className="cms-pane-toolbar__label" aria-hidden="true">{action.label}</span> : null}
+            {isMenu ? <Chevron /> : null}
             {reason !== null || (tip !== null && !tipOff) ? <span className="cms-pane-toolbar__tip" role="tooltip" id={tipId}>{tip}</span> : null}
         </button>
+    );
+}
+
+/** The chevron after a menu button's label, saying that it opens a menu. */
+function Chevron(): ReactNode {
+    return (
+        <span className="cms-pane-toolbar__chevron" aria-hidden="true">
+            <Icon name="chevron-down" size={14} />
+        </span>
     );
 }
 

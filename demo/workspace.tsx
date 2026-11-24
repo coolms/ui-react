@@ -322,6 +322,26 @@ function NotificationsPage(): ReactNode {
     );
 }
 
+/** A mailbox at phone width: rows that select by their checkbox, and Compose floating over the list's end. */
+function ShellMail({ globals }: { readonly globals: ReactNode }): ReactNode {
+    const [checked, setChecked] = useState<ReadonlySet<number>>(new Set());
+    const rows = [...MAIL, ...MAIL];
+    return (
+        <div style={{ height: '100vh' }}>
+            <ScreenShell title="Inbox" globals={globals} primary={{ label: 'Compose', icon: 'pencil', onPress: () => undefined }}>
+                {rows.map((m, i) => (
+                    <MailRow key={String(i)} {...m} selecting={checked.size > 0} onOpen={() => undefined}
+                        check={{ checked: checked.has(i), label: `Select ${m.subject}`, onCheck: () => {
+                            const next = new Set(checked);
+                            if (!next.delete(i)) next.add(i);
+                            setChecked(next);
+                        } }} />
+                ))}
+            </ScreenShell>
+        </div>
+    );
+}
+
 /** The screen shell at phone width: a section's root (chat: filters, rows, the primary action) and a nested screen (drive). */
 function ShellPage({ sub }: { readonly sub: string | undefined }): ReactNode {
     const [filter, setFilter] = useState('all');
@@ -332,6 +352,7 @@ function ShellPage({ sub }: { readonly sub: string | undefined }): ReactNode {
         </>
     );
     const offer = { offered: true, locked: false } as const;
+    if (sub === 'mail') return <ShellMail globals={globals} />;
     if (sub === 'drive') {
         return (
             <div style={{ height: '100vh' }}>
@@ -487,7 +508,7 @@ function probeLayout(): void {
         const r = el.getBoundingClientRect();
         if (r.right > width + 0.5 || r.left < -0.5) overflow.push(`${name(el)} [${Math.round(r.left)}..${Math.round(r.right)}]`);
         const style = getComputedStyle(el);
-        // A row the contract makes scroll sideways (filter chips) declares it, data-scrolls-sideways; any other is a problem.
+        // A row the contract makes scroll sideways declares it, data-scrolls-sideways; any other is a problem.
         if ((style.overflowX === 'auto' || style.overflowX === 'scroll') && el.scrollWidth > el.clientWidth + 1 && !el.hasAttribute('data-scrolls-sideways')) scrolls.push(name(el));
     }
     const small: string[] = [];
