@@ -465,8 +465,8 @@
 .cms-panes--sized { position: relative; }
 .cms-panes--sized.cms-panes--two { grid-template-columns: var(--split-pane-0) minmax(0, 1fr); }
 .cms-panes--sized.cms-panes--three { grid-template-columns: var(--split-pane-0) var(--split-pane-1) minmax(0, 1fr); }
-/* The splitter (contract `splitter`): an 8px strip between two columns that draws nothing at rest; on hover, while
-   dragged and with focus, the accent line down its middle. */
+/* The splitter (contract `splitter`): an 8px strip between two columns that draws nothing at rest; on hover and while
+   dragged, the accent line down its middle; with keyboard focus, the same line in the focus ring's colour. */
 .cms-splitter { position: relative; z-index: 2; flex: none; align-self: stretch; width: 8px; margin-inline: -4px; cursor: col-resize; touch-action: none; }
 .cms-splitter:hover, .cms-splitter.is-dragging { background: linear-gradient(to right, transparent 3px, var(--cms-accent) 3px, var(--cms-accent) 5px, transparent 5px); }
 /* Keyboard focus is the same one line, in the focus ring's colour: a ring around the 8px strip would draw two. */
