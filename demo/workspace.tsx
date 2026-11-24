@@ -328,7 +328,9 @@ function ShellMail({ globals }: { readonly globals: ReactNode }): ReactNode {
     const rows = [...MAIL, ...MAIL];
     return (
         <div style={{ height: '100vh' }}>
-            <ScreenShell title="Inbox" globals={globals} primary={{ label: 'Compose', icon: 'pencil', onPress: () => undefined }}>
+            <ScreenShell title="Inbox" globals={globals} search={{ label: 'Search mail', onOpen: () => undefined }}
+                more={['Add mailbox', 'Mail settings', 'Import'].map(label => ({ id: label, label, offer: { offered: true, locked: false }, onSelect: () => undefined }))}
+                primary={{ label: 'Compose', icon: 'pencil', onPress: () => undefined }}>
                 {rows.map((m, i) => (
                     <MailRow key={String(i)} {...m} selecting={checked.size > 0} onOpen={() => undefined}
                         check={{ checked: checked.has(i), label: `Select ${m.subject}`, onCheck: () => {
