@@ -62,4 +62,38 @@ describe('SectionHeader', () => {
             expect(getComputedStyle(el).borderBottomStyle === '' || getComputedStyle(el).borderBottomStyle === 'none').toBe(true);
         }
     });
+
+    it('a primary whose menu has no entry to show is a plain button, with no menu half: no empty menu', async () => {
+        const upload = vi.fn();
+        const withMenu = (menu: readonly MenuItem[]) => (
+            <SectionHeader title="Files" moreLabel="More actions"
+                primary={{ label: 'Upload', icon: 'plus', onPress: upload, menu, menuLabel: 'More ways to add' }} />
+        );
+        const hiddenOnly = [item('new-folder', 'New folder', { offer: { offered: false, locked: false } })];
+        for (const menu of [[], hiddenOnly]) {
+            const { container, unmount } = render(withMenu(menu));
+            expect(screen.queryByRole('button', { name: 'More ways to add' })).toBeNull();
+            expect(container.querySelector('[aria-haspopup="menu"]')).toBeNull();
+            expect(container.querySelector('.cms-section-header__primary')).not.toHaveClass('cms-section-header__primary--split');
+            await userEvent.click(screen.getByRole('button', { name: 'Upload' }));
+            expect(screen.queryByRole('menu')).toBeNull();
+            unmount();
+        }
+        expect(upload).toHaveBeenCalledTimes(2);
+    });
+
+    it('a menu with a disabled entry still opens: the entry is shown, disabled with its reason, and the split stays', async () => {
+        const { container } = render(
+            <SectionHeader title="Files" moreLabel="More actions"
+                primary={{ label: 'Upload', icon: 'plus', onPress: vi.fn(), menuLabel: 'More ways to add',
+                    menu: [item('hidden', 'Hidden', { offer: { offered: false, locked: false } }),
+                        item('new-folder', 'New folder', { offer: { offered: true, locked: false, refusal: 'This folder is read-only.' } })] }} />,
+        );
+        expect(container.querySelector('.cms-section-header__primary')).toHaveClass('cms-section-header__primary--split');
+        await userEvent.click(screen.getByRole('button', { name: 'More ways to add' }));
+        const entries = within(screen.getByRole('menu')).getAllByRole('menuitem');
+        expect(entries).toHaveLength(1);
+        expect(entries[0]).toHaveAttribute('aria-disabled', 'true');
+        expect(entries[0]).toHaveAccessibleDescription('This folder is read-only.');
+    });
 });

@@ -1,7 +1,7 @@
 {
   "kit": "@coolms/ui-react",
   "components": {
-    "button": { "implementedBy": "Button", "states": ["default", "primary", "danger", "disabled", "busy", "locked"] },
+    "button": { "implementedBy": "Button", "states": ["default", "primary", "danger", "disabled", "busy", "locked", "quiet"] },
     "text-field": { "implementedBy": "TextField", "states": ["default", "focused", "disabled", "read-only", "invalid", "pinned"] },
     "select": { "implementedBy": "Select", "states": ["default", "disabled", "read-only", "invalid", "empty-list"] },
     "toggle": { "implementedBy": "Toggle", "states": ["on", "off", "disabled", "read-only"] },
@@ -23,7 +23,8 @@
     "file-viewer": { "implementedBy": "FileViewer", "states": ["loading", "error", "no-preview", "editing", "editing-closing", "editing-conflict", "with-edit", "with-siblings", "with-thumbnails", "with-attachment-strip", "phone"] },
     "file-picker": { "implementedBy": "FilePicker", "states": ["loading", "empty", "error", "denied", "with-selection", "with-budget", "over-budget", "disabled-entry", "paging", "phone"] },
     "notification": { "implementedBy": "Notification", "states": ["unread", "read", "collapsed", "expanded", "with-action", "row-action"] },
-    "pane-toolbar": { "implementedBy": "PaneToolbar", "states": ["default", "labels-partly-hidden", "labels-hidden", "overflowing", "menu-open", "with-status", "action-disabled", "action-busy", "phone"] }
+    "pane-toolbar": { "implementedBy": "PaneToolbar", "states": ["default", "labels-partly-hidden", "labels-hidden", "overflowing", "menu-open", "with-status", "action-disabled", "action-busy", "phone"] },
+    "splitter": { "implementedBy": "Splitter", "states": ["default", "hover", "dragging", "focused", "at-min", "at-max"] }
   },
   "serverStates": {
     "node-rwx": { "where": "src/server/capability.ts" },

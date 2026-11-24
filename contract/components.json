@@ -1,6 +1,6 @@
 {
   "$comment": "The components every CoolMS UI kit provides, by name, and the states each must render. A kit declares which of its components implements each entry (kit.contract.json); tools/check-kit.mjs fails when one is missing, or a state is. Names follow ui-angular's where it has one.",
-  "version": "0.16.0",
+  "version": "0.20.0",
   "components": {
     "button": {
       "purpose": "An action. Primary, secondary, danger; an icon may lead.",
@@ -10,9 +10,15 @@
         "danger",
         "disabled",
         "busy",
-        "locked"
+        "locked",
+        "quiet"
       ],
-      "notes": "locked = allowed once elevated (the server answered `elevate`): drawn with a lock, choosing it asks for elevation. In a client that never elevates an `elevate` answer is not offered at all. Height: --cms-control-height-md (sm in a dense row, lg standing alone), 44px on a touch screen; never a spacing token."
+      "notes": "locked = allowed once elevated (the server answered `elevate`): drawn with a lock, choosing it asks for elevation. In a client that never elevates an `elevate` answer is not offered at all. Height: --cms-control-height-md (sm in a dense row, lg standing alone), 44px on a touch screen; never a spacing token.",
+      "parts": {
+        "filled": "The primary style: the accent fill, at most one per screen (screen layout). In the Workspace it is only the first column's section-header primary.",
+        "quiet": "The action bars' style in the Workspace (Mail's message bar is the reference): the icon, then the label; no border and no fill at rest, a hover background (--cms-btn-hover-bg) and the focus ring; a destructive action (Delete) in the danger colour, its icon and its label both. Disabled: the same, muted, with the server's reason.",
+        "radius": "Every button's corners are --cms-radius-control, whatever its style and size."
+      }
     },
     "text-field": {
       "purpose": "One line of text, with a label, help and an error.",
@@ -104,7 +110,7 @@
       "notes": "From tablet width up superseded by section-header (2026-11-23): a page draws its title and actions there, full-width on a one-column page. Leaves the contract once every kit implements section-header."
     },
     "section-header": {
-      "purpose": "The head of a section from tablet width up, the first two rows of its section column: the section's declared title and its primary action on the first, the section's context on the second. The layout every section uses, in every host (Mail, Chat, Drive, and the sections to come: Tracker, Documents, Media, Calendar). What goes in it is the server's, from the section's declared tree; the header only lays it out.",
+      "purpose": "The head of a section from tablet width up, the first two rows of its section column: the section's declared title and the primary that acts on what the section column shows on the first, the section's context on the second. The layout every section uses, in every host (Mail, Chat, Drive, and the sections to come: Tracker, Documents, Media, Calendar). What goes in it is the server's, from the section's declared tree; the header only lays it out.",
       "states": [
         "default",
         "with-primary",
@@ -117,9 +123,9 @@
       "parts": {
         "row 1": "At the very top of the section column, --cms-pane-toolbar-height, on one line that never wraps: the title at the start, then the primary action and More at the end, everything centred vertically. The content columns beside it draw their own first row, their pane-toolbar, on the same line at the same height, so row 1 is one line across the screen.",
         "title": "The section's declared title (Email, Chat, Files): --cms-font-size-title-md, semibold, one line, truncated before the actions are, its whole text as its title. A heading of the page's outline.",
-        "primary": "The section's primary action, as declared (Mail's Compose, Chat's New chat, Drive's Upload): a button in the primary style, its icon then its label, always shown: never behind More, its label never hidden. with-primary-menu: a split button, the action itself and beside it a \u25be, a menu button of its own with its own accessible name, opening a menu of the action's declared entries (Drive's Upload \u25be: Upload folder, New folder, and the create entries installed modules contribute). Absent when the section declares none.",
+        "primary": "The section's primary action, as declared: the one that acts on what the section column shows (Mail's Compose, Chat's New chat). Actions on what another column shows (a folder's Upload, New folder, New) are that column's action bar's, never the header's, so a section whose first column shows nothing to act on (Drive, the file manager) has none. A button in the primary style, its icon then its label, always shown: never behind More, its label never hidden. with-primary-menu: a split button, the action itself and beside it a \u25be, a menu button of its own with its own accessible name, opening a menu of the action's declared entries; with none of them shown (each hidden by its showWhen, or one this host does not run), the primary is a plain button, with no \u25be. Absent when the section declares none.",
         "more": "More (\u22ef), an icon button after the primary, drawn only while the section declares other actions: a menu button opening the kit's context-menu with them, in the tree's order (Mail: Add mailbox, Email settings, Import). An action the server says cannot run now stays in the menu, disabled, with the server's sentence, as context-menu's Disabled item; it is never left out.",
-        "row 2": "The section's context, under row 1, --cms-pane-header-height: Mail's mailbox card, Chat's filters, Tracker's board switcher, Drive's breadcrumbs. On one line, as pane-toolbar's header row: what does not fit scrolls sideways within it, and a note that belongs to it (the mailbox card's connection line) goes under the row, not in it. Drawn only when the section declares a context.",
+        "row 2": "The section's context, under row 1, --cms-pane-header-height: Mail's mailbox card, Chat's filters, Tracker's board switcher. A folder's path is its own column's row 2, under that column's action bar, not the section's. On one line, as pane-toolbar's header row: what does not fit scrolls sideways within it, and a note that belongs to it (the mailbox card's connection line) goes under the row, not in it. Drawn only when the section declares a context.",
         "edges": "No divider lines: no border under row 1, under row 2, or between the header and the content; the rows are told apart by space alone, and the content columns' rows the same. A column with nothing for a row draws no row: an empty row is never kept to line columns up. Row 1 lines up because every column starts at the same top; row 2 is drawn only where there is something for it.",
         "full width": "A page of one column (a settings page, a list page) draws the same header across its width (full-width): row 1 the title, the primary and More; row 2 the context when it has one. It takes the place of page-header there."
       },
@@ -182,7 +188,7 @@
       ],
       "parts": {
         "keys": "A radio group named by what it filters: Tab enters at the chosen chip; Left/Right and Up/Down move to the next or the previous chip and choose it, wrapping at the ends; the chosen chip is checked (aria-checked).",
-        "overflow": "Chips that do not fit their row stay on one line and scroll sideways within it; they never wrap and never push the row taller. The edge where chips are clipped fades, at the start and at the end, only while there is more past that edge: a row whose chips fit shows no fade, and a row scrolled to one end shows none there. The fade follows the scroll (measured, never a fixed gradient), so the scrollbar may be hidden: the fade is what says there is more. A chip reached by key, or chosen while partly clipped, scrolls fully into view."
+        "overflow": "Chips are never cut off. Where they do not fit beside what their row holds (a list's folder name), they go on their own line below it; where they do not fit that line either, they wrap onto the next, each chip whole. No chip is clipped, scrolled out of sight or faded at an edge."
       }
     },
     "avatar": {
@@ -371,15 +377,16 @@
         "actions": "{ id, label, icon, group, overflow?, danger?, disabled?, reason?, busy? }[]: the server's action nodes for which the host has a handler, in the tree's order. label is the accessible name always, and the tooltip once labels hide. group: groups follow the order of their first action, and a separator is drawn between two. overflow: a number; the lowest hides its label first and, once every label is hidden, goes behind More actions first, and actions sharing a number go together, such as a toggle's two states; an action with no number keeps its label longest and goes behind More actions only in a row too narrow to hold it once every numbered action has gone, so that nothing is cut off. overflow 0 means menu only: the action is never drawn in the row, only behind More actions, at any width, and its label is not part of the row's giving way. reason: why a disabled action is disabled, the server's sentence as given; shown on hover, focus and a press and named by aria-describedby",
         "status": "optional: the trailing status slot's text, such as \"Synced at 14:32\", formatted by the host for the person's language",
         "moreLabel": "More actions' accessible name and tooltip, from the host's catalogue: \"More actions\" in English",
-        "action": "emitted with the chosen action's id. The row knows nothing of what an action does"
+        "action": "emitted with the chosen action's id. The row knows nothing of what an action does",
+        "entries": "optional, per action: a menu button (New \u25be): its node's children as the menu's entries, in the tree's order, each with its own state (disabled with the server's reason, locked); the action itself opens the menu; with no child to show (each hidden by its showWhen, or one this host does not run) the action itself is hidden, never drawn as an empty menu; a disabled child is shown, disabled with its own reason, and keeps the menu button enabled unless the node's own condition disables it"
       },
       "parts": {
-        "row": "Exactly pane-toolbar-height tall at the very top of its pane, on one line that never wraps and never scrolls: the actions at the start, the status slot at the end, everything centred vertically in it",
+        "row": "Exactly pane-toolbar-height tall at the very top of its pane, on one line that never wraps and never scrolls: the actions at the start, the view controls and the status slot at the end, everything centred vertically in it. It is row 1 of its column; where the person is (a path, a subject) is the column's row 2, under it.",
         "action": "A button with its icon, then its label. Actions sit space-1 apart. In a web kit, an action whose label is hidden carries cms-pane-toolbar__action--bare, and an action drawn without an icon (a name the table lacks) carries cms-pane-toolbar__action--text; the row carries cms-pane-toolbar--labels-partly-hidden or cms-pane-toolbar--labels-hidden as its state",
         "separator": "Between two groups: a vertical line in border, role=\"separator\" with aria-orientation=\"vertical\", never focused. Drawn only between two groups that both still show something in the row",
         "more": "The More actions button (...), after the last action shown, drawn only while at least one action is behind it: a menu button that opens the kit's context-menu, listing those actions",
-        "status slot": "At the end of the row: text, not an action, in text-muted at font-size-meta. It takes the width the actions leave and truncates with an ellipsis, its whole text kept as its title",
-        "header row": "From tablet width up a screen of columns has two rows that line up across it. The first is the toolbar row, --cms-pane-toolbar-height: the section column's section-header row 1 (in Mail, Email with Compose and More), the list's bar (Refresh and when it was synced) and the open message's actions. The second is the header row, --cms-pane-header-height: the section-header's row 2 (in Mail, the mailbox card) and the list's title with its filters. Each row is that height exactly in every column, its content centred in it, so each row's bottom is one line across the screen; a column with nothing for a row draws no row there (section-header, edges): its content starts under its last row, and no divider line is drawn under a row. What a row holds stays on one line: the list's filters never wrap, they scroll sideways within the row where the column is too narrow; and a note that belongs to the row's content (the mailbox card's connection line, a status) goes under the row, not in it, so the row stays its height. Below breakpoint-tablet one column shows at a time and the rows are the screen shell's."
+        "status slot": "At the end of the row: text, not an action, in text-muted at font-size-meta. It takes the width the actions leave and truncates with an ellipsis, its whole text kept as its title. With a selection it says how many are selected (the host's words, \"3 selected\").",
+        "header row": "From tablet width up a screen of columns has two rows that line up across it. The first is the toolbar row, --cms-pane-toolbar-height: the section column's section-header row 1 (in Mail, Mail with Compose and More), the list's bar (Refresh and when it was synced) and the open message's actions; in a file manager, the folder's action bar (Upload, New folder, New). The second is the header row, --cms-pane-header-height, where the person is: the section-header's row 2 (in Mail, the mailbox card), the list's select-all box and folder name with its filters, the open message's subject; in a file manager, the folder's path. Each row is that height exactly in every column, its content centred in it, so each row's bottom is one line across the screen; a column with nothing for a row draws no row there (section-header, edges): its content starts under its last row, and no divider line is drawn under a row. The list's filters are never cut off: where they do not fit beside the folder's name, they go on their own line below it, and the header row takes that line. Otherwise what a row holds stays on one line, and a note that belongs to the row's content (the mailbox card's connection line, a status) goes under the row, not in it. Below breakpoint-tablet one column shows at a time and the rows are the screen shell's."
       },
       "behaviour": [
         "Alignment: every pane of a screen starts at the same top and draws its row there, at pane-toolbar-height, so the rows line up across the screen. A pane with nothing to act on draws no row; its content starts at the top (section-header, edges). The section column beside the panes starts at that top too, with its section-header",
@@ -394,7 +401,8 @@
         "Busy: an action whose work is under way shows a spinner in its icon's place, spinner-size-inline, after state-delay, so a quick one shows nothing; it is aria-busy=\"true\", keeps its label and name, and a second press does not run it again",
         "Keys: role=\"toolbar\" with the host's label, and one Tab stop: Tab enters on the action focused last, the first at the start; Left and Right move between the actions shown and More actions, without wrapping; Home and End go to the first and the last. Disabled actions are reached; separators and the status slot are not",
         "More actions: aria-haspopup=\"menu\" and aria-expanded, named by moreLabel. Enter, Space or Down opens the menu on its first item, Up on its last; Up and Down move in it; Escape closes it and returns focus to More actions; Tab closes it",
-        "At tablet and phone widths, below breakpoint-desktop, each action is at least touch-target-min square, and the row stays pane-toolbar-height with space-1 above and below it. Below breakpoint-tablet one pane shows at a time; the rules are the same, measured on the row"
+        "At tablet and phone widths, below breakpoint-desktop, each action is at least touch-target-min square, and the row stays pane-toolbar-height with space-1 above and below it. Below breakpoint-tablet one pane shows at a time; the rules are the same, measured on the row",
+        "The row's height never changes with the selection, and it is drawn whatever is selected. With nothing selected it shows the actions on what its column shows (a folder's Upload, New folder, New); with a selection, the actions on the selection, and the status slot says how many are selected. View controls (the layout, the sort) sit at its end. In the Workspace the bar's buttons are quiet (button, quiet), its primary action (a folder's Upload) included: the screen's one filled button is the first column's section-header primary. The admin's bar is icon-only, and there the bar's primary (a folder's Upload) is filled."
       ],
       "mail": {
         "list pane": "Its row holds the list's actions, and the status slot at the end: \"Synced at {time}\". Reading the same list again (a reload of the mailbox, a refresh, a re-read after a sync) keeps the rows already shown in place, with a thin progress bar at the top of the list while it reads, and replaces them only when the answer is in. Skeleton rows show only on a list's first read, when it has no rows to show yet, as when another mailbox or folder opens",
@@ -513,11 +521,45 @@
         "left to it": "what search, the primary action and refresh do; the section's content"
       },
       "notes": "First built for the workspace's mail, chat and drive, web and app. The slots' content comes from NaviGraph trees: mail's navi.toolbar.email.*, drive's navi.toolbar.drive.folder (its create entries contributed per installed kind), chat's navi.toolbar.chat.list and navi.toolbar.chat.conversation. The drive and chat trees are the ones agreed with the server; a host draws a slot only from a tree the server serves. The shell carries no list of actions of its own. A kit with no phone sections (the admin) declares it not offered, with its reason."
+    },
+    "splitter": {
+      "purpose": "The one way two columns share a width: a handle between them that the person drags, every split of every screen (Mail's folders, list and message; Chat's conversations and the open one; Drive's sections and folder; the admin's tree and list).",
+      "states": [
+        "default",
+        "hover",
+        "dragging",
+        "focused",
+        "at-min",
+        "at-max"
+      ],
+      "parts": {
+        "handle": "A vertical strip between the two columns, at least 8px to grab, drawing nothing at rest (the columns' own vertical line is the line); on hover and while dragging the line is --cms-accent. The pointer is col-resize over it."
+      },
+      "api": {
+        "key": "string: where the width is remembered on this device (the screen and the split, such as \"mail:folders\"), never sent to the server",
+        "value": "the leading column's width in px, as last remembered on this device, or the default; a remembered width is held within min and max when it is read (a wider window, or a measured minimum that grew since)",
+        "default": "the leading column's default width in px: what a double-click resets to",
+        "min": "the leading column's least width in px (its content's minimum, such as the folder column's)",
+        "max": "the leading column's greatest width in px, or the width that leaves the trailing column its minimum",
+        "step": "how far an arrow key moves it, in px (16 by default; Shift with an arrow 64)",
+        "change": "emitted with the new width while dragging and on each key, so the columns follow at once"
+      },
+      "behaviour": [
+        "Drag: the leading column follows the pointer, within min and max; on release the width is remembered on the device under key, and read back the next time the screen opens there.",
+        "Double-click on the handle: the width resets to default, and the remembered width is forgotten.",
+        "Keyboard: the handle is focusable, role=\"separator\" with aria-orientation=\"vertical\", aria-valuenow (the width), aria-valuemin and aria-valuemax, and an accessible name naming the two columns (\"Resize the folder list\"). Left and Right move it by step (Shift: 64), Home to min, End to max, Enter or Escape leaves it as it is; each key is remembered as a drag's release is.",
+        "Below breakpoint-tablet one column shows at a time and there is no splitter."
+      ],
+      "notes": "One component in each kit, used by every split: no screen draws a resizing divider of its own."
     }
   },
   "conventions": [
     "Dates and times, in every component: formatted in the interface language the person chose, never the browser's.",
     "Dates in a row or a separator (a list's rows, a thread's date separators), in every component and host, one rule: today the time (a row) or the word for today (a separator); yesterday, as a word; within the last week the weekday; earlier this year the day and month; before this year the full date, in the date format the person chose when they chose one, else the interface language's own form. The words are the interface language's.",
-    "Paged lists, in every component and host: a next page the server refuses because its page link is no longer valid (its declared problem, /errors/page-link-invalid, 409) restarts the list from its first page, once, keeping what the person has selected by id; any other refusal is an error with Retry. The file manager, the file picker and every list that pages the server do this alike."
+    "Paged lists, in every component and host: a next page the server refuses because its page link is no longer valid (its declared problem, /errors/page-link-invalid, 409) restarts the list from its first page, once, keeping what the person has selected by id; any other refusal is an error with Retry. The file manager, the file picker and every list that pages the server do this alike.",
+    "Screen layout, in every screen and host, from tablet width up: each column has two rows, aligned across the screen. Row 1 holds the column's actions: in the first column the section-header, its title and the primary that acts on what that column shows (Mail's Compose, Chat's New chat; none in Drive or the file manager); in every other column the pane-toolbar, the action bar for what that column shows (the message, the folder). Row 2 says where the person is: the mailbox card, the list's select-all box and folder name with its filters, the open message's subject, the folder's path. Actions on a folder (Upload, New folder, New) are that folder's action bar's, above its path, never the section-header's. With nothing selected the bar shows the actions on what its column shows; with a selection, the actions on the selection and how many are selected; its view controls sit at its end; its height never changes. A screen has at most one filled button (button, filled). In the Workspace it is only ever the first column's section-header primary (Compose, New chat); every action bar's buttons are quiet (button, quiet), a folder's Upload included. The admin keeps its icon-only action bar, in which the bar's primary (a folder's Upload) is its one filled button. An action that applies but the person cannot use (Upload in a read-only folder) stays visible and disabled, with the server's reason; one that does not apply (no folder open) is absent. Below breakpoint-tablet the screen shell's bar and floating primary carry the same declarations.",
+    "Menu buttons, in every component and host: a menu button with no entry to show is hidden itself, and no empty menu is ever opened. An entry is not shown when its showWhen does not hold or when the host does not run it (a create kind the client cannot run yet). A disabled entry is shown: the menu button stays and opens, and each entry is disabled with its own reason from the server. The menu button itself is disabled only by its own node's condition, with that node's reason (pane-toolbar's New \u25be in a read-only folder). The same holds for a split button's menu (section-header's with-primary-menu: with no entry shown, the primary is a plain button, with no \u25be) and for More (drawn only while it holds something).",
+    "Buttons, in every component and host: every button's corners are --cms-radius-control, filled, outlined or quiet, at every size; no button sets a radius of its own (Send's and Compose's are the same). At most one filled button per screen (screen layout).",
+    "Column splits, in every component and host: every split between two columns is resizable, through the one splitter (splitter); no screen draws a divider of its own that resizes."
   ]
 }
