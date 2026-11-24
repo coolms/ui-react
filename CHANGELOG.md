@@ -2,7 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.31 (2026-11-24)
+
+The splitter, quiet and menu buttons, one control radius, no empty menus, filter chips that wrap whole, hover only where hover exists on a touch screen, and design tokens v0.30.0.
 
 - `Splitter` is new: the components contract's `splitter`, the one handle between two columns. An 8px strip that draws nothing at rest, the accent line on hover and while dragged, and one line in the focus ring's colour with keyboard focus (no ring around the strip), with a col-resize pointer. A drag moves the leading column within `min` and `max`; on release the width is remembered on the device under `storageKey` (in `localStorage`, every read and write guarded, so it works without storage) and read back, within today's limits, the next time it is drawn; a double-click puts it back to `default` and forgets it. It is a focusable separator (`aria-valuenow`, `aria-valuemin`, `aria-valuemax`, named by `label`): Left and Right move it by `step` (16 by default, Shift 64), Home and End take it to its limits, and each key is remembered as a release is. `onChange(width, done)` reports each move. A width the host keeps that today's limits move (a minimum measured since) is handed back once, as `onChange(width, true)`.
 - `SplitPanes` draws the kit's `Splitter` between its panes instead of a splitter of its own, with the same limits (each pane's own, and what leaves the last pane `lastMin`). The new `storageKey` lets the device remember the widths itself, one key per split (`${storageKey}:0`, `${storageKey}:1`); `sizes` and `onResize` work as before. Enter on a splitter no longer puts the pane back to its default width; a double-click does.
