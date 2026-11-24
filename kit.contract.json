@@ -18,7 +18,7 @@
     "list": { "implementedBy": "List", "states": ["loading", "empty", "populated", "selected", "error", "pulled"] },
     "avatar": { "implementedBy": "Avatar", "states": ["picture", "initials", "presence", "connection", "deleted"] },
     "filter-chips": { "implementedBy": "FilterChips", "states": ["default", "chosen", "focused", "overflowing"] },
-    "screen-shell": { "implementedBy": "ScreenShell", "states": ["root", "nested", "with-filters", "with-primary-action", "with-primary-menu", "pulling", "refreshing", "searching", "bar-hidden"] },
+    "screen-shell": { "implementedBy": "ScreenShell", "states": ["root", "nested", "with-filters", "with-primary-action", "with-primary-menu", "with-more", "pulling", "refreshing", "searching", "bar-hidden"] },
     "context-menu": { "implementedBy": "ContextMenu", "states": ["open", "item-danger", "item-locked", "item-refused", "item-disabled"] },
     "file-viewer": { "implementedBy": "FileViewer", "states": ["loading", "error", "no-preview", "editing", "editing-closing", "editing-conflict", "with-edit", "with-siblings", "with-thumbnails", "with-attachment-strip", "phone"] },
     "file-picker": { "implementedBy": "FilePicker", "states": ["loading", "empty", "error", "denied", "with-selection", "with-budget", "over-budget", "disabled-entry", "paging", "phone"] },

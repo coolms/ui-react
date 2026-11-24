@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import kitCss from '../src/kit.css?raw';
 import { Avatar, List, PULL_AT, ScreenShell } from '../src';
 
 describe('ScreenShell', () => {
@@ -79,6 +80,83 @@ describe('ScreenShell', () => {
         expect(within(menu).getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Upload', 'New folder']);
         await userEvent.click(within(menu).getByRole('menuitem', { name: 'Upload' }));
         expect(upload).toHaveBeenCalledOnce();
+    });
+
+    it('the bar gives Back\'s name up before the title', () => {
+        const rule = (selector: string) => new RegExp(`\\n${selector.replace('.', '\\.')} \\{([^}]*)\\}`).exec(kitCss)?.[1] ?? '';
+        expect(rule('.cms-screen__leading')).toMatch(/flex: 0 1000000 auto;/);
+        expect(rule('.cms-screen__leading')).toMatch(/min-width: var\(--cms-touch-target-min\);/);
+        expect(rule('.cms-screen__title')).toMatch(/flex: 1 1 auto; min-width: 0;/);
+        // With no room for a readable piece the name wraps under Back's one row and is not drawn.
+        expect(rule('.cms-screen__back')).toMatch(/flex-wrap: wrap; align-content: flex-start;[^}]*overflow: hidden; overflow: clip;/);
+        expect(rule('.cms-screen__back-name')).toMatch(/flex: 1 1 24px; min-width: 24px; max-width: max-content;/);
+    });
+
+    const settings = { id: 'settings', label: 'Mail settings', offer: { offered: true, locked: false }, onSelect: () => undefined };
+
+    it('More holds the secondary actions in their order, after search and before the shell\'s own icons, and an entry runs', async () => {
+        const add = vi.fn();
+        const { container } = render(
+            <ScreenShell title="Mail" search={{ label: 'Search mail', onOpen: () => undefined }} globals={<button type="button">Notifications</button>}
+                moreLabel="More mail actions" more={[
+                    { id: 'add', label: 'Add mailbox', offer: { offered: true, locked: false }, onSelect: add },
+                    settings,
+                    { id: 'hidden', label: 'Hidden', offer: { offered: false, locked: false }, onSelect: () => undefined },
+                ]}>
+                <p />
+            </ScreenShell>,
+        );
+        const trailing = container.querySelector<HTMLElement>('.cms-screen__trailing')!;
+        expect(within(trailing).getAllByRole('button').map((b) => b.getAttribute('aria-label') ?? b.textContent)).toEqual(['Search mail', 'More mail actions', 'Notifications']);
+        const more = screen.getByRole('button', { name: 'More mail actions' });
+        expect(more).toHaveAttribute('aria-haspopup', 'menu');
+        expect(more).toHaveAttribute('aria-expanded', 'false');
+        await userEvent.click(more);
+        expect(more).toHaveAttribute('aria-expanded', 'true');
+        const menu = screen.getByRole('menu', { name: 'More mail actions' });
+        expect(within(menu).getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Add mailbox', 'Mail settings']);
+        await userEvent.click(within(menu).getByRole('menuitem', { name: 'Add mailbox' }));
+        expect(add).toHaveBeenCalledOnce();
+        expect(screen.queryByRole('menu')).toBeNull();
+    });
+
+    it('no More without secondary actions, or with none of them shown: no empty menu', () => {
+        const { rerender } = render(<ScreenShell title="Drive"><p /></ScreenShell>);
+        expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+        rerender(<ScreenShell title="Drive" more={[]}><p /></ScreenShell>);
+        expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+        rerender(<ScreenShell title="Drive" more={[{ ...settings, offer: { offered: false, locked: false } }]}><p /></ScreenShell>);
+        expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+        rerender(<ScreenShell title="Mail" more={[settings]}><p /></ScreenShell>);
+        expect(screen.getByRole('button', { name: 'More actions' })).toBeInTheDocument();
+    });
+
+    it('an action refused now stays in More with the server\'s sentence and does nothing', async () => {
+        const run = vi.fn();
+        render(<ScreenShell title="Mail" more={[{ ...settings, offer: { offered: true, locked: false, refusal: 'Sign in to this mailbox again.' }, onSelect: run }]}><p /></ScreenShell>);
+        await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+        const item = screen.getByRole('menuitem');
+        expect(item).toHaveAttribute('aria-disabled', 'true');
+        expect(item).toHaveTextContent('Sign in to this mailbox again.');
+        await userEvent.click(item);
+        expect(run).not.toHaveBeenCalled();
+    });
+
+    it('a second press on More closes its menu, Escape closes it with the focus back on More, and More gives way to the search', async () => {
+        const { rerender } = render(<ScreenShell title="Mail" more={[settings]}><p /></ScreenShell>);
+        const more = screen.getByRole('button', { name: 'More actions' });
+        await userEvent.click(more);
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+        await userEvent.click(more);
+        expect(screen.queryByRole('menu')).toBeNull();
+        await userEvent.click(more);
+        await userEvent.keyboard('{Escape}');
+        expect(screen.queryByRole('menu')).toBeNull();
+        expect(more).toHaveFocus();
+        await userEvent.click(more);
+        rerender(<ScreenShell title="Mail" more={[settings]} searching={{ field: <input aria-label="Search" />, closeLabel: 'Close', onClose: () => undefined }}><p /></ScreenShell>);
+        expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+        expect(screen.queryByRole('menu')).toBeNull();
     });
 
     it('a primary menu with no entry shown is not drawn, and the screen has no primary', () => {
