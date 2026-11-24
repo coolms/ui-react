@@ -4,6 +4,7 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
 
 ## Unreleased
 
+- In the screen shell's bar Back's parent name gives way before the title, down to Back's icon, as the contract says; it kept its width while the title was cut. A name with no room for a readable piece (24px) is not drawn at all; it stays Back's accessible name.
 - `ScreenShell` has More: `more` (the entries the section header shows under its own, in the tree's order) and `moreLabel`. More is an icon button in the bar, after the section's search and before the shell's own icons, opening the context menu with them; an action the server says cannot run now stays, with its sentence. With no entry shown there is no More, and while the section's search is open it gives way. The bar does not step out of view while the menu is open.
 - The design-tokens copy is v0.31.0: the components contract 0.21.0, the phone screen shell's `with-more`.
 

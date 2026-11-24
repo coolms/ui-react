@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import kitCss from '../src/kit.css?raw';
 import { Avatar, List, PULL_AT, ScreenShell } from '../src';
 
 describe('ScreenShell', () => {
@@ -79,6 +80,16 @@ describe('ScreenShell', () => {
         expect(within(menu).getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Upload', 'New folder']);
         await userEvent.click(within(menu).getByRole('menuitem', { name: 'Upload' }));
         expect(upload).toHaveBeenCalledOnce();
+    });
+
+    it('the bar gives Back\'s name up before the title', () => {
+        const rule = (selector: string) => new RegExp(`\\n${selector.replace('.', '\\.')} \\{([^}]*)\\}`).exec(kitCss)?.[1] ?? '';
+        expect(rule('.cms-screen__leading')).toMatch(/flex: 0 1000000 auto;/);
+        expect(rule('.cms-screen__leading')).toMatch(/min-width: var\(--cms-touch-target-min\);/);
+        expect(rule('.cms-screen__title')).toMatch(/flex: 1 1 auto; min-width: 0;/);
+        // With no room for a readable piece the name wraps under Back's one row and is not drawn.
+        expect(rule('.cms-screen__back')).toMatch(/flex-wrap: wrap; align-content: flex-start;[^}]*overflow: hidden; overflow: clip;/);
+        expect(rule('.cms-screen__back-name')).toMatch(/flex: 1 1 24px; min-width: 24px; max-width: max-content;/);
     });
 
     const settings = { id: 'settings', label: 'Mail settings', offer: { offered: true, locked: false }, onSelect: () => undefined };
