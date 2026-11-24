@@ -87,6 +87,9 @@ describe('ScreenShell', () => {
         expect(rule('.cms-screen__leading')).toMatch(/flex: 0 1000 auto;/);
         expect(rule('.cms-screen__leading')).toMatch(/min-width: var\(--cms-touch-target-min\);/);
         expect(rule('.cms-screen__title')).toMatch(/flex: 1 1 auto; min-width: 0;/);
+        // With no room for a readable piece the name wraps under Back's one row and is not drawn.
+        expect(rule('.cms-screen__back')).toMatch(/flex-wrap: wrap; align-content: flex-start;[^}]*overflow: hidden;/);
+        expect(rule('.cms-screen__back-name')).toMatch(/flex: 1 1 24px; min-width: 24px; max-width: max-content;/);
     });
 
     const settings = { id: 'settings', label: 'Mail settings', offer: { offered: true, locked: false }, onSelect: () => undefined };
