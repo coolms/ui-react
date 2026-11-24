@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { FilePicker, FilePickerDenied, type FilePickerEntry, type FilePickerLabels, type FilePickerPage } from '../src';
+import { FilePicker, FilePickerDenied, FilePickerRestart, type FilePickerEntry, type FilePickerLabels, type FilePickerPage } from '../src';
 
 const labels: FilePickerLabels = {
     title: 'Attach from Drive', close: 'Close', cancel: 'Cancel', confirm: (n) => `Attach ${String(n)} files`, space: 'Space', path: 'Folder', up: 'Up',
@@ -132,6 +132,65 @@ describe('FilePicker', () => {
         expect(await screen.findByRole('option', { name: /p3\.pdf/ })).toBeInTheDocument();
         expect(screen.getByRole('option', { name: /p1\.pdf/ })).toBeInTheDocument();
         expect(list).toHaveBeenCalledWith('mine', '', 'c2');
+    });
+
+    it('a next page whose link is no longer valid reads the folder again from its first page, once, the selection kept', async () => {
+        let refused = false;
+        const list = vi.fn(async (_space: string, _path: string, cursor?: string): Promise<FilePickerPage> => {
+            if (cursor === undefined) return { entries: [file('p1'), file('p2')], next: refused ? 'fresh' : 'stale' };
+            if (cursor === 'stale') {
+                refused = true;
+                throw new FilePickerRestart();
+            }
+            return { entries: [file('p3')] };
+        });
+        render(<FilePicker {...props} list={list} />);
+        await screen.findByRole('option', { name: /p1\.pdf/ });
+        listbox().focus();
+        await userEvent.keyboard(' ');
+        expect(screen.getByRole('option', { name: /p1\.pdf/ })).toHaveAttribute('aria-selected', 'true');
+        await userEvent.keyboard('{End}');
+        await waitFor(() => expect(list.mock.calls.filter((c) => c[2] === undefined)).toHaveLength(2));
+        await screen.findByRole('option', { name: /p1\.pdf/ });
+        expect(screen.getByRole('option', { name: /p1\.pdf/ })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.queryByText('Could not read the folder')).toBeNull();
+        listbox().focus();
+        await userEvent.keyboard('{End}');
+        expect(await screen.findByRole('option', { name: /p3\.pdf/ })).toBeInTheDocument();
+        expect(list).toHaveBeenCalledWith('mine', '', 'fresh');
+        expect(screen.getByText('1 selected')).toBeInTheDocument();
+    });
+
+    it('a second restart before a next page is read is an error with Retry, never a loop', async () => {
+        const list = vi.fn(async (_space: string, _path: string, cursor?: string): Promise<FilePickerPage> => {
+            if (cursor === undefined) return { entries: [file('p1'), file('p2')], next: 'stale' };
+            throw new FilePickerRestart();
+        });
+        render(<FilePicker {...props} list={list} />);
+        await screen.findByRole('option', { name: /p1\.pdf/ });
+        listbox().focus();
+        await userEvent.keyboard('{End}');
+        await waitFor(() => expect(list.mock.calls.filter((c) => c[2] === undefined)).toHaveLength(2));
+        await screen.findByRole('option', { name: /p1\.pdf/ });
+        listbox().focus();
+        await userEvent.keyboard('{End}');
+        expect(await screen.findByText('Could not read the folder')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+        expect(list.mock.calls.filter((c) => c[2] === undefined)).toHaveLength(2);
+    });
+
+    it('any other refusal of a next page is no restart: the first page is not read again', async () => {
+        const list = vi.fn(async (_space: string, _path: string, cursor?: string): Promise<FilePickerPage> => {
+            if (cursor === undefined) return { entries: [file('q1'), file('q2')], next: 'c2' };
+            throw new Error('network');
+        });
+        render(<FilePicker {...props} list={list} />);
+        await screen.findByRole('option', { name: /q1\.pdf/ });
+        listbox().focus();
+        await userEvent.keyboard('{End}');
+        await waitFor(() => expect(list).toHaveBeenCalledWith('mine', '', 'c2'));
+        expect(list.mock.calls.filter((c) => c[2] === undefined)).toHaveLength(1);
+        expect(screen.getByRole('option', { name: /q2\.pdf/ })).toBeInTheDocument();
     });
 
     it('Escape and Cancel cancel', async () => {

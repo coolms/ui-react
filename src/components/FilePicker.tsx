@@ -47,6 +47,18 @@ export class FilePickerDenied extends Error {
     }
 }
 
+/**
+ * A next page the server refused because its page link is no longer valid (its declared problem,
+ * /errors/page-link-invalid, 409): thrown by `list`, the folder is read again from its first page, once, the selection
+ * kept. Throw it for that problem only; any other refusal is an error.
+ */
+export class FilePickerRestart extends Error {
+    constructor(message = 'restart') {
+        super(message);
+        this.name = 'FilePickerRestart';
+    }
+}
+
 /** The picker's words, in the host's language. */
 export interface FilePickerLabels {
     readonly title: string;
@@ -118,6 +130,14 @@ export function FilePicker(props: FilePickerProps): ReactNode {
     const [active, setActive] = useState(0);
     const [showChosen, setShowChosen] = useState(false);
     const listbox = useRef<HTMLDivElement>(null);
+    /**
+     * A restart was asked in this folder and no next page has been read since: a second one is an error, never a loop.
+     * Cleared by a next page read, another folder or space, and the person's Retry; not by the first page's own read.
+     */
+    const restarted = useRef(false);
+    useEffect(() => {
+        restarted.current = false;
+    }, [open, space, path]);
     const ids = useId();
 
     // Each opening starts afresh: the first space, its top, nothing chosen.
@@ -151,8 +171,23 @@ export function FilePicker(props: FilePickerProps): ReactNode {
         const held = listing.entries;
         setListing({ ...listing, paging: true });
         list(space, path, cursor).then(
-            (page) => setListing({ status: 'ready', entries: [...held, ...page.entries], next: page.next ?? null, paging: false }),
-            () => setListing({ status: 'ready', entries: held, next: cursor, paging: false }),
+            (page) => {
+                restarted.current = false;
+                setListing({ status: 'ready', entries: [...held, ...page.entries], next: page.next ?? null, paging: false });
+            },
+            (error: unknown) => {
+                if (!(error instanceof FilePickerRestart)) {
+                    setListing({ status: 'ready', entries: held, next: cursor, paging: false });
+                    return;
+                }
+                // The page link is no longer valid: the folder from its first page, once; again before a read is an error.
+                if (restarted.current) {
+                    setListing({ status: 'error' });
+                    return;
+                }
+                restarted.current = true;
+                setReads((n) => n + 1);
+            },
         );
     }, [listing, list, space, path]);
 
@@ -287,7 +322,7 @@ export function FilePicker(props: FilePickerProps): ReactNode {
                 if (el.scrollTop + el.clientHeight >= el.scrollHeight - PAGE_AHEAD_PX) more();
             }}>
                 {listing.status === 'loading' ? <State kind="loading" title={labels.loading} placement="block" /> : null}
-                {listing.status === 'error' ? <State kind="error" title={labels.error} placement="block" action={{ label: labels.retry, onAction: () => setReads((n) => n + 1) }} /> : null}
+                {listing.status === 'error' ? <State kind="error" title={labels.error} placement="block" action={{ label: labels.retry, onAction: () => { restarted.current = false; setReads((n) => n + 1); } }} /> : null}
                 {listing.status === 'denied' ? <State kind="denied" title={labels.denied} placement="block" /> : null}
                 {listing.status === 'ready' && entries.length === 0 ? <State kind="empty" title={labels.empty} placement="block" /> : null}
                 <div

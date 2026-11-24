@@ -6,10 +6,12 @@ export type IconName =
     | 'inbox' | 'archive' | 'trash' | 'paperclip' | 'mic' | 'speaker' | 'user-plus' | 'phone-off' | 'video' | 'info'
     | 'chevron-down' | 'chevron-left' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more'
     | 'download' | 'print' | 'open-separately' | 'important' | 'forward' | 'refresh' | 'file-code' | 'mail-open' | 'copy' | 'user'
-    | 'folder-plus' | 'folder-x' | 'user-check' | 'user-x' | 'upload' | 'users';
+    | 'folder-plus' | 'folder-x' | 'user-check' | 'user-x' | 'upload' | 'users' | 'settings';
 
 const PATHS: Readonly<Record<IconName, ReactNode>> = {
     mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
+    // A gear: a ring with eight short teeth, the hole in its middle.
+    settings: <><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="7" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" /></>,
     // The envelope with its flap open above it: a message read, or the message itself again.
     'mail-open': <><path d="M3 10v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9" /><path d="m3 10 9-6 9 6" /><path d="m3 10 9 6 9-6" /></>,
     // A clipboard: copy what is shown.
@@ -129,6 +131,9 @@ export const BOOTSTRAP_ICONS: Readonly<Record<string, IconName>> = {
     'person-x': 'user-x',
     'arrow-left': 'chevron-left',
     'pencil-square': 'pencil',
+    'plus-lg': 'plus',
+    gear: 'settings',
+    upload: 'upload',
     'cloud-upload': 'upload',
     people: 'users',
     'file-earmark-word': 'file',
