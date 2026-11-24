@@ -196,12 +196,16 @@ describe('Splitter', () => {
         expect(onChange).toHaveBeenLastCalledWith(240, true);
     });
 
-    it('draws nothing at rest; the accent line on hover, while dragged and with focus; a col-resize pointer; 8px to grab', () => {
+    it('draws nothing at rest; the accent line on hover and while dragged, one line in the focus ring colour with focus; a col-resize pointer; 8px to grab', () => {
         const rule = /\.cms-splitter \{([^}]*)\}/.exec(kitCss)?.[1] ?? '';
         expect(rule).toMatch(/width: 8px;/);
         expect(rule).toMatch(/cursor: col-resize;/);
         expect(rule).not.toMatch(/background|border/);
-        expect(kitCss).toMatch(/\.cms-splitter:hover, \.cms-splitter\.is-dragging, \.cms-splitter:focus-visible \{ background: [^}]*var\(--cms-accent\)/);
+        expect(kitCss).toMatch(/\.cms-splitter:hover, \.cms-splitter\.is-dragging \{ background: [^}]*var\(--cms-accent\)/);
+        // Focus is one line, in the focus ring's colour: no ring around the strip, which would draw two lines.
+        const focus = /\.cms-splitter:focus-visible \{([^}]*)\}/.exec(kitCss)?.[1] ?? '';
+        expect(focus).toMatch(/outline: none;/);
+        expect(focus).toMatch(/background: linear-gradient\(to right, transparent 3px, var\(--cms-focus-ring\) 3px, var\(--cms-focus-ring\) 5px, transparent 5px\);/);
         // Below tablet width one column shows at a time: no splitter.
         expect(kitCss).toMatch(/@media \(max-width: [\d.]+px\) \{[^@]*\.cms-splitter \{ display: none; \}/);
     });

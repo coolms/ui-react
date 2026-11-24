@@ -468,8 +468,9 @@
 /* The splitter (contract `splitter`): an 8px strip between two columns that draws nothing at rest; on hover, while
    dragged and with focus, the accent line down its middle. */
 .cms-splitter { position: relative; z-index: 2; flex: none; align-self: stretch; width: 8px; margin-inline: -4px; cursor: col-resize; touch-action: none; }
-.cms-splitter:hover, .cms-splitter.is-dragging, .cms-splitter:focus-visible { background: linear-gradient(to right, transparent 3px, var(--cms-accent) 3px, var(--cms-accent) 5px, transparent 5px); }
-.cms-splitter:focus-visible { outline: 2px solid var(--cms-focus-ring); outline-offset: -2px; }
+.cms-splitter:hover, .cms-splitter.is-dragging { background: linear-gradient(to right, transparent 3px, var(--cms-accent) 3px, var(--cms-accent) 5px, transparent 5px); }
+/* Keyboard focus is the same one line, in the focus ring's colour: a ring around the 8px strip would draw two. */
+.cms-splitter:focus-visible { outline: none; background: linear-gradient(to right, transparent 3px, var(--cms-focus-ring) 3px, var(--cms-focus-ring) 5px, transparent 5px); }
 :root:has(.cms-splitter.is-dragging) { cursor: col-resize; user-select: none; }
 .cms-panes__splitter { position: absolute; top: 0; bottom: 0; left: calc(var(--split-at) - 4px); margin: 0; }
 .cms-panes.is-resizing { cursor: col-resize; user-select: none; }
