@@ -292,7 +292,7 @@ describe('MailRow', () => {
     });
 
     it('keeps the unread dot its own size beside a long subject', () => {
-        const { container } = render(<MailRow from="Anna" subject={'Partner demo '.repeat(20)} time="09:42" unread onOpen={() => undefined} />);
+        const { container } = render(<MailRow from="Anna" subject={'Partner demo '.repeat(20)} preview="Can we walk through" time="09:42" unread onOpen={() => undefined} />);
         expect(container.querySelector('.cms-mail-row__dot')).not.toBeNull();
         expect(kitCss).toMatch(/\.cms-mail-row__dot \{[^}]*flex: none;[^}]*width: 8px;[^}]*height: 8px;/);
     });
