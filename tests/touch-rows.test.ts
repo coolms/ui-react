@@ -35,7 +35,10 @@ describe('list rows on a touch screen', () => {
     });
 
     it('the hover query tints each row and shows the mail row checkbox', () => {
-        for (const row of rows.slice(0, 6)) expect(hover, row).toContain(`${row}:hover {`);
+        for (const row of rows.slice(0, 5)) expect(hover, row).toContain(`${row}:hover {`);
+        // The chosen chip keeps its own fill under the pointer: the hover rule comes after it, so it names the others only.
+        expect(hover).toContain('.cms-chip:not(.is-on):hover {');
+        expect(hover).not.toMatch(/\.cms-chip:hover/);
         expect(hover).toContain('.cms-pane-toolbar__action:hover > .cms-pane-toolbar__tip { display: block; }');
         expect(hover).toMatch(/\.cms-mail-row:hover \.cms-mail-row__check \{ opacity: 1; \}/);
     });

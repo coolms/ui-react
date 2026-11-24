@@ -521,7 +521,7 @@
     .cms-mail-row:hover .cms-mail-row__lead > .cms-avatar { visibility: hidden; }
     .cms-icon-button:hover { background: var(--cms-hover-bg); color: var(--cms-text); }
     .cms-screen__back:hover { background: var(--cms-hover-bg); color: var(--cms-text); }
-    .cms-chip:hover { background: var(--cms-surface-muted); }
+    .cms-chip:not(.is-on):hover { background: var(--cms-surface-muted); }
     .cms-pane-toolbar__action:hover:not([aria-disabled='true']) { background: var(--cms-btn-hover-bg); }
     .cms-pane-toolbar__more:hover { background: var(--cms-btn-hover-bg); }
     .cms-pane-toolbar__action:hover > .cms-pane-toolbar__tip { display: block; }
