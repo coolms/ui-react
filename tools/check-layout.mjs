@@ -267,7 +267,7 @@ async function main() {
         for (const p of problems) console.log(`  ${p}`);
         process.exit(1);
     }
-    console.log(`CLEAR: ${String(read)} screen reading(s) (${String(screens.length)} screens, ${widths.join('/')}px, light and dark): nothing passes the edge or scrolls sideways (but a row that declares it does, as filter chips do), and every control at touch widths is at least 44px`);
+    console.log(`CLEAR: ${String(read)} screen reading(s) (${String(screens.length)} screens, ${widths.join('/')}px, light and dark): nothing passes the edge or scrolls sideways (but a row that declares it does), and every control at touch widths is at least 44px`);
 }
 
 await main();

@@ -2,8 +2,11 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cx, Glyph } from './internal.js';
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
-    /** secondary (the default), primary -- one per view -- or danger, for an action that destroys or cannot be undone. */
-    readonly variant?: 'secondary' | 'primary' | 'danger';
+    /**
+     * secondary (the default); primary, the filled one, at most one per screen; danger, for an action that destroys or
+     * cannot be undone; quiet, an action bar's: no border and no fill at rest.
+     */
+    readonly variant?: 'secondary' | 'primary' | 'danger' | 'quiet';
     /** The action is running: the button keeps its place, says so, and cannot be pressed twice. */
     readonly busy?: boolean;
     /** What the button says while busy; defaults to its own label. */
@@ -18,7 +21,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 }
 
 /**
- * An action (contract component `button`: default, primary, danger, disabled, busy, locked). A busy button is not
+ * An action (contract component `button`: default, primary, danger, disabled, busy, locked, quiet). A busy button is not
  * disabled to assistive technology's eyes alone: `aria-busy` says why it does nothing now. A locked one stays
  * pressable -- the press is how the person asks for elevation -- and names why it is locked.
  */

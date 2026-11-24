@@ -1,5 +1,6 @@
-import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
+import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { Icon, type IconName } from './Icon.js';
+import { Splitter, readSplitterWidth } from './Splitter.js';
 import { cx, withDefaults } from './internal.js';
 import { Avatar } from './Structure.js';
 
@@ -144,34 +145,11 @@ export interface FilterChipsProps {
 }
 
 /**
- * One of a few filters, as pills; arrow keys move between them, as a radio group does. Chips that do not fit stay on one
- * line and scroll sideways; the clipped edge fades, at the start and at the end, only while there is more past it.
+ * One of a few filters, as pills; arrow keys move between them, as a radio group does. Chips are never cut off: those
+ * that do not fit the row wrap onto the next line, each chip whole.
  */
 export function FilterChips({ options, value, onChange, label }: FilterChipsProps): ReactNode {
     const refs = useRef<Array<HTMLButtonElement | null>>([]);
-    const row = useRef<HTMLDivElement | null>(null);
-    // Which edges have chips past them, measured from the scroll: a fade only where there is more.
-    const [past, setPast] = useState({ start: false, end: false });
-    const measure = () => {
-        const el = row.current;
-        if (el === null) return;
-        const scrolled = Math.abs(el.scrollLeft);
-        const start = scrolled > 1;
-        const end = scrolled + el.clientWidth < el.scrollWidth - 1;
-        setPast((was) => (was.start === start && was.end === end ? was : { start, end }));
-    };
-    useLayoutEffect(() => {
-        measure();
-        const el = row.current;
-        if (el === null || typeof ResizeObserver === 'undefined') return undefined;
-        // The row and each chip: a chip that grows while the row does not (its font arriving) changes what is past an edge.
-        const watch = new ResizeObserver(measure);
-        watch.observe(el);
-        for (const chip of refs.current) if (chip !== null) watch.observe(chip);
-        return () => watch.disconnect();
-    }, [options]);
-    // A chip reached by key, or chosen while partly clipped, scrolls fully into view.
-    const reveal = (i: number) => refs.current[i]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     const onKey = (e: KeyboardEvent, i: number) => {
         const last = options.length - 1;
         const to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (i === last ? 0 : i + 1)
@@ -183,11 +161,10 @@ export function FilterChips({ options, value, onChange, label }: FilterChipsProp
         if (option) {
             onChange(option.id);
             refs.current[to]?.focus();
-            reveal(to);
         }
     };
     return (
-        <div ref={row} className={cx('cms-chips', past.start && 'is-past-start', past.end && 'is-past-end')} role="radiogroup" aria-label={label} onScroll={measure} data-scrolls-sideways="">
+        <div className="cms-chips" role="radiogroup" aria-label={label}>
             {options.map((o, i) => {
                 const on = o.id === value;
                 return (
@@ -201,10 +178,7 @@ export function FilterChips({ options, value, onChange, label }: FilterChipsProp
                         aria-checked={on}
                         tabIndex={on ? 0 : -1}
                         className={cx('cms-chip', on && 'is-on')}
-                        onClick={() => {
-                            onChange(o.id);
-                            reveal(i);
-                        }}
+                        onClick={() => onChange(o.id)}
                         onKeyDown={e => onKey(e, i)}
                     >
                         {on ? <Icon name="check" size={16} /> : null}
@@ -227,7 +201,7 @@ export interface PaneSize {
     readonly width: number;
     readonly min: number;
     readonly max: number;
-    /** The width a double-click or Enter on its splitter puts it back to. */
+    /** The width a double-click on its splitter puts it back to. */
     readonly reset: number;
     /** The splitter's name, in the app's language ("Resize folders"). */
     readonly label: string;
@@ -248,7 +222,8 @@ export interface SplitPanesProps {
     readonly back?: { readonly label: string; readonly href: string };
     /**
      * Sizes for the panes before the last, by index: each one given draws a splitter after its pane where every pane
-     * shows (the desktop grid). The caller keeps the widths; the last pane takes the rest.
+     * shows (the desktop grid). The caller keeps the widths (or the device does, with `storageKey`); the last pane takes
+     * the rest.
      */
     readonly sizes?: readonly (PaneSize | undefined)[];
     /** The last pane's least width while splitters move and the window narrows (360 by default). */
@@ -258,10 +233,12 @@ export interface SplitPanesProps {
      * key ends (`done` true), which is when a width is worth keeping.
      */
     readonly onResize?: (index: number, width: number, done: boolean) => void;
+    /**
+     * Where the widths are remembered on this device (the screen, such as "mail"): each splitter keeps its own under
+     * `${storageKey}:${index}`, and the panes open at the widths remembered there. Without one, the caller keeps them.
+     */
+    readonly storageKey?: string;
 }
-
-/** One arrow press moves a splitter this far. */
-const SPLITTER_STEP = 16;
 
 /**
  * The widths the panes take in `room` px: each as wanted within its limits; when the last pane would be under its
@@ -278,86 +255,23 @@ export function fitPanes(wanted: readonly PaneSize[], room: number, lastMin: num
     return widths;
 }
 
-function Splitter({ index, size, shown, others, room, lastMin, onResize }: {
-    readonly index: number;
-    readonly size: PaneSize;
-    readonly shown: number;
-    /** The other sized panes' widths, for the most this one may take beside them. */
-    readonly others: number;
-    readonly room: number;
-    readonly lastMin: number;
-    readonly onResize: SplitPanesProps['onResize'];
-}): ReactNode {
-    const most = Math.max(size.min, Math.min(size.max, room > 0 ? room - others - lastMin : size.max));
-    const clamp = (w: number) => Math.round(Math.min(Math.max(w, size.min), most));
-    const drag = useRef<{ x: number; from: number; last: number } | null>(null);
-    const move = (w: number, done: boolean) => onResize?.(index, clamp(w), done);
-    return (
-        <div
-            role="separator"
-            tabIndex={0}
-            aria-orientation="vertical"
-            aria-label={size.label}
-            aria-valuenow={shown}
-            aria-valuemin={size.min}
-            aria-valuemax={most}
-            className="cms-panes__splitter"
-            style={{ '--split-at': `var(--split-pane-end-${String(index)})` } as CSSProperties}
-            onPointerDown={(e: PointerEvent<HTMLDivElement>) => {
-                // Only the primary button (or a touch or a pen) drags.
-                if (e.button > 0) return;
-                e.preventDefault();
-                e.currentTarget.setPointerCapture?.(e.pointerId);
-                drag.current = { x: e.clientX, from: shown, last: shown };
-                e.currentTarget.closest('.cms-panes')?.classList.add('is-resizing');
-            }}
-            onPointerMove={(e: PointerEvent<HTMLDivElement>) => {
-                const d = drag.current;
-                if (d === null || !Number.isFinite(e.clientX)) return;
-                d.last = clamp(d.from + e.clientX - d.x);
-                move(d.last, false);
-            }}
-            onPointerUp={(e: PointerEvent<HTMLDivElement>) => {
-                const d = drag.current;
-                if (d === null) return;
-                drag.current = null;
-                e.currentTarget.closest('.cms-panes')?.classList.remove('is-resizing');
-                move(d.last, true);
-            }}
-            onPointerCancel={(e: PointerEvent<HTMLDivElement>) => {
-                const d = drag.current;
-                drag.current = null;
-                e.currentTarget.closest('.cms-panes')?.classList.remove('is-resizing');
-                if (d !== null) move(d.last, true);
-            }}
-            onDoubleClick={() => move(size.reset, true)}
-            onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
-                const to = e.key === 'ArrowLeft' ? shown - SPLITTER_STEP
-                    : e.key === 'ArrowRight' ? shown + SPLITTER_STEP
-                    : e.key === 'Home' ? size.min
-                    : e.key === 'End' ? most
-                    : e.key === 'Enter' ? size.reset
-                    : null;
-                if (to === null) return;
-                e.preventDefault();
-                move(to, true);
-            }}
-        />
-    );
-}
-
 /**
  * Two or three panes side by side (contract `split-panes`), showing fewer as the window narrows. With `sizes`, the
- * panes before the last are resizable where all of them show (contract `pane splitter`): each has a splitter, a
- * separator dragged by mouse or touch, moved 16 px by the arrow keys, taken to its limits by Home and End, and put back
- * by a double-click or Enter. The last pane is never narrower than `lastMin`; as the window narrows the pane nearest it
- * gives way first.
+ * panes before the last are resizable where all of them show (contract `pane splitter`): each has the kit's one
+ * Splitter after it, within the pane's limits and never leaving the last pane under `lastMin`. The last pane is never
+ * narrower than `lastMin`; as the window narrows the pane nearest it gives way first. With `storageKey` the widths are
+ * remembered on the device; the caller still hears each move through `onResize`.
  */
-export function SplitPanes({ panes, active, back, sizes, lastMin = 360, onResize }: SplitPanesProps): ReactNode {
+export function SplitPanes({ panes, active, back, sizes, lastMin = 360, onResize, storageKey }: SplitPanesProps): ReactNode {
     const at = Math.min(Math.max(active ?? panes.length - 1, 0), panes.length - 1);
     const grid = useRef<HTMLDivElement>(null);
     const [room, setRoom] = useState(0);
-    const sized = (sizes ?? []).slice(0, panes.length - 1);
+    const given = (sizes ?? []).slice(0, panes.length - 1);
+    // The widths remembered on this device, read as the panes are first drawn so they do not jump.
+    const [kept, setKept] = useState<readonly (number | undefined)[]>(() =>
+        storageKey === undefined ? [] : given.map((_, i) => readSplitterWidth(`${storageKey}:${String(i)}`) ?? undefined));
+    const [resizing, setResizing] = useState(false);
+    const sized = given.map((one, i) => (one !== undefined && kept[i] !== undefined ? { ...one, width: kept[i] } : one));
     const resizable = sized.length === panes.length - 1 && sized.every((one): one is PaneSize => one !== undefined);
     useLayoutEffect(() => {
         const el = grid.current;
@@ -379,7 +293,7 @@ export function SplitPanes({ panes, active, back, sizes, lastMin = 360, onResize
     return (
         <div
             ref={grid}
-            className={cx('cms-panes', panes.length === 3 ? 'cms-panes--three' : 'cms-panes--two', resizable && 'cms-panes--sized')}
+            className={cx('cms-panes', panes.length === 3 ? 'cms-panes--three' : 'cms-panes--two', resizable && 'cms-panes--sized', resizing && 'is-resizing')}
             data-active={at}
             style={style}
         >
@@ -395,18 +309,35 @@ export function SplitPanes({ panes, active, back, sizes, lastMin = 360, onResize
                 </section>
             ))}
             {resizable
-                ? (sized as PaneSize[]).map((size, i) => (
-                    <Splitter
-                        key={size.label}
-                        index={i}
-                        size={size}
-                        shown={shown[i]!}
-                        others={shown.reduce((sum, w, j) => (j === i ? sum : sum + w), 0)}
-                        room={room}
-                        lastMin={lastMin}
-                        onResize={onResize}
-                    />
-                ))
+                ? (sized as PaneSize[]).map((size, i) => {
+                    // The most this pane may take: its own limit, and what leaves the others and the last pane theirs.
+                    const others = shown.reduce((sum, w, j) => (j === i ? sum : sum + w), 0);
+                    const most = Math.max(size.min, Math.min(size.max, room > 0 ? room - others - lastMin : size.max));
+                    return (
+                        <Splitter
+                            key={size.label}
+                            {...(storageKey === undefined ? {} : { storageKey: `${storageKey}:${String(i)}` })}
+                            value={shown[i]!}
+                            default={size.reset}
+                            min={size.min}
+                            max={most}
+                            label={size.label}
+                            className="cms-panes__splitter"
+                            style={{ '--split-at': `var(--split-pane-end-${String(i)})` } as CSSProperties}
+                            onChange={(width, done) => {
+                                if (storageKey !== undefined) {
+                                    setKept(was => {
+                                        const next = [...was];
+                                        next[i] = width;
+                                        return next;
+                                    });
+                                }
+                                setResizing(!done);
+                                onResize?.(i, width, done);
+                            }}
+                        />
+                    );
+                })
                 : null}
         </div>
     );

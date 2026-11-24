@@ -81,6 +81,23 @@ describe('ScreenShell', () => {
         expect(upload).toHaveBeenCalledOnce();
     });
 
+    it('a primary menu with no entry shown is not drawn, and the screen has no primary', () => {
+        const { container } = render(
+            <ScreenShell title="Drive" primary={{ label: 'New', icon: 'plus', menu: [
+                { id: 'upload', label: 'Upload', offer: { offered: false, locked: false }, onSelect: () => undefined },
+            ] }}>
+                <p />
+            </ScreenShell>,
+        );
+        expect(screen.queryByRole('button', { name: 'New' })).toBeNull();
+        expect(container.firstElementChild).not.toHaveClass('cms-screen--with-primary');
+    });
+
+    it('an empty primary menu is not drawn either', () => {
+        render(<ScreenShell title="Drive" primary={{ label: 'New', icon: 'plus', menu: [] }}><p /></ScreenShell>);
+        expect(screen.queryByRole('button', { name: 'New' })).toBeNull();
+    });
+
     it('a pull from the top past the threshold refreshes; the list inside draws the pull and then the refreshing state', async () => {
         let done: () => void = () => undefined;
         const onRefresh = vi.fn(() => new Promise<void>((resolve) => { done = resolve; }));

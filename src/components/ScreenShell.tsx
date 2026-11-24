@@ -118,7 +118,9 @@ function useBarHiddenOnScroll(shell: RefObject<HTMLDivElement | null>, enabled: 
  * scrolls on its own and refreshes by a pull from its top; the primary action floating at the bottom right, its menu
  * opening above it. What fills each slot is the host's, from the server's declared nodes.
  */
-export function ScreenShell({ title, back, navigation, search, searching, globals, filters, primary, onRefresh, pullText, barHidden, children }: ScreenShellProps): ReactNode {
+export function ScreenShell({ title, back, navigation, search, searching, globals, filters, primary: declared, onRefresh, pullText, barHidden, children }: ScreenShellProps): ReactNode {
+    // A primary menu with no entry to show is not drawn at all: no empty menus.
+    const primary = declared !== undefined && 'menu' in declared && !declared.menu.some(m => m.offer.offered) ? undefined : declared;
     const shell = useRef<HTMLDivElement>(null);
     const content = useRef<HTMLDivElement>(null);
     const [refreshing, setRefreshing] = useState(false);

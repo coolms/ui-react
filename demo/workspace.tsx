@@ -487,7 +487,7 @@ function probeLayout(): void {
         const r = el.getBoundingClientRect();
         if (r.right > width + 0.5 || r.left < -0.5) overflow.push(`${name(el)} [${Math.round(r.left)}..${Math.round(r.right)}]`);
         const style = getComputedStyle(el);
-        // A row the contract makes scroll sideways (filter chips) declares it, data-scrolls-sideways; any other is a problem.
+        // A row the contract makes scroll sideways declares it, data-scrolls-sideways; any other is a problem.
         if ((style.overflowX === 'auto' || style.overflowX === 'scroll') && el.scrollWidth > el.clientWidth + 1 && !el.hasAttribute('data-scrolls-sideways')) scrolls.push(name(el));
     }
     const small: string[] = [];
