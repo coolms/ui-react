@@ -164,6 +164,18 @@ describe('Splitter', () => {
         expect(window.localStorage.length).toBe(0);
     });
 
+    it('a width the host keeps that a grown minimum moves is handed back to the host, once', () => {
+        const onChange = vi.fn();
+        const { rerender } = render(<Splitter value={220} default={240} min={200} max={400} label="Resize" onChange={onChange} />);
+        expect(onChange).not.toHaveBeenCalled();
+        rerender(<Splitter value={220} default={240} min={260} max={400} label="Resize" onChange={onChange} />);
+        expect(screen.getByRole('separator')).toHaveAttribute('aria-valuenow', '260');
+        expect(onChange).toHaveBeenCalledTimes(1);
+        expect(onChange).toHaveBeenLastCalledWith(260, true);
+        rerender(<Splitter value={260} default={240} min={260} max={400} label="Resize" onChange={onChange} />);
+        expect(onChange).toHaveBeenCalledTimes(1);
+    });
+
     it('draws without storage: a refused read or write leaves the default and every move working', async () => {
         vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
             throw new Error('denied');

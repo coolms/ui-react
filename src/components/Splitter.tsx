@@ -96,6 +96,12 @@ export function Splitter({ storageKey, value, default: initial, min, max, step =
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // A width the host holds that today's limits move (a minimum measured since) is handed back as the width.
+    useLayoutEffect(() => {
+        if (value !== undefined && clamp(value) !== value) onChange(clamp(value), true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value, min, most]);
+
     const set = (width: number, done: boolean) => {
         const w = clamp(width);
         setOwn(w);

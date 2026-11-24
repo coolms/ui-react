@@ -28,14 +28,15 @@ function split(): { top: string; hover: string } {
 
 describe('list rows on a touch screen', () => {
     const { top, hover } = split();
-    const rows = ['.cms-list__row', '.cms-mail-row', '.cms-notification__row'];
+    const rows = ['.cms-list__row', '.cms-mail-row', '.cms-notification__row', '.cms-icon-button', '.cms-screen__back', '.cms-chip', '.cms-pane-toolbar__action'];
 
     it('no row hovers outside the fine-pointer hover query', () => {
         for (const row of rows) expect(top, row).not.toMatch(new RegExp(`${row.replace('.', '\\.')}[^{]*:hover`));
     });
 
     it('the hover query tints each row and shows the mail row checkbox', () => {
-        for (const row of rows) expect(hover, row).toContain(`${row}:hover {`);
+        for (const row of rows.slice(0, 6)) expect(hover, row).toContain(`${row}:hover {`);
+        expect(hover).toContain('.cms-pane-toolbar__action:hover > .cms-pane-toolbar__tip { display: block; }');
         expect(hover).toMatch(/\.cms-mail-row:hover \.cms-mail-row__check \{ opacity: 1; \}/);
     });
 

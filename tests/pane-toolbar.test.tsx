@@ -426,7 +426,7 @@ describe('PaneToolbar', () => {
     it('its buttons are quiet: icon then label, no border and no fill at rest, the button hover, danger in the danger colour', () => {
         const rule = (selector: string) => {
             const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            return new RegExp(`(?:^|\\n)${escaped} \\{([^}]*)\\}`).exec(kitCss)?.[1] ?? '';
+            return new RegExp(`(?:^|\\n)[ ]*${escaped} \\{([^}]*)\\}`).exec(kitCss)?.[1] ?? '';
         };
         const rest = rule('.cms-pane-toolbar__action');
         expect(rest).toMatch(/border: 1px solid transparent;/);

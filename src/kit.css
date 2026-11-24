@@ -61,7 +61,6 @@
     color: var(--cms-text-muted);
     cursor: pointer;
 }
-.cms-icon-button:hover { background: var(--cms-hover-bg); color: var(--cms-text); }
 
 /* Fields */
 .cms-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
@@ -286,7 +285,6 @@
 .cms-screen__leading { display: flex; flex: none; align-items: center; max-width: 40%; min-width: 0; }
 .cms-screen__leading:empty { display: none; }
 .cms-screen__back { display: inline-flex; align-items: center; gap: var(--cms-space-1); min-width: 0; height: var(--cms-control-height-md); padding: 0 var(--cms-space-2); border: 0; border-radius: var(--cms-radius-control); background: transparent; color: var(--cms-text-muted); font: inherit; text-decoration: none; cursor: pointer; }
-.cms-screen__back:hover { background: var(--cms-hover-bg); color: var(--cms-text); }
 .cms-screen__back-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cms-screen__title { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; font-size: var(--cms-font-size-title-md); font-weight: var(--cms-font-weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
 .cms-screen__trailing { display: flex; flex: none; align-items: center; gap: var(--cms-space-1); }
@@ -457,7 +455,6 @@
 .cms-chips { display: flex; flex: none; flex-wrap: wrap; gap: var(--cms-space-2); max-width: 100%; min-width: 0; }
 .cms-chips > .cms-chip { flex: none; max-width: 100%; }
 .cms-chip { display: inline-flex; align-items: center; gap: var(--cms-space-1); height: 32px; padding: 0 var(--cms-space-4); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-pill); background: var(--cms-surface); color: var(--cms-text-body); font: inherit; font-size: var(--cms-font-size-meta); cursor: pointer; }
-.cms-chip:hover { background: var(--cms-surface-muted); }
 .cms-chip.is-on { border-color: var(--cms-button-chrome-bg); background: var(--cms-button-chrome-bg); color: var(--cms-on-chrome); font-weight: var(--cms-font-weight-semibold); }
 
 /* Panes */
@@ -514,13 +511,21 @@
    hover (below): a tap leaves neither, so with nothing selected a touch screen shows every avatar. */
 .cms-mail-row:is(.is-selecting, .is-checked, :has(:focus-visible)) .cms-mail-row__check { opacity: 1; }
 .cms-mail-row:is(.is-selecting, .is-checked, :has(:focus-visible)) .cms-mail-row__lead > .cms-avatar { visibility: hidden; }
-/* Row hover, only where hover exists: a touch screen keeps a tapped row's hover after the tap. */
+/* Hover, only where hover exists: a touch screen keeps a tapped control's hover after the tap (a row's tint, an
+   icon button's, a chip's, a toolbar action's tooltip). */
 @media (hover: hover) and (pointer: fine) {
     .cms-list__row:hover { background: var(--cms-surface-hover); }
     .cms-notification__row:hover { background: var(--cms-hover-bg); }
     .cms-mail-row:hover { background: var(--cms-surface-muted); }
     .cms-mail-row:hover .cms-mail-row__check { opacity: 1; }
     .cms-mail-row:hover .cms-mail-row__lead > .cms-avatar { visibility: hidden; }
+    .cms-icon-button:hover { background: var(--cms-hover-bg); color: var(--cms-text); }
+    .cms-screen__back:hover { background: var(--cms-hover-bg); color: var(--cms-text); }
+    .cms-chip:hover { background: var(--cms-surface-muted); }
+    .cms-pane-toolbar__action:hover:not([aria-disabled='true']) { background: var(--cms-btn-hover-bg); }
+    .cms-pane-toolbar__more:hover { background: var(--cms-btn-hover-bg); }
+    .cms-pane-toolbar__action:hover > .cms-pane-toolbar__tip { display: block; }
+    .cms-pane-toolbar:has(.cms-pane-toolbar__action:hover > .cms-pane-toolbar__tip) { overflow: visible; }
 }
 .cms-mail-row.is-selected { background: var(--cms-row-selected); }
 .cms-mail-row__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; line-height: 1.5; }
@@ -782,7 +787,6 @@
 .cms-pane-toolbar__group[hidden] { display: none; }
 .cms-pane-toolbar__separator { flex: none; width: 1px; height: calc(calc(var(--cms-row-height) + 2 * var(--cms-space-2)) - 2 * var(--cms-space-3)); margin: 0 var(--cms-space-1); background: var(--cms-border); }
 .cms-pane-toolbar__action { position: relative; display: inline-flex; flex: none; align-items: center; gap: var(--cms-space-2); height: var(--cms-row-height, 36px); padding: 0 var(--cms-space-3); border: 1px solid transparent; border-radius: var(--cms-radius-control); background: none; color: var(--cms-text); font: inherit; cursor: pointer; }
-.cms-pane-toolbar__action:hover:not([aria-disabled='true']) { background: var(--cms-btn-hover-bg); }
 .cms-pane-toolbar__action:focus-visible { outline: 2px solid var(--cms-focus-ring); outline-offset: 1px; }
 .cms-pane-toolbar__action--bare { justify-content: center; width: var(--cms-row-height, 36px); padding: 0; }
 .cms-pane-toolbar__action[hidden] { display: none; }
@@ -792,13 +796,12 @@
 .cms-pane-toolbar__chevron { display: inline-flex; flex: none; margin-inline-start: calc(-1 * var(--cms-space-1)); }
 .cms-pane-toolbar__action--bare .cms-pane-toolbar__chevron { margin-inline-start: 0; }
 .cms-pane-toolbar__more { flex: none; }
-.cms-pane-toolbar__more:hover { background: var(--cms-btn-hover-bg); }
 .cms-pane-toolbar__status { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; text-align: end; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
 /* A label hidden: its tooltip on hover and on keyboard focus, never the action's only name. */
 .cms-pane-toolbar__tip { position: absolute; top: calc(100% + var(--cms-space-1)); left: 50%; z-index: 20; display: none; padding: var(--cms-space-1) var(--cms-space-2); border-radius: var(--cms-radius-sm); background: var(--cms-text); color: var(--cms-bg-surface); font-size: var(--cms-font-size-meta); transform: translateX(-50%); pointer-events: none; }
-.cms-pane-toolbar__action:hover > .cms-pane-toolbar__tip, .cms-pane-toolbar__action:focus-visible > .cms-pane-toolbar__tip, .cms-pane-toolbar__action[data-reason-shown] > .cms-pane-toolbar__tip { display: block; }
+.cms-pane-toolbar__action:focus-visible > .cms-pane-toolbar__tip, .cms-pane-toolbar__action[data-reason-shown] > .cms-pane-toolbar__tip { display: block; }
 /* The row's tooltips overflow the row: the row clips only its own line, so the tooltip is drawn by a row that lets it. */
-.cms-pane-toolbar:has(.cms-pane-toolbar__action:hover > .cms-pane-toolbar__tip), .cms-pane-toolbar:has(.cms-pane-toolbar__action:focus-visible > .cms-pane-toolbar__tip), .cms-pane-toolbar:has(.cms-pane-toolbar__action[data-reason-shown] > .cms-pane-toolbar__tip) { overflow: visible; }
+.cms-pane-toolbar:has(.cms-pane-toolbar__action:focus-visible > .cms-pane-toolbar__tip), .cms-pane-toolbar:has(.cms-pane-toolbar__action[data-reason-shown] > .cms-pane-toolbar__tip) { overflow: visible; }
 .cms-pane-toolbar__measure { position: absolute; top: 0; left: 0; display: flex; visibility: hidden; pointer-events: none; }
 .cms-pane-toolbar__measure > span, .cms-pane-toolbar__measure > div { flex: none; }
 /* At tablet and phone widths each action is at least a touch target, in the same row. */
