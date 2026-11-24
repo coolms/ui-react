@@ -287,8 +287,8 @@
 .cms-screen__leading { display: flex; flex: 0 1000000 auto; align-items: center; max-width: 40%; min-width: var(--cms-touch-target-min); }
 .cms-screen__leading:empty { display: none; }
 /* Back is one row: the strut makes it the full height, so a name with no room for a readable piece wraps under it and is
-   not drawn. The name stays in the text, so Back is still named by it. */
-.cms-screen__back { display: inline-flex; flex-wrap: wrap; align-content: flex-start; align-items: center; overflow: hidden; gap: var(--cms-space-1); min-width: 0; height: var(--cms-control-height-md); padding: 0 var(--cms-space-2); border: 0; border-radius: var(--cms-radius-control); background: transparent; color: var(--cms-text-muted); font: inherit; text-decoration: none; cursor: pointer; }
+   not drawn. The name stays in the text, so Back is still named by it. Clipped, not scrolled: a find in the page moves nothing. */
+.cms-screen__back { display: inline-flex; flex-wrap: wrap; align-content: flex-start; align-items: center; overflow: hidden; overflow: clip; gap: var(--cms-space-1); min-width: 0; height: var(--cms-control-height-md); padding: 0 var(--cms-space-2); border: 0; border-radius: var(--cms-radius-control); background: transparent; color: var(--cms-text-muted); font: inherit; text-decoration: none; cursor: pointer; }
 .cms-screen__back::before { content: ""; width: 0; height: 100%; margin-inline-end: calc(-1 * var(--cms-space-1)); }
 .cms-screen__back-name { flex: 1 1 24px; min-width: 24px; max-width: max-content; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cms-screen__title { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; font-size: var(--cms-font-size-title-md); font-weight: var(--cms-font-weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
