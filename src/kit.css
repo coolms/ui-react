@@ -282,7 +282,8 @@
    at the bottom right above the section bar. */
 .cms-screen { position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--cms-surface); }
 .cms-screen__bar { display: flex; flex: none; align-items: center; gap: var(--cms-space-2); height: var(--cms-topbar-height); padding: 0 var(--cms-space-2); border-bottom: 1px solid var(--cms-border-light); }
-.cms-screen__leading { display: flex; flex: none; align-items: center; max-width: 40%; min-width: 0; }
+/* Back gives way before the title: it takes all of the missing width, down to its icon, and only then is the title cut. */
+.cms-screen__leading { display: flex; flex: 0 1000 auto; align-items: center; max-width: 40%; min-width: var(--cms-touch-target-min); }
 .cms-screen__leading:empty { display: none; }
 .cms-screen__back { display: inline-flex; align-items: center; gap: var(--cms-space-1); min-width: 0; height: var(--cms-control-height-md); padding: 0 var(--cms-space-2); border: 0; border-radius: var(--cms-radius-control); background: transparent; color: var(--cms-text-muted); font: inherit; text-decoration: none; cursor: pointer; }
 .cms-screen__back-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
