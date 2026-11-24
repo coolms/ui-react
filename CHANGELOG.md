@@ -2,6 +2,14 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+- `SectionHeader` draws the components contract's `section-header` (design tokens v0.23.0, contract 0.16.0): the head of a section from tablet width up. Row 1: the declared title, then the primary action (icon and label, always shown; a split button with a menu when it has entries) and More for the section's other actions, a refused one kept with the server's reason. Row 2: the context (a mailbox card, filters, breadcrumbs), only when given. No divider lines; `fullWidth` spans a one-column page.
+- `FilePicker` restarts a folder whose page link is no longer valid (contract 0.15.0, `file-picker`): `list` throws the new `FilePickerRestart` for the server's declared problem (`/errors/page-link-invalid`, 409), and the picker reads the folder's first page again, once, the selection kept. A second restart before a next page is read is the error with Retry, so a server that keeps refusing cannot loop. Any other refusal is as before.
+- `MailRow` carries the components contract's avatar checkbox (`list`, part avatar checkbox): with `check`, the avatar is the row's checkbox (`cms-mail-row__check`), shown as the checkbox while the pointer is over the row or the focus is within it, while `selecting` and while checked; a real checkbox named by `check.label`, whose click, tap or Space calls `check.onCheck` with Shift and Ctrl/Cmd and never opens the row. The row is now a container (`cms-mail-row`, carrying is-unread, is-selected, is-selecting, is-checked) holding the open button (`cms-mail-row__open`, aria-current when selected). Without `check`, the avatar alone, as before.
+- `MailRow`'s unread dot never shrinks beside a long subject.
+- Design tokens v0.24.0 (icon contract 0.9.0): the `plus-lg`, `gear` and `upload` icons draw as `plus`, the new `settings` glyph and `upload`.
+
 ## 0.1.0-alpha.29 (2026-11-23)
 
 Filter chips on one line with a fade while more is past the edge; check:package in the release checks.

@@ -4,7 +4,8 @@ export { Modal, ConfirmDialog, MODAL_CLOSE_MS, type ModalProps, type ConfirmDial
 export { Toast, ToastRegion, Loading, EmptyState, ErrorBanner, type ToastProps, type LoadingProps, type EmptyStateProps, type ErrorBannerProps } from './components/Status.js';
 export { State, STATE_DELAY_MS, type StateKind, type StatePlacement, type StateProps } from './components/State.js';
 export { FileViewer, type FileViewerAction, type FileViewerConflict, type FileViewerEditing, type FileViewerProps, type FileViewerSiblings, type FileViewerState } from './components/FileViewer.js';
-export { FilePicker, FilePickerDenied, type FilePickerBudget, type FilePickerChoice, type FilePickerEntry, type FilePickerLabels, type FilePickerPage, type FilePickerProps, type FilePickerSpace } from './components/FilePicker.js';
+export { FilePicker, FilePickerDenied, FilePickerRestart, type FilePickerBudget, type FilePickerChoice, type FilePickerEntry, type FilePickerLabels, type FilePickerPage, type FilePickerProps, type FilePickerSpace } from './components/FilePicker.js';
+export { SectionHeader, type SectionHeaderProps, type SectionPrimary } from './components/SectionHeader.js';
 export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps, type AvatarPresence, type AvatarConnection } from './components/Structure.js';
 export { Icon, ICON_NAMES, BOOTSTRAP_ICONS, NamedIcon, iconForName, type IconName, type IconProps } from './components/Icon.js';
 export { AppShell, Badge, SearchField, FilterChips, SplitPanes, fitPanes, MailRow, ChatBubble, Composer, MAIL_ROW_LABELS, type MailRowLabels, type AppShellProps, type RailItem, type BadgeProps, type SearchFieldProps, type FilterChipsProps, type FilterOption, type SplitPanesProps, type PaneSize, type Pane, type MailRowProps, type ChatBubbleProps, type ComposerProps } from './components/Workspace.js';
