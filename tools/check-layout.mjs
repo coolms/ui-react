@@ -29,7 +29,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'demo', 'dist')
 const WINDOWS_CHROME = '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe';
 
 /** The demo's screens, each at a place its address names. */
-export const SCREENS = ['mail/folders', 'mail', 'mail/0', 'chat', 'chat/0', 'calls', 'signin', 'notifications', 'shell', 'shell/drive'];
+export const SCREENS = ['mail/folders', 'mail', 'mail/0', 'chat', 'chat/0', 'calls', 'signin', 'notifications', 'shell', 'shell/drive', 'shell/mail'];
 /** The widths of the layout: desktop, two tablet widths, phone. */
 export const WIDTHS = [1440, 1024, 768, 390];
 /** The breakpoint-desktop token: below it the layout is a touch screen's. */

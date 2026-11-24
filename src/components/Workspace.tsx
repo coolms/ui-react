@@ -384,9 +384,9 @@ export const MAIL_ROW_LABELS: MailRowLabels = { attachment: 'Has an attachment',
  * One message in a mailbox's list: who, what, the start of it, when; unread in bold with its dot. Three lines at every
  * width: the sender and the time, the subject, the preview. The row (`cms-mail-row`, carrying is-unread and
  * is-selected) holds the open button (`cms-mail-row__open`, aria-current when selected) and, with `check`, the
- * checkbox in the avatar's place (`cms-mail-row__check`): shown as the checkbox while the pointer is over the row or
- * the focus is within it, while `selecting`, and while checked; the avatar otherwise. The avatar's top is on the
- * sender line's top.
+ * checkbox in the avatar's place (`cms-mail-row__check`): shown as the checkbox while `selecting` (something is
+ * selected), while checked, on keyboard focus within the row, and under a fine pointer's hover; the avatar otherwise,
+ * so a touch screen with nothing selected shows every avatar. The avatar's top is on the sender line's top.
  */
 export function MailRow({ from, subject, preview, time, unread, hasAttachment, selected, onOpen, check, selecting, labels }: MailRowProps): ReactNode {
     const l = withDefaults(MAIL_ROW_LABELS, labels);

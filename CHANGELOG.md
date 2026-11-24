@@ -14,6 +14,7 @@ All notable changes to `@coolms/ui-react` are listed here. Versions follow [sema
 - The `hash` icon (the number sign, for browsing channels) draws as the kit's new `hash` glyph.
 - `Button` has the contract's `quiet` variant, an action bar's button: no border and no fill at rest, the button hover (`--cms-btn-hover-bg`) under the pointer.
 - `ScreenShell` draws no floating primary when its menu has no entry to show (empty, or every entry not offered), so no empty menu is ever opened.
+- List rows on a touch screen: a row's hover tint, and the mail row's checkbox in the avatar's place on hover, apply only where hover exists (`(hover: hover) and (pointer: fine)`); the checkbox shows on keyboard focus (`:focus-visible`), not on focus from a tap; so with nothing selected a touch screen shows every avatar, and a deselected row goes back to its avatar. The demo has a phone mailbox (`#shell/mail`) with rows to select and Compose floating over the list's end.
 - The design-tokens copy is v0.30.0: the components contract with the quiet button, one control radius and the `splitter`, and the icon contract with `hash`. The kit declares the quiet state and the splitter.
 
 ## 0.1.0-alpha.30 (2026-11-24)

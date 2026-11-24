@@ -268,7 +268,6 @@
     cursor: pointer;
 }
 .cms-list__row:last-child { border-bottom: 0; }
-.cms-list__row:hover { background: var(--cms-surface-hover); }
 .cms-list__row.is-selected { background: var(--cms-selected-light); box-shadow: inset 3px 0 0 var(--cms-selected); }
 .cms-list__text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
 .cms-list__primary, .cms-list__secondary { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -357,7 +356,6 @@
    button action under the text. Unread: the title in weight and a dot. */
 .cms-notification { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: var(--cms-space-1); padding: var(--cms-space-1) var(--cms-space-2); border-radius: var(--cms-radius-md); }
 .cms-notification__row { display: flex; align-items: flex-start; gap: var(--cms-space-3); min-width: 0; padding: var(--cms-space-2); border-radius: var(--cms-radius-md); color: var(--cms-text); cursor: pointer; }
-.cms-notification__row:hover { background: var(--cms-hover-bg); }
 .cms-notification__row:focus-visible { outline: 2px solid var(--cms-focus-ring); outline-offset: 1px; }
 .cms-notification__leading { flex: none; display: inline-flex; }
 .cms-notification__text { display: flex; flex: 1; flex-direction: column; gap: var(--cms-space-1); min-width: 0; }
@@ -501,7 +499,6 @@
     text-align: left;
     cursor: pointer;
 }
-.cms-mail-row:hover { background: var(--cms-surface-muted); }
 .cms-mail-row__open { display: flex; align-items: flex-start; gap: var(--cms-space-3); flex: 1; min-width: 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .cms-mail-row__lead { position: relative; flex: none; width: 40px; height: 40px; }
 .cms-mail-row__check {
@@ -513,8 +510,18 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%273%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m5 12 5 5 9-10%27/%3E%3C/svg%3E");
 }
 .cms-mail-row__check[aria-disabled="true"] { cursor: progress; }
-.cms-mail-row:is(:hover, :focus-within, .is-selecting, .is-checked) .cms-mail-row__check { opacity: 1; }
-.cms-mail-row:is(:hover, :focus-within, .is-selecting, .is-checked) .cms-mail-row__lead > .cms-avatar { visibility: hidden; }
+/* The checkbox takes the avatar's place while something is selected, on keyboard focus, and under a fine pointer's
+   hover (below): a tap leaves neither, so with nothing selected a touch screen shows every avatar. */
+.cms-mail-row:is(.is-selecting, .is-checked, :has(:focus-visible)) .cms-mail-row__check { opacity: 1; }
+.cms-mail-row:is(.is-selecting, .is-checked, :has(:focus-visible)) .cms-mail-row__lead > .cms-avatar { visibility: hidden; }
+/* Row hover, only where hover exists: a touch screen keeps a tapped row's hover after the tap. */
+@media (hover: hover) and (pointer: fine) {
+    .cms-list__row:hover { background: var(--cms-surface-hover); }
+    .cms-notification__row:hover { background: var(--cms-hover-bg); }
+    .cms-mail-row:hover { background: var(--cms-surface-muted); }
+    .cms-mail-row:hover .cms-mail-row__check { opacity: 1; }
+    .cms-mail-row:hover .cms-mail-row__lead > .cms-avatar { visibility: hidden; }
+}
 .cms-mail-row.is-selected { background: var(--cms-row-selected); }
 .cms-mail-row__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; line-height: 1.5; }
 .cms-mail-row__line { display: flex; align-items: center; gap: var(--cms-space-2); min-width: 0; }
@@ -672,6 +679,8 @@
 /* Tablet and phone, the touch widths: an icons-only rail, two panes, touch targets of at least 44px. */
 @media (max-width: 1199.98px) {
     .cms-shell { grid-template-columns: var(--cms-rail-width-compact) minmax(0, 1fr); }
+    /* The mail row's checkbox is a touch target: its place is 44px, the 40px avatar centred in it. */
+    .cms-mail-row__lead { display: grid; place-items: center; width: var(--cms-touch-target-min); height: var(--cms-touch-target-min); margin: -2px; }
     .cms-shell__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .cms-shell__item { justify-content: center; min-height: var(--cms-touch-target-min); }
     .cms-shell__top { gap: var(--cms-space-3); padding: 0 var(--cms-space-4); }
