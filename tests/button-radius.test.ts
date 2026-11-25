@@ -19,6 +19,7 @@ const BUTTONS = [
     'cms-file-picker__crumb',
     'cms-file-picker__chip',
     'cms-pane-toolbar__action',
+    'cms-filter-menu',
 ];
 /** Buttons that only ever carry .cms-button beside them: their corners come from it unless they set their own. */
 const ON_A_BUTTON = ['cms-section-header__split', 'cms-screen__primary', 'cms-composer__send', 'cms-signin-form__submit', 'cms-notification__action'];
@@ -66,8 +67,7 @@ describe('one radius for every button', () => {
         expect(css).toMatch(/\.cms-section-header__split \{ border-start-start-radius: 0; border-end-start-radius: 0;/);
     });
 
-    it('filter chips stay pills and the call disc stays a circle: neither is a button of its own', () => {
-        expect(css).toMatch(/\.cms-chip \{[^}]*border-radius: var\(--cms-radius-pill\);/);
+    it('the call disc stays a circle: it is no button of its own', () => {
         expect(css).toMatch(/\.cms-call-button__disc \{[^}]*border-radius: 50%;/);
     });
 });

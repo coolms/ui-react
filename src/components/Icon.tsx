@@ -6,7 +6,7 @@ export type IconName =
     | 'inbox' | 'archive' | 'trash' | 'paperclip' | 'mic' | 'speaker' | 'user-plus' | 'phone-off' | 'video' | 'info'
     | 'chevron-down' | 'chevron-left' | 'plus' | 'folder' | 'check' | 'server' | 'reply' | 'more'
     | 'download' | 'print' | 'open-separately' | 'important' | 'forward' | 'refresh' | 'file-code' | 'mail-open' | 'copy' | 'user'
-    | 'folder-plus' | 'folder-x' | 'user-check' | 'user-x' | 'upload' | 'users' | 'settings' | 'hash';
+    | 'folder-plus' | 'folder-x' | 'user-check' | 'user-x' | 'upload' | 'users' | 'settings' | 'hash' | 'funnel';
 
 const PATHS: Readonly<Record<IconName, ReactNode>> = {
     mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
@@ -68,6 +68,8 @@ const PATHS: Readonly<Record<IconName, ReactNode>> = {
     more: <path d="M5 12h.5M12 12h.5M19 12h.5" />,
     // A number sign: a channel, by its name.
     hash: <path d="M10 4 8 20M16 4l-2 16M5 9h15M4 15h15" />,
+    // A funnel: a list's filter.
+    funnel: <path d="M4 5h16l-6 8v6l-4-2v-4Z" />,
     important: <path d="M4 6h11l5 6-5 6H4l4-6-4-6Z" />,
 };
 
@@ -147,6 +149,7 @@ export const BOOTSTRAP_ICONS: Readonly<Record<string, IconName>> = {
     images: 'image',
     paperclip: 'paperclip',
     hash: 'hash',
+    funnel: 'funnel',
 };
 
 /** The kit's icon for a server's (Bootstrap Icons) name; null for a name the table does not hold. */

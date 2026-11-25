@@ -278,7 +278,7 @@
 .cms-list__count { min-width: 18px; height: 18px; font-size: var(--cms-font-size-label-sm); }
 .cms-list__pull { display: flex; align-items: center; justify-content: center; gap: var(--cms-space-2); min-height: var(--cms-control-height-sm); overflow: hidden; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
 
-/* The screen shell (contract screen-shell): one bar, the filters, the content scrolling on its own, the primary floating
+/* The screen shell (contract screen-shell): one bar, the content scrolling on its own, the primary floating
    at the bottom right above the section bar. */
 .cms-screen { position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--cms-surface); }
 .cms-screen__bar { display: flex; flex: none; align-items: center; gap: var(--cms-space-2); height: var(--cms-topbar-height); padding: 0 var(--cms-space-2); border-bottom: 1px solid var(--cms-border-light); }
@@ -292,17 +292,25 @@
 .cms-screen__back::before { content: ""; width: 0; height: 100%; margin-inline-end: calc(-1 * var(--cms-space-1)); }
 .cms-screen__back-name { flex: 1 1 24px; min-width: 24px; max-width: max-content; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cms-screen__title { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; font-size: var(--cms-font-size-title-md); font-weight: var(--cms-font-weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
+/* The title with the filter's choice: the place's name gives way first, all of it, and only then the choice is cut. */
+.cms-screen__title--filtered { display: flex; }
+.cms-screen__title-name { flex: 0 1000000 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cms-screen__title-choice { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: pre; }
+/* The choice's name whole, measured and not drawn: it takes no room and reaches past nothing. */
+.cms-screen__ruler { position: absolute; width: 0; height: 0; overflow: hidden; font-size: var(--cms-font-size-title-md); font-weight: var(--cms-font-weight-semibold); visibility: hidden; }
+.cms-screen__ruler > span { display: inline-block; white-space: pre; }
 .cms-screen__trailing { display: flex; flex: none; align-items: center; gap: var(--cms-space-1); }
 .cms-screen__search { display: flex; flex: 1 1 auto; min-width: 0; }
 .cms-screen__search > * { flex: 1 1 auto; min-width: 0; }
 .cms-screen__icon { width: var(--cms-control-height-md); height: var(--cms-control-height-md); }
-.cms-screen__filters { flex: none; padding: var(--cms-space-2) var(--cms-space-4); }
+/* More while the filter in it is not the default one; its hover keeps the accent. */
+.cms-icon-button.cms-screen__icon.cms-screen__icon--active { background: var(--cms-accent-light); color: var(--cms-accent-text); }
 .cms-screen__content { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; }
 .cms-screen__primary { position: absolute; right: var(--cms-space-4); bottom: var(--cms-space-4); z-index: 2; width: calc(var(--cms-control-height-lg) + var(--cms-space-3)); height: calc(var(--cms-control-height-lg) + var(--cms-space-3)); min-height: 0; padding: 0; border-radius: 50%; justify-content: center; box-shadow: var(--cms-shadow-md); }
-/* bar-hidden: the bar and the filters step out of view, collapsed rather than removed, so focus can still reach them
-   (and brings them back). */
-.cms-screen[data-bar-hidden] > .cms-screen__bar, .cms-screen[data-bar-hidden] > .cms-screen__filters { height: 0; min-height: 0; padding-top: 0; padding-bottom: 0; border-bottom-width: 0; overflow: hidden; }
-@media (prefers-reduced-motion: reduce) { .cms-screen__bar, .cms-screen__filters { transition: none; animation: none; } }
+/* bar-hidden: the bar steps out of view, collapsed rather than removed, so focus can still reach it
+   (and brings it back). */
+.cms-screen[data-bar-hidden] > .cms-screen__bar { height: 0; min-height: 0; padding-top: 0; padding-bottom: 0; border-bottom-width: 0; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .cms-screen__bar { transition: none; animation: none; } }
 .cms-screen--with-primary .cms-screen__content { padding-bottom: calc(var(--cms-control-height-lg) + var(--cms-space-3) + 2 * var(--cms-space-4)); }
 
 /* Avatar */
@@ -351,6 +359,11 @@
 /* An item's icon and its words share one line, centred on each other. */
 .cms-menu__label { display: flex; flex: 1; align-items: center; gap: 8px; min-width: 0; }
 .cms-menu__label > svg { flex: none; }
+/* A single choice's mark: its place is kept on every choice, so the labels line up. */
+.cms-menu__check { display: inline-flex; flex: none; width: 16px; color: var(--cms-accent-text); }
+/* A group of choices among other items: a line before it, its name over it. */
+.cms-menu__separator { height: 1px; margin: var(--cms-space-1) 0; background: var(--cms-border); }
+.cms-menu__group { padding: var(--cms-space-1) 10px; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
 .cms-menu__item.is-danger { color: var(--cms-danger-text); }
 .cms-menu__item.is-refused { color: var(--cms-text-muted); cursor: not-allowed; }
 .cms-menu__refusal { font-size: 0.8125em; }
@@ -380,7 +393,7 @@
  */
 .cms-icon { flex: none; }
 .cms-icon--blank { display: inline-block; }
-:where(.cms-shell__item, .cms-chip, .cms-mail-row__open, .cms-mail-row__check, .cms-call-button, .cms-call-bar__icon, .cms-composer__send-round, .cms-signin-form__show):focus-visible {
+:where(.cms-shell__item, .cms-filter-menu, .cms-mail-row__open, .cms-mail-row__check, .cms-call-button, .cms-call-bar__icon, .cms-composer__send-round, .cms-signin-form__show):focus-visible {
     outline: 2px solid var(--cms-focus-ring);
     outline-offset: 2px;
 }
@@ -453,14 +466,17 @@
 .cms-search__input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--cms-text); font: inherit; outline: none; }
 .cms-search__input::placeholder { color: var(--cms-text-muted); }
 
-/* Filter chips */
-/* Chips are never cut off: those that do not fit the row wrap onto the next line, each chip whole. */
-/* The group keeps its whole width beside what its row holds; a row that wraps puts it on its own line below, where
-   its chips wrap in turn. */
-.cms-chips { display: flex; flex: none; flex-wrap: wrap; gap: var(--cms-space-2); max-width: 100%; min-width: 0; }
-.cms-chips > .cms-chip { flex: none; max-width: 100%; }
-.cms-chip { display: inline-flex; align-items: center; gap: var(--cms-space-1); height: 32px; padding: 0 var(--cms-space-4); border: 1px solid var(--cms-border); border-radius: var(--cms-radius-pill); background: var(--cms-surface); color: var(--cms-text-body); font: inherit; font-size: var(--cms-font-size-meta); cursor: pointer; }
-.cms-chip.is-on { border-color: var(--cms-button-chrome-bg); background: var(--cms-button-chrome-bg); color: var(--cms-on-chrome); font-weight: var(--cms-font-weight-semibold); }
+/* The filter (contract filter-menu): on the default choice the funnel alone, on any other the choice's name in the
+   accent: whole, up to the button's most width, then cut with an ellipsis, so a very long one leaves the list's name room. */
+.cms-filter-menu { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: var(--cms-space-1); box-sizing: border-box; width: var(--cms-control-height-md); height: var(--cms-control-height-md); padding: 0; border: 0; border-radius: var(--cms-radius-control); background: transparent; color: var(--cms-text-muted); font: inherit; white-space: nowrap; cursor: pointer; }
+.cms-filter-menu--active { background: var(--cms-accent-light); color: var(--cms-accent-text); }
+.cms-filter-menu--named { width: auto; max-width: 176px; padding: 0 var(--cms-space-2) 0 var(--cms-space-3); }
+.cms-filter-menu__choice { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* A list's second row: the name gives way, the filter keeps its place and its whole width. */
+.cms-list-head { display: flex; align-items: center; gap: var(--cms-space-2); box-sizing: border-box; width: 100%; min-width: 0; height: var(--cms-pane-header-height); min-height: var(--cms-pane-header-height); }
+.cms-list-head__leading { display: inline-flex; flex: none; align-items: center; }
+.cms-list-head__name { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; color: var(--cms-text); font-size: var(--cms-font-size-title-lg); font-weight: var(--cms-font-weight-bold); text-overflow: ellipsis; white-space: nowrap; }
 
 /* Panes */
 .cms-panes { display: grid; height: 100%; min-height: 0; }
@@ -518,7 +534,7 @@
 .cms-mail-row:is(.is-selecting, .is-checked, :has(:focus-visible)) .cms-mail-row__check { opacity: 1; }
 .cms-mail-row:is(.is-selecting, .is-checked, :has(:focus-visible)) .cms-mail-row__lead > .cms-avatar { visibility: hidden; }
 /* Hover, only where hover exists: a touch screen keeps a tapped control's hover after the tap (a row's tint, an
-   icon button's, a chip's, a toolbar action's tooltip). */
+   icon button's, a filter's, a toolbar action's tooltip). */
 @media (hover: hover) and (pointer: fine) {
     .cms-list__row:not(.is-selected):hover { background: var(--cms-surface-hover); }
     .cms-notification__row:hover { background: var(--cms-hover-bg); }
@@ -527,7 +543,7 @@
     .cms-mail-row:hover .cms-mail-row__lead > .cms-avatar { visibility: hidden; }
     .cms-icon-button:hover { background: var(--cms-hover-bg); color: var(--cms-text); }
     .cms-screen__back:hover { background: var(--cms-hover-bg); color: var(--cms-text); }
-    .cms-chip:not(.is-on):hover { background: var(--cms-surface-muted); }
+    .cms-filter-menu:not(.cms-filter-menu--active):hover { background: var(--cms-hover-bg); color: var(--cms-text); }
     .cms-pane-toolbar__action:hover:not([aria-disabled='true']) { background: var(--cms-btn-hover-bg); }
     .cms-pane-toolbar__more:hover { background: var(--cms-btn-hover-bg); }
     .cms-pane-toolbar__action:hover > .cms-pane-toolbar__tip { display: block; }
@@ -696,15 +712,14 @@
     .cms-shell__item { justify-content: center; min-height: var(--cms-touch-target-min); }
     .cms-shell__top { gap: var(--cms-space-3); padding: 0 var(--cms-space-4); }
     .cms-shell__search { min-width: 0; }
-    .cms-chip, .cms-tab, .cms-menu__item, .cms-list__row, .cms-panes__back, .cms-server-switch { min-height: var(--cms-touch-target-min); }
-    .cms-icon-button { min-width: var(--cms-touch-target-min); min-height: var(--cms-touch-target-min); }
+    .cms-tab, .cms-menu__item, .cms-list__row, .cms-panes__back, .cms-server-switch { min-height: var(--cms-touch-target-min); }
+    .cms-icon-button, .cms-filter-menu { min-width: var(--cms-touch-target-min); min-height: var(--cms-touch-target-min); }
     .cms-search { height: var(--cms-touch-target-min); }
     .cms-search__input { align-self: stretch; }
     .cms-signin-form__show { display: inline-flex; align-items: center; justify-content: center; min-width: var(--cms-touch-target-min); min-height: var(--cms-touch-target-min); right: 0; }
     .cms-signin-form__forgot { display: inline-flex; align-items: center; min-height: var(--cms-touch-target-min); }
     .cms-call-bar { flex-wrap: wrap; }
     .cms-call-bar__icon { width: var(--cms-touch-target-min); height: var(--cms-touch-target-min); }
-    .cms-chip { height: auto; }
     .cms-panes--two, .cms-panes--three, .cms-panes--sized.cms-panes--two, .cms-panes--sized.cms-panes--three { grid-template-columns: minmax(0, 320px) minmax(0, 1fr); }
     .cms-splitter { display: none; }
     .cms-panes__pane { display: none; }

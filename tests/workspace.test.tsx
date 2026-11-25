@@ -12,7 +12,6 @@ import {
     ChatBubble,
     Composer,
     ConfirmDialog,
-    FilterChips,
     ICON_NAMES,
     Icon,
     iconForName,
@@ -116,77 +115,6 @@ describe('SearchField', () => {
         expect(screen.getByRole('search')).toBeInTheDocument();
         await userEvent.type(screen.getByRole('searchbox', { name: 'Search' }), 'agenda{Enter}');
         expect(onSearch).toHaveBeenCalledWith('agenda');
-    });
-});
-
-describe('FilterChips', () => {
-    it('is a radio group; a press and the arrow keys change the filter', async () => {
-        function Controlled() {
-            const [v, setV] = useState('all');
-            return <FilterChips label="Show" value={v} onChange={setV} options={[{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }, { id: 'files', label: 'Attachments' }]} />;
-        }
-        render(<Controlled />);
-        expect(screen.getByRole('radiogroup', { name: 'Show' })).toBeInTheDocument();
-        expect(screen.getByRole('radio', { name: 'All' })).toBeChecked();
-        await userEvent.click(screen.getByRole('radio', { name: 'Unread' }));
-        expect(screen.getByRole('radio', { name: 'Unread' })).toBeChecked();
-        await userEvent.keyboard('{ArrowRight}');
-        expect(screen.getByRole('radio', { name: 'Attachments' })).toBeChecked();
-        expect(screen.getByRole('radio', { name: 'Attachments' })).toHaveFocus();
-        await userEvent.keyboard('{ArrowRight}');
-        expect(screen.getByRole('radio', { name: 'All' })).toBeChecked();
-    });
-
-    it('marks the selected chip with a check as well as its fill, and only that one', async () => {
-        function Controlled() {
-            const [v, setV] = useState('all');
-            return <FilterChips label="Show" value={v} onChange={setV} options={[{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }]} />;
-        }
-        render(<Controlled />);
-        const marks = () => screen.getAllByRole('radio').map(r => r.querySelector('svg') !== null);
-        expect(marks()).toEqual([true, false]);
-        await userEvent.click(screen.getByRole('radio', { name: 'Unread' }));
-        expect(marks()).toEqual([false, true]);
-    });
-
-    const five = [{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }, { id: 'files', label: 'Attachments' }, { id: 'flagged', label: 'Flagged' }, { id: 'mine', label: 'To me' }];
-    // Every rule of the stylesheet that names the chips' row, as written.
-    const chipRules = [...kitCss.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)]
-        .filter(([, selector]) => /\.cms-chips\b/.test(selector ?? ''))
-        .map(([, selector, body]) => `${(selector ?? '').trim()} {${body ?? ''}}`);
-
-    it('chips that do not fit the row wrap onto the next line, each whole: nothing scrolls sideways, is clipped or fades', () => {
-        render(<FilterChips label="Show" value="all" onChange={() => undefined} options={five} />);
-        const row = screen.getByRole('radiogroup', { name: 'Show' });
-        expect(row.className).toBe('cms-chips');
-        expect(row).not.toHaveAttribute('data-scrolls-sideways');
-        expect(chipRules.length).toBeGreaterThan(0);
-        expect(kitCss).toMatch(/\.cms-chips \{[^}]*flex-wrap: wrap;/);
-        for (const rule of chipRules) {
-            expect(rule).not.toMatch(/overflow|mask-image|nowrap|is-past/);
-        }
-        // A chip keeps its size: it is never squeezed to fit beside the others.
-        expect(kitCss).toMatch(/\.cms-chips > \.cms-chip \{[^}]*flex: none;/);
-        // The screen shell's filters row lets them wrap, too: it does not scroll sideways either.
-        expect(kitCss).toMatch(/\.cms-screen__filters \{[^}]*\}/);
-        expect(/\.cms-screen__filters \{([^}]*)\}/.exec(kitCss)?.[1]).not.toMatch(/overflow/);
-    });
-
-    it('the arrow keys keep moving the choice, wrapping at the ends, whatever line a chip is on', async () => {
-        function Controlled() {
-            const [v, setV] = useState('mine');
-            return <FilterChips label="Show" value={v} onChange={setV} options={five} />;
-        }
-        render(<Controlled />);
-        screen.getByRole('radio', { name: 'To me' }).focus();
-        await userEvent.keyboard('{ArrowDown}');
-        expect(screen.getByRole('radio', { name: 'All' })).toBeChecked();
-        expect(screen.getByRole('radio', { name: 'All' })).toHaveFocus();
-        await userEvent.keyboard('{ArrowUp}');
-        expect(screen.getByRole('radio', { name: 'To me' })).toHaveFocus();
-        await userEvent.keyboard('{ArrowLeft}');
-        expect(screen.getByRole('radio', { name: 'Flagged' })).toBeChecked();
-        expect(screen.getAllByRole('radio').filter((r) => r.tabIndex === 0)).toHaveLength(1);
     });
 });
 

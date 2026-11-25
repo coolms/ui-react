@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
+import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { Icon, type IconName } from './Icon.js';
 import { Splitter, readSplitterWidth } from './Splitter.js';
 import { cx, withDefaults } from './internal.js';
@@ -128,65 +128,6 @@ export function SearchField({ label, placeholder, value, onChange, onSearch }: S
                 onChange={e => onChange(e.target.value)}
             />
         </form>
-    );
-}
-
-export interface FilterOption {
-    readonly id: string;
-    readonly label: string;
-}
-
-export interface FilterChipsProps {
-    readonly options: readonly FilterOption[];
-    readonly value: string;
-    readonly onChange: (id: string) => void;
-    /** What the chips filter ("Show"). */
-    readonly label: string;
-}
-
-/**
- * One of a few filters, as pills; arrow keys move between them, as a radio group does. Chips are never cut off: those
- * that do not fit the row wrap onto the next line, each chip whole.
- */
-export function FilterChips({ options, value, onChange, label }: FilterChipsProps): ReactNode {
-    const refs = useRef<Array<HTMLButtonElement | null>>([]);
-    const onKey = (e: KeyboardEvent, i: number) => {
-        const last = options.length - 1;
-        const to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (i === last ? 0 : i + 1)
-            : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (i === 0 ? last : i - 1)
-            : null;
-        if (to === null) return;
-        e.preventDefault();
-        const option = options[to];
-        if (option) {
-            onChange(option.id);
-            refs.current[to]?.focus();
-        }
-    };
-    return (
-        <div className="cms-chips" role="radiogroup" aria-label={label}>
-            {options.map((o, i) => {
-                const on = o.id === value;
-                return (
-                    <button
-                        key={o.id}
-                        ref={el => {
-                            refs.current[i] = el;
-                        }}
-                        type="button"
-                        role="radio"
-                        aria-checked={on}
-                        tabIndex={on ? 0 : -1}
-                        className={cx('cms-chip', on && 'is-on')}
-                        onClick={() => onChange(o.id)}
-                        onKeyDown={e => onKey(e, i)}
-                    >
-                        {on ? <Icon name="check" size={16} /> : null}
-                        {o.label}
-                    </button>
-                );
-            })}
-        </div>
     );
 }
 
