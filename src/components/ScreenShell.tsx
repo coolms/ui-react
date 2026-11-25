@@ -312,8 +312,11 @@ export function ScreenShell({ title, back, navigation, search, searching, more =
                 </div>
                 {choice === null ? <h1 className="cms-screen__title" title={title}>{title}</h1> : (
                     <h1 className="cms-screen__title cms-screen__title--filtered" title={title + choiceText}>
-                        <span className="cms-screen__title-name">{title}</span>
-                        <span className="cms-screen__title-choice">{choiceText}</span>
+                        <span className="cms-screen__title-place">
+                            <span className="cms-screen__title-name">{title}</span>
+                            <span className="cms-screen__title-dot">{' \u00b7 '}</span>
+                        </span>
+                        <span className="cms-screen__title-choice">{choice.label}</span>
                     </h1>
                 )}
                 {withFilter && withMore ? (

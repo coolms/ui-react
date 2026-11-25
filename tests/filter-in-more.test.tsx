@@ -303,12 +303,16 @@ describe('the filter in More', () => {
 
     it('the title: the place\'s name gives way first, then the choice\'s, in a bar with More or without', () => {
         const rule = (selector: string) => new RegExp(`\\n${selector.replace('.', '\\.')} \\{([^}]*)\\}`).exec(kitCss)?.[1] ?? '';
-        expect(rule('.cms-screen__title-name')).toMatch(/flex: 0 1000000 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;/);
-        expect(rule('.cms-screen__title-choice')).toMatch(/flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;/);
+        expect(rule('.cms-screen__title--filtered')).toMatch(/flex-wrap: wrap-reverse; align-content: flex-end; height: 1lh; overflow: hidden; overflow: clip;/);
+        expect(rule('.cms-screen__title-place')).toMatch(/flex: 1 1 40px; min-width: 0; max-width: max-content;/);
+        expect(rule('.cms-screen__title-name')).toMatch(/flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;/);
+        expect(rule('.cms-screen__title-dot')).toMatch(/flex: none; white-space: pre;/);
+        expect(rule('.cms-screen__title-choice')).toMatch(/flex: 0 1 auto; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis;/);
         barWidth = 300;
         for (const more of [[], [settings]]) {
             const { unmount } = render(<Shell start="files" more={more} />);
-            expect([...screen.getByRole('heading', { level: 1 }).children].map((s) => s.className)).toEqual(['cms-screen__title-name', 'cms-screen__title-choice']);
+            expect([...screen.getByRole('heading', { level: 1 }).children].map((s) => s.className)).toEqual(['cms-screen__title-place', 'cms-screen__title-choice']);
+            expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Inbox \u00b7 Attachments');
             expect(screen.getByRole('heading', { level: 1 })).toHaveAttribute('title', 'Inbox · Attachments');
             unmount();
         }

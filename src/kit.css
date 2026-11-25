@@ -292,10 +292,14 @@
 .cms-screen__back::before { content: ""; width: 0; height: 100%; margin-inline-end: calc(-1 * var(--cms-space-1)); }
 .cms-screen__back-name { flex: 1 1 24px; min-width: 24px; max-width: max-content; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cms-screen__title { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; font-size: var(--cms-font-size-title-md); font-weight: var(--cms-font-weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
-/* The title with the filter's choice: the place's name gives way first, all of it, and only then the choice is cut. */
-.cms-screen__title--filtered { display: flex; }
-.cms-screen__title-name { flex: 0 1000000 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.cms-screen__title-choice { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: pre; }
+/* The title with the filter's choice: the place's name gives way first, down to 24px of it; with less it is not drawn,
+   nor its dot, and the choice has the whole title, cut last. The title is one line: the place and its dot wrap under it
+   and are clipped there, so they stay in the text. Their share of the line is theirs up to what they need. */
+.cms-screen__title--filtered { display: flex; flex-wrap: wrap-reverse; align-content: flex-end; height: 1lh; overflow: hidden; overflow: clip; }
+.cms-screen__title-place { display: flex; flex: 1 1 40px; min-width: 0; max-width: max-content; }
+.cms-screen__title-name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cms-screen__title-dot { flex: none; white-space: pre; }
+.cms-screen__title-choice { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 /* The place's name and the choice's whole, measured and not drawn: it takes no room and reaches past nothing. */
 .cms-screen__ruler { position: absolute; width: 0; height: 0; overflow: hidden; font-size: var(--cms-font-size-title-md); font-weight: var(--cms-font-weight-semibold); visibility: hidden; }
 .cms-screen__ruler > span { display: inline-block; white-space: pre; }

@@ -81,14 +81,14 @@ describe('ScreenShell', () => {
             const title = screen.getByRole('heading', { level: 1 });
             expect(title.textContent).toBe('Inbox \u00b7 Unread');
             expect(title).toHaveAttribute('title', 'Inbox \u00b7 Unread');
-            expect([...title.children].map((s) => [s.className, s.textContent])).toEqual([['cms-screen__title-name', 'Inbox'], ['cms-screen__title-choice', ' \u00b7 Unread']]);
+            expect([...title.children].map((s) => [s.className, s.textContent])).toEqual([['cms-screen__title-place', 'Inbox \u00b7 '], ['cms-screen__title-choice', 'Unread']]);
         });
 
-        it('filtered: the name gives way first, all of it, before the choice does; Back\'s name gives way before both', () => {
+        it('filtered: the name gives way first, and goes with its dot before the choice is cut; Back\'s name gives way before both', () => {
             const rule = (selector: string) => new RegExp(`\\n${selector.replace('.', '\\.')} \\{([^}]*)\\}`).exec(kitCss)?.[1] ?? '';
-            expect(rule('.cms-screen__title--filtered')).toMatch(/display: flex;/);
-            expect(rule('.cms-screen__title-name')).toMatch(/flex: 0 1000000 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;/);
-            expect(rule('.cms-screen__title-choice')).toMatch(/flex: 0 1 auto;[^}]*white-space: pre;/);
+            expect(rule('.cms-screen__title--filtered')).toMatch(/display: flex; flex-wrap: wrap-reverse; align-content: flex-end; height: 1lh; overflow: hidden; overflow: clip;/);
+            expect(rule('.cms-screen__title-place')).toMatch(/flex: 1 1 40px; min-width: 0; max-width: max-content;/);
+            expect(rule('.cms-screen__title-choice')).toMatch(/flex: 0 1 auto; min-width: 0; max-width: 100%;/);
             expect(rule('.cms-screen__leading')).toMatch(/flex: 0 1000000 auto;/);
             expect(rule('.cms-screen__title')).toMatch(/flex: 1 1 auto; min-width: 0;/);
         });
