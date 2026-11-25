@@ -8,10 +8,12 @@ export { FilePicker, FilePickerDenied, FilePickerRestart, type FilePickerBudget,
 export { SectionHeader, type SectionHeaderProps, type SectionPrimary } from './components/SectionHeader.js';
 export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps, type AvatarPresence, type AvatarConnection } from './components/Structure.js';
 export { Icon, ICON_NAMES, BOOTSTRAP_ICONS, NamedIcon, iconForName, type IconName, type IconProps } from './components/Icon.js';
-export { AppShell, Badge, SearchField, FilterChips, SplitPanes, fitPanes, MailRow, ChatBubble, Composer, MAIL_ROW_LABELS, type MailRowLabels, type AppShellProps, type RailItem, type BadgeProps, type SearchFieldProps, type FilterChipsProps, type FilterOption, type SplitPanesProps, type PaneSize, type Pane, type MailRowProps, type ChatBubbleProps, type ComposerProps } from './components/Workspace.js';
+export { AppShell, Badge, SearchField, SplitPanes, fitPanes, MailRow, ChatBubble, Composer, MAIL_ROW_LABELS, type MailRowLabels, type AppShellProps, type RailItem, type BadgeProps, type SearchFieldProps, type SplitPanesProps, type PaneSize, type Pane, type MailRowProps, type ChatBubbleProps, type ComposerProps } from './components/Workspace.js';
 export { IncomingCall, CallPanel, CallBar, CALL_LABELS, type CallLabels, type IncomingCallProps, type CallPanelProps, type CallBarProps } from './components/Call.js';
 export { SignInLayout, SignInForm, SIGN_IN_LABELS, type SignInLabels, type SignInLayoutProps, type SignInFormProps, type SignInFeature } from './components/SignIn.js';
 export { List, ContextMenu, type ListRow, type ListProps, type MenuItem, type ContextMenuProps } from './components/Collections.js';
+export { FilterMenu, FILTER_MENU_LABELS, type FilterMenuLabels, type FilterMenuProps, type FilterOption, type ListFilter } from './components/FilterMenu.js';
+export { ListHead, type ListHeadProps } from './components/ListHead.js';
 export { PaneToolbar, type PaneToolbarAction, type PaneToolbarEntry, type PaneToolbarProps } from './components/PaneToolbar.js';
 export { Splitter, type SplitterProps } from './components/Splitter.js';
 export { Notification, type NotificationAction, type NotificationProps } from './components/Notification.js';

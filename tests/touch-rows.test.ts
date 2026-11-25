@@ -28,7 +28,7 @@ function split(): { top: string; hover: string } {
 
 describe('list rows on a touch screen', () => {
     const { top, hover } = split();
-    const rows = ['.cms-list__row', '.cms-mail-row', '.cms-notification__row', '.cms-icon-button', '.cms-screen__back', '.cms-chip', '.cms-pane-toolbar__action'];
+    const rows = ['.cms-list__row', '.cms-mail-row', '.cms-notification__row', '.cms-icon-button', '.cms-screen__back', '.cms-filter-menu', '.cms-pane-toolbar__action'];
 
     it('no row hovers outside the fine-pointer hover query', () => {
         for (const row of rows) expect(top, row).not.toMatch(new RegExp(`${row.replace('.', '\\.')}[^{]*:hover`));
@@ -39,9 +39,9 @@ describe('list rows on a touch screen', () => {
         // A selected list row keeps its fill under the pointer, as it did when hover came before it.
         expect(hover).toContain('.cms-list__row:not(.is-selected):hover {');
         expect(hover).not.toMatch(/\.cms-list__row:hover/);
-        // The chosen chip keeps its own fill under the pointer: the hover rule comes after it, so it names the others only.
-        expect(hover).toContain('.cms-chip:not(.is-on):hover {');
-        expect(hover).not.toMatch(/\.cms-chip:hover/);
+        // An active filter keeps its own fill under the pointer: the hover rule comes after it, so it names the others only.
+        expect(hover).toContain('.cms-filter-menu:not(.cms-filter-menu--active):hover {');
+        expect(hover).not.toMatch(/\.cms-filter-menu:hover/);
         expect(hover).toContain('.cms-pane-toolbar__action:hover > .cms-pane-toolbar__tip { display: block; }');
         expect(hover).toMatch(/\.cms-mail-row:hover \.cms-mail-row__check \{ opacity: 1; \}/);
     });
