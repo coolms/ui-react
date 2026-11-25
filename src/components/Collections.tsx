@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import type { Offer } from '../server/capability.js';
 import { EmptyState, ErrorBanner, Loading } from './Status.js';
@@ -117,6 +117,10 @@ export interface MenuItem {
     readonly offer: Offer;
     /** Destroys or cannot be undone. */
     readonly danger?: boolean;
+    /** Given, the item is one choice of a single choice: the current one (marked) or not. Not given, a plain item. */
+    readonly checked?: boolean;
+    /** The group it is in: the items of one group, beside each other, are drawn under its name, apart from the rest. */
+    readonly group?: string;
     readonly onSelect: () => void;
 }
 
@@ -127,8 +131,11 @@ export interface ContextMenuProps {
     readonly items: readonly MenuItem[];
     readonly onClose: () => void;
     readonly label?: string;
-    /** The item focused as it opens: the first, or the last (a menu button opened with Up). */
-    readonly focus?: 'first' | 'last';
+    /**
+     * The item focused as it opens: the current choice (the first item without one), the first, or the last (a menu
+     * button opened with Up).
+     */
+    readonly focus?: 'current' | 'first' | 'last';
 }
 
 /**
@@ -136,8 +143,10 @@ export interface ContextMenuProps {
  * item-disabled). An item the server withheld is not drawn; a locked one carries its lock; a refused or disabled one
  * stays in the menu, reached by the arrow keys, aria-disabled, with the server's reason under its label and as its
  * description; choosing it does nothing and the menu stays open. Escape, a press outside, or a choice closes it, and focus goes back where it was.
+ * Items with `checked` are a single choice: each a menuitemradio, the current one with a check mark.
+ * Items of one `group` are a group named by it, under its name and a line.
  */
-export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'first' }: ContextMenuProps): ReactNode {
+export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'current' }: ContextMenuProps): ReactNode {
     const menu = useRef<HTMLDivElement>(null);
     const returnTo = useRef<Element | null>(null);
     const reasons = useId();
@@ -156,8 +165,9 @@ export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'fi
     useEffect(() => {
         if (!at) return;
         returnTo.current = document.activeElement;
-        const enabled = Array.from(menu.current?.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])') ?? []);
-        (focus === 'last' ? enabled[enabled.length - 1] : enabled[0])?.focus();
+        const enabled = Array.from(menu.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]:not([aria-disabled="true"])') ?? []);
+        const current = focus === 'current' ? enabled.find(i => i.getAttribute('aria-checked') === 'true') : undefined;
+        (focus === 'last' ? enabled[enabled.length - 1] : current ?? enabled[0])?.focus();
         const outside = (e: MouseEvent) => {
             if (!menu.current?.contains(e.target as Node)) onClose();
         };
@@ -171,7 +181,7 @@ export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'fi
     if (!at || shown.length === 0) return null;
 
     const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
-        const all = Array.from(menu.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+        const all = Array.from(menu.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? []);
         const i = all.indexOf(document.activeElement as HTMLElement);
         if (e.key === 'Escape' || e.key === 'Tab') {
             e.preventDefault();
@@ -183,6 +193,46 @@ export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'fi
         }
     };
 
+    const draw = (item: MenuItem) => {
+        const refused = item.offer.refusal !== undefined;
+        return (
+            <div
+                key={item.id}
+                role={item.checked === undefined ? 'menuitem' : 'menuitemradio'}
+                aria-checked={item.checked}
+                tabIndex={-1}
+                aria-disabled={refused || undefined}
+                aria-describedby={refused ? `${reasons}-${item.id}` : undefined}
+                title={refused ? item.offer.refusal : undefined}
+                className={cx('cms-menu__item', item.danger && 'is-danger', item.offer.locked && 'is-locked', refused && 'is-refused')}
+                onClick={() => {
+                    if (refused) return;
+                    onClose();
+                    item.onSelect();
+                }}
+                onKeyDown={e => {
+                    if ((e.key === 'Enter' || e.key === ' ') && !refused) {
+                        e.preventDefault();
+                        onClose();
+                        item.onSelect();
+                    }
+                }}
+            >
+                {item.checked !== undefined ? <span className="cms-menu__check">{item.checked ? <Glyph name="check" /> : null}</span> : null}
+                {item.offer.locked ? <Glyph name="lock" /> : null}
+                <span className="cms-menu__label">{item.label}</span>
+                {refused ? <span id={`${reasons}-${item.id}`} className="cms-menu__refusal">{item.offer.refusal}</span> : null}
+            </div>
+        );
+    };
+    // The items in their order, each run of one group together.
+    const runs: { readonly group: string | undefined; readonly items: MenuItem[] }[] = [];
+    for (const item of shown) {
+        const last = runs[runs.length - 1];
+        if (last !== undefined && last.group === item.group) last.items.push(item);
+        else runs.push({ group: item.group, items: [item] });
+    }
+
     return createPortal(
         <div
             ref={menu}
@@ -193,36 +243,17 @@ export function ContextMenu({ at, items, onClose, label = 'Actions', focus = 'fi
             onKeyDown={onKey}
             onContextMenu={e => e.preventDefault()}
         >
-            {shown.map(item => {
-                const refused = item.offer.refusal !== undefined;
-                return (
-                    <div
-                        key={item.id}
-                        role="menuitem"
-                        tabIndex={-1}
-                        aria-disabled={refused || undefined}
-                        aria-describedby={refused ? `${reasons}-${item.id}` : undefined}
-                        title={refused ? item.offer.refusal : undefined}
-                        className={cx('cms-menu__item', item.danger && 'is-danger', item.offer.locked && 'is-locked', refused && 'is-refused')}
-                        onClick={() => {
-                            if (refused) return;
-                            onClose();
-                            item.onSelect();
-                        }}
-                        onKeyDown={e => {
-                            if ((e.key === 'Enter' || e.key === ' ') && !refused) {
-                                e.preventDefault();
-                                onClose();
-                                item.onSelect();
-                            }
-                        }}
-                    >
-                        {item.offer.locked ? <Glyph name="lock" /> : null}
-                        <span className="cms-menu__label">{item.label}</span>
-                        {refused ? <span id={`${reasons}-${item.id}`} className="cms-menu__refusal">{item.offer.refusal}</span> : null}
-                    </div>
-                );
-            })}
+            {runs.map((run, i) => (
+                <Fragment key={i}>
+                    {i > 0 ? <div className="cms-menu__separator" role="separator" /> : null}
+                    {run.group === undefined ? run.items.map(draw) : (
+                        <div role="group" aria-label={run.group}>
+                            <div className="cms-menu__group" aria-hidden="true">{run.group}</div>
+                            {run.items.map(draw)}
+                        </div>
+                    )}
+                </Fragment>
+            ))}
         </div>,
         document.body,
     );

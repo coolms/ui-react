@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import kitCss from '../src/kit.css?raw';
-import { Avatar, List, PULL_AT, ScreenShell } from '../src';
+import { Avatar, List, PULL_AT, ScreenShell, type ListFilter } from '../src';
 
 describe('ScreenShell', () => {
     it('one bar: at a root the section\'s navigation, the title, then search and the shell\'s own icons, and no Back', () => {
@@ -44,15 +44,104 @@ describe('ScreenShell', () => {
         expect(onClose).toHaveBeenCalledOnce();
     });
 
-    it('filters: chips under the bar, exactly one selected; a choice says its id', async () => {
-        const onSelect = vi.fn();
-        render(
-            <ScreenShell title="Chat" filters={{ label: 'Show', options: [{ id: 'all', label: 'All' }, { id: 'direct', label: 'Direct' }], selected: 'all', onSelect }}>
-                <p />
-            </ScreenShell>,
-        );
-        await userEvent.click(screen.getByRole('radio', { name: 'Direct' }));
-        expect(onSelect).toHaveBeenCalledWith('direct');
+    describe('filter', () => {
+        const filter = (value: string, onChange: (id: string) => void = () => undefined): ListFilter => ({
+            label: 'Show', options: [{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }], value, defaultValue: 'all', onChange,
+        });
+        const more = [{ id: 'settings', label: 'Mail settings', offer: { offered: true, locked: false }, onSelect: () => undefined }];
+
+        it('an icon in the bar, after the search and before More and the shell\'s own icons; no row of its own; a choice says its id', async () => {
+            const onChange = vi.fn();
+            const { container } = render(
+                <ScreenShell title="Inbox" search={{ label: 'Search mail', onOpen: () => undefined }} more={more} filter={filter('all', onChange)} globals={<button type="button">Notifications</button>}>
+                    <p />
+                </ScreenShell>,
+            );
+            const trailing = container.querySelector<HTMLElement>('.cms-screen__trailing')!;
+            expect(within(trailing).getAllByRole('button').map((b) => b.getAttribute('aria-label') ?? b.textContent)).toEqual(['Search mail', 'Show: All', 'More actions', 'Notifications']);
+            expect([...container.querySelector('.cms-screen')!.children].map((c) => c.className)).toEqual(['cms-screen__bar', 'cms-screen__content']);
+            await userEvent.click(screen.getByRole('button', { name: 'Show: All' }));
+            await userEvent.click(screen.getByRole('menuitemradio', { name: 'Unread' }));
+            expect(onChange.mock.calls).toEqual([['unread']]);
+        });
+
+        it('the default choice leaves the icon and the title plain', () => {
+            render(<ScreenShell title="Inbox" filter={filter('all')}><p /></ScreenShell>);
+            expect(screen.getByRole('button', { name: 'Show: All' })).not.toHaveClass('cms-filter-menu--active');
+            const title = screen.getByRole('heading', { level: 1 });
+            expect(title).toHaveTextContent(/^Inbox$/);
+            expect(title).toHaveAttribute('title', 'Inbox');
+        });
+
+        it('filtered: the icon alone in the accent, and the title reads the name, then the choice', () => {
+            render(<ScreenShell title="Inbox" filter={filter('unread')}><p /></ScreenShell>);
+            const button = screen.getByRole('button', { name: 'Show: Unread' });
+            expect(button).toHaveClass('cms-filter-menu--active');
+            expect(button).toHaveTextContent('');
+            const title = screen.getByRole('heading', { level: 1 });
+            expect(title.textContent).toBe('Inbox \u00b7 Unread');
+            expect(title).toHaveAttribute('title', 'Inbox \u00b7 Unread');
+            expect([...title.children].map((s) => [s.className, s.textContent])).toEqual([['cms-screen__title-place', 'Inbox \u00b7 '], ['cms-screen__title-choice', 'Unread']]);
+        });
+
+        it('filtered: the name gives way first, and goes with its dot before the choice is cut; Back\'s name gives way before both', () => {
+            const rule = (selector: string) => new RegExp(`\\n${selector.replace('.', '\\.')} \\{([^}]*)\\}`).exec(kitCss)?.[1] ?? '';
+            expect(rule('.cms-screen__title--filtered')).toMatch(/display: flex; flex-wrap: wrap-reverse; align-content: flex-end; height: 1lh; overflow: hidden; overflow: clip;/);
+            expect(rule('.cms-screen__title-place')).toMatch(/flex: 1 1 40px; min-width: 0; max-width: max-content;/);
+            expect(rule('.cms-screen__title-choice')).toMatch(/flex: 0 1 auto; min-width: 0; max-width: 100%;/);
+            expect(rule('.cms-screen__leading')).toMatch(/flex: 0 1000000 auto;/);
+            expect(rule('.cms-screen__title')).toMatch(/flex: 1 1 auto; min-width: 0;/);
+        });
+
+        it('fewer than two choices: no icon, and the title says the name alone', () => {
+            render(<ScreenShell title="Inbox" filter={{ ...filter('unread'), options: [{ id: 'unread', label: 'Unread' }] }}><p /></ScreenShell>);
+            expect(screen.queryByRole('button')).toBeNull();
+            expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/^Inbox$/);
+        });
+
+        it('no choices at all are choices not known yet: no icon, the plain title, nothing said; the kept one stands when they come', () => {
+            const onChange = vi.fn();
+            const { rerender } = render(<ScreenShell title="Inbox" filter={{ ...filter('unread', onChange), options: [] }}><p /></ScreenShell>);
+            expect(screen.queryByRole('button')).toBeNull();
+            expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/^Inbox$/);
+            rerender(<ScreenShell title="Inbox" filter={filter('unread', onChange)}><p /></ScreenShell>);
+            expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Inbox \u00b7 Unread');
+            expect(onChange).not.toHaveBeenCalled();
+        });
+
+        it('a value that names no choice reads as the default and is said once, the search open or not', () => {
+            const onChange = vi.fn();
+            const searching = { field: <input aria-label="Search" />, closeLabel: 'Close', onClose: () => undefined };
+            const { rerender } = render(<ScreenShell title="Inbox" filter={filter('gone', onChange)} searching={searching}><p /></ScreenShell>);
+            expect(onChange.mock.calls).toEqual([['all']]);
+            rerender(<ScreenShell title="Inbox" filter={filter('gone', onChange)}><p /></ScreenShell>);
+            expect(onChange.mock.calls).toEqual([['all']]);
+            expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/^Inbox$/);
+        });
+
+        it('the bar does not step out of view while its menu is open, whatever the host says; closed, it does', async () => {
+            const drawn = (hidden: boolean) => <ScreenShell title="Inbox" barHidden={hidden} filter={filter('all')}><p /></ScreenShell>;
+            const { container, rerender } = render(drawn(false));
+            const shell = container.querySelector('.cms-screen')!;
+            await userEvent.click(screen.getByRole('button', { name: 'Show: All' }));
+            rerender(drawn(true));
+            expect(screen.getByRole('menu')).toBeInTheDocument();
+            expect(shell).not.toHaveAttribute('data-bar-hidden');
+            await userEvent.keyboard('{Escape}');
+            expect(shell).toHaveAttribute('data-bar-hidden');
+        });
+
+        it('it gives way with the bar\'s other icons to the search, its menu with it, and the bar may step out after', async () => {
+            const searching = { field: <input aria-label="Search" />, closeLabel: 'Close', onClose: () => undefined };
+            const { container, rerender } = render(<ScreenShell title="Inbox" filter={filter('all')}><p /></ScreenShell>);
+            await userEvent.click(screen.getByRole('button', { name: 'Show: All' }));
+            rerender(<ScreenShell title="Inbox" filter={filter('all')} searching={searching}><p /></ScreenShell>);
+            expect(screen.queryByRole('menu')).toBeNull();
+            expect(screen.queryByRole('button', { name: 'Show: All' })).toBeNull();
+            rerender(<ScreenShell title="Inbox" filter={filter('all')} barHidden><p /></ScreenShell>);
+            expect(screen.queryByRole('menu')).toBeNull();
+            expect(container.querySelector('.cms-screen')).toHaveAttribute('data-bar-hidden');
+        });
     });
 
     it('the primary action floats as one button, and the content leaves room for it', async () => {

@@ -27,7 +27,7 @@ export interface SectionHeaderProps {
     readonly more?: readonly MenuItem[];
     /** More's accessible name and tooltip, from the host's catalogue. */
     readonly moreLabel: string;
-    /** Row 2: the section's context (a mailbox card, filters, breadcrumbs); with none, no row 2. */
+    /** Row 2: the section's context (a mailbox card, a list's name with its filter, breadcrumbs); with none, no row 2. */
     readonly context?: ReactNode;
     /** The header spans a one-column page. */
     readonly fullWidth?: boolean;

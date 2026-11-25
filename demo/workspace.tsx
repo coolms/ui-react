@@ -15,10 +15,10 @@ import {
     ChatBubble,
     Composer,
     EmptyState,
-    FilterChips,
     Icon,
     IncomingCall,
     List,
+    ListHead,
     MailRow,
     ScreenShell,
     Notification,
@@ -73,6 +73,14 @@ const MAIL = [
     { from: 'Pavel Sidorov', subject: 'Invoice draft for October', preview: 'Please check the hours before I send it.', time: 'Yesterday', hasAttachment: true },
     { from: 'Marek Nowak', subject: 'Lunch next week?', preview: 'I will be in Warsaw on Tuesday and Wednesday.', time: 'Mon' },
 ];
+
+const MAIL_FILTER = { label: 'Show', defaultValue: 'all', options: [{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }, { id: 'files', label: 'Attachments' }] };
+const CHAT_FILTER = { label: 'Show', defaultValue: 'all', options: [{ id: 'all', label: 'All' }, { id: 'direct', label: 'Direct' }, { id: 'groups', label: 'Groups' }] };
+
+/** The list's select-all box, as a touch target. */
+function SelectAll(): ReactNode {
+    return <button type="button" role="checkbox" aria-checked="false" aria-label="Select all" className="ws-square"><Icon name="check" size={18} /></button>;
+}
 
 /** Mail's place, from the address: the folders, the list (`#mail`), or one message (`#mail/<n>`). */
 function MailPage({ sub }: { readonly sub: string }): ReactNode {
@@ -136,10 +144,7 @@ function MailPage({ sub }: { readonly sub: string }): ReactNode {
                                 onAction={() => undefined}
                                 status="Synced at 09:42"
                             />
-                            <div className="ws-listhead">
-                                <h1>Inbox</h1>
-                                <FilterChips label="Show" value={filter} onChange={setFilter} options={[{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }, { id: 'files', label: 'Attachments' }]} />
-                            </div>
+                            <ListHead leading={<SelectAll />} name="Inbox" filter={{ ...MAIL_FILTER, value: filter, onChange: setFilter }} />
                             {MAIL.map((m, i) => <MailRow key={m.subject} {...m} selected={i === opened} onOpen={() => { location.hash = `mail/${String(i)}`; }} />)}
                         </>
                     ),
@@ -197,7 +202,7 @@ const CHATS = [
 
 /** Chat's place, from the address: the conversations (`#chat`) or one of them (`#chat/<n>`). */
 function ChatPage({ sub }: { readonly sub: string }): ReactNode {
-    const [filter, setFilter] = useState('all');
+    const [filter, setFilter] = useState('direct');
     const [text, setText] = useState('');
     const opened = /^\d+$/.test(sub) && Number(sub) < CHATS.length ? Number(sub) : null;
     return (
@@ -211,9 +216,7 @@ function ChatPage({ sub }: { readonly sub: string }): ReactNode {
                                 <h1>Chat</h1>
                                 <button type="button" className="cms-button cms-button--chrome" aria-label="New conversation"><Icon name="plus" /></button>
                             </div>
-                            <div style={{ padding: '0 var(--cms-space-5) var(--cms-space-3)' }}>
-                                <FilterChips label="Show" value={filter} onChange={setFilter} options={[{ id: 'all', label: 'All' }, { id: 'direct', label: 'Direct' }, { id: 'groups', label: 'Groups' }]} />
-                            </div>
+                            <ListHead name="Conversations with people and groups of every project" filter={{ ...CHAT_FILTER, value: filter, onChange: setFilter }} />
                             <div className="ws-chatlist">
                                 {CHATS.map((c, i) => (
                                     <button key={c.name} type="button" className="ws-chatrow" aria-current={i === opened ? 'true' : undefined} onClick={() => { location.hash = `chat/${String(i)}`; }}>
@@ -322,13 +325,19 @@ function NotificationsPage(): ReactNode {
     );
 }
 
-/** A mailbox at phone width: rows that select by their checkbox, and Compose floating over the list's end. */
-function ShellMail({ globals }: { readonly globals: ReactNode }): ReactNode {
+/**
+ * A mailbox at phone width: rows that select by their checkbox, and Compose floating over the list's end. Its bar is the
+ * fullest one: the folders, the search, the filter, More, the bell and the avatar; `choice` is the filter's first choice.
+ */
+function ShellMail({ globals, choice }: { readonly globals: ReactNode; readonly choice: string }): ReactNode {
+    const [filter, setFilter] = useState(choice);
     const [checked, setChecked] = useState<ReadonlySet<number>>(new Set());
     const rows = [...MAIL, ...MAIL];
     return (
         <div style={{ height: '100vh' }}>
             <ScreenShell title="Inbox" globals={globals} search={{ label: 'Search mail', onOpen: () => undefined }}
+                navigation={<button type="button" className="cms-icon-button cms-screen__icon" aria-label="Folders"><Icon name="inbox" /></button>}
+                filter={{ ...MAIL_FILTER, value: filter, onChange: setFilter }}
                 more={['Add mailbox', 'Mail settings', 'Import'].map(label => ({ id: label, label, offer: { offered: true, locked: false }, onSelect: () => undefined }))}
                 primary={{ label: 'Compose', icon: 'pencil', onPress: () => undefined }}>
                 {rows.map((m, i) => (
@@ -344,7 +353,7 @@ function ShellMail({ globals }: { readonly globals: ReactNode }): ReactNode {
     );
 }
 
-/** The screen shell at phone width: a section's root (chat: filters, rows, the primary action) and a nested screen (drive). */
+/** The screen shell at phone width: a section's root (chat: the filter, rows, the primary action) and a nested screen (drive). */
 function ShellPage({ sub }: { readonly sub: string | undefined }): ReactNode {
     const [filter, setFilter] = useState('all');
     const globals = (
@@ -354,7 +363,9 @@ function ShellPage({ sub }: { readonly sub: string | undefined }): ReactNode {
         </>
     );
     const offer = { offered: true, locked: false } as const;
-    if (sub === 'mail') return <ShellMail globals={globals} />;
+    if (sub === 'mail') return <ShellMail key={sub} globals={globals} choice="all" />;
+    if (sub === 'filtered') return <ShellMail key={sub} globals={globals} choice="unread" />;
+    if (sub === 'filter-in-more') return <ShellMail key={sub} globals={globals} choice="files" />;
     if (sub === 'drive') {
         return (
             <div style={{ height: '100vh' }}>
@@ -376,7 +387,7 @@ function ShellPage({ sub }: { readonly sub: string | undefined }): ReactNode {
     return (
         <div style={{ height: '100vh' }}>
             <ScreenShell title="Chat" search={{ label: 'Search chats', onOpen: () => undefined }} globals={globals} onRefresh={async () => undefined}
-                filters={{ label: 'Show', options: [{ id: 'all', label: 'All' }, { id: 'direct', label: 'Direct' }, { id: 'groups', label: 'Groups' }], selected: filter, onSelect: setFilter }}
+                filter={{ ...CHAT_FILTER, value: filter, onChange: setFilter }}
                 primary={{ label: 'New chat', icon: 'plus', onPress: () => undefined }}>
                 <List label="Conversations" rows={[
                     { id: 'c1', lead: <Avatar name="Anna Kowalska" presence="online" size={40} />, primary: 'Anna Kowalska', secondary: 'See you on Thursday then.', meta: '10:05', unread: true, count: 2 },

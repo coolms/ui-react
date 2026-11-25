@@ -2,6 +2,19 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.33 (2026-11-25)
+
+A list's filter is one menu button, the second row's label one step under the section's title, and design tokens v0.32.0.
+
+**Breaking.** `FilterChips` and `ScreenShell`'s `filters` are gone, with `FilterChipsProps`: a list's filter is one menu button now. Draw `ListHead` (or `FilterMenu`) where `FilterChips` was, and give `ScreenShell` `filter` in place of `filters` (`value` for `selected`, `onChange` for `onSelect`, and `defaultValue`, the choice that shows every row).
+
+- `FilterMenu` is new: the components contract's `filter-menu`. On the default choice an icon only, the funnel; on any other choice that choice's name and a chevron in the accent, so a filtered list never looks like one with rows missing. Its menu is a single choice with a mark on the current one: Enter, Space and Down open it at the current choice, Up at the last; a second press closes it; choosing the current one changes nothing. `iconOnly` keeps the funnel, in the accent, for a bar whose title says the choice. With fewer than two choices nothing is drawn, and a value that names no choice reads as the default one and says so once, by `onChange`; while there are no choices at all they are not known yet, and nothing is said. The accessible name is the label and the choice ("Show: All"); `labels.name` gives the pattern in another language.
+- `ListHead` is new: a list's second row, the header row's height. What leads (a select-all box), the list's name (title-sm, semibold: one step under the section title) on one line, cut with an ellipsis, its whole text as its title, then the filter at the end, which keeps its place and its width (a choice's name is cut only past 176px).
+- `ScreenShell` has `filter`: an icon in the bar, after the search and before More, and no row of its own. On a choice other than the default the icon takes the accent and the title reads the place's name and the choice's ("Inbox · Unread"): the name is cut first, and with under 24px of it left it and its dot are not drawn, so the title is the choice alone; then the choice is cut; Back's name still gives way before both. No icon drops. Where the bar with the filter in it leaves the title less than its least (64px of the place's name, or all of a shorter one, and the choice's name whole while filtered) and More is drawn for other actions, the filter moves into More: a single choice under its label, after the other actions; More then takes the accent, and says the choice in its name, while the filter is not the default one. One width of the bar always has one answer, and the filter comes back when the width allows it. A choice that moves it gives the focus to where it then is. The bar does not step out of view while the filter's menu is open.
+- `ContextMenu` items may be `checked` (true or false): each is then a `menuitemradio` with `aria-checked`, the current one with a check mark, and the menu opens with it focused. `focus` may be `current`, the default: the current choice, or the first item where there is none, as before. Items may carry a `group`: those of one group are drawn under its name, after a line (`role="group"`).
+- The `funnel` icon draws as the kit's new `funnel` glyph.
+- The design-tokens copy is v0.32.0: the components contract 0.22.0, with `filter-menu` in place of `filter-chips`, the screen shell's filter, the second row's label one step under the section's title, and a filtered title that never starts with its dot.
+
 ## 0.1.0-alpha.32 (2026-11-25)
 
 The phone screen shell's More, Back's name giving way before the title, and design tokens v0.31.0.
