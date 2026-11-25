@@ -296,7 +296,7 @@
 .cms-screen__title--filtered { display: flex; }
 .cms-screen__title-name { flex: 0 1000000 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .cms-screen__title-choice { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: pre; }
-/* The choice's name whole, measured and not drawn: it takes no room and reaches past nothing. */
+/* The place's name and the choice's whole, measured and not drawn: it takes no room and reaches past nothing. */
 .cms-screen__ruler { position: absolute; width: 0; height: 0; overflow: hidden; font-size: var(--cms-font-size-title-md); font-weight: var(--cms-font-weight-semibold); visibility: hidden; }
 .cms-screen__ruler > span { display: inline-block; white-space: pre; }
 .cms-screen__trailing { display: flex; flex: none; align-items: center; gap: var(--cms-space-1); }

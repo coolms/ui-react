@@ -35,8 +35,8 @@ export interface ScreenShellProps {
     readonly globals?: ReactNode;
     /**
      * The list's filter: an icon in the bar, after the search. On a choice other than the default the icon takes the
-     * accent, and the title reads the place's name and the choice's. In a bar too narrow for both it moves into More,
-     * while More is drawn for other actions.
+     * accent, and the title reads the place's name and the choice's. In a bar too narrow to show 64px of the name
+     * (or all of a shorter one) beside the choice's, it moves into More, while More is drawn for other actions.
      */
     readonly filter?: ListFilter;
     /** The floating primary action, given only when the server declares it; never on an item's own screen. */
@@ -122,8 +122,8 @@ function useBarHiddenOnScroll(shell: RefObject<HTMLDivElement | null>, enabled: 
     return [hidden, setHidden];
 }
 
-/** The title's least width while the list is not filtered. */
-const TITLE_LEAST = 48;
+/** The least of the place's name the title shows beside the filter; a shorter name shows whole. */
+const NAME_LEAST = 64;
 
 /** A bar's widths, none of them the widths its parts have been given: the same bar always has the same ones. */
 export interface BarWidths {
@@ -140,22 +140,24 @@ export interface BarWidths {
     readonly search: boolean;
     readonly more: boolean;
     readonly globals: readonly number[];
-    /** The choice's name with its middle dot, whole; null while the list is not filtered. */
-    readonly choice: number | null;
+    /** The place's name, whole. */
+    readonly name: number;
+    /** The choice's name with its middle dot, whole; 0 while the list is not filtered. */
+    readonly choice: number;
 }
 
 /**
- * Whether the filter goes into More: the bar with the filter in it leaves the title less than its least (the choice's
- * name whole, or 48px while the list is not filtered), and More is drawn for other actions. It reads no width that the
- * answer changes, so one width of the bar has one answer.
+ * Whether the filter goes into More: the bar with the filter in it leaves the title less than its least (64px of the
+ * place's name, or all of a shorter one, and the choice's name whole while the list is filtered), and More is drawn for
+ * other actions. It reads no width that the answer changes, so one width of the bar has one answer.
  */
-export function filterGoesIntoMore({ bar, leading, gap, icon, iconGap, search, more, globals, choice }: BarWidths): boolean {
+export function filterGoesIntoMore({ bar, leading, gap, icon, iconGap, search, more, globals, name, choice }: BarWidths): boolean {
     if (!more) return false;
     const icons = [...(search ? [icon] : []), icon, icon, ...globals];
     const trailing = icons.reduce((sum, w) => sum + w, 0) + iconGap * (icons.length - 1);
     const room = bar - (leading > 0 ? leading + gap : 0) - gap - trailing;
     // A hundredth of a pixel is the sums' own rounding, not a missing one.
-    return room + 0.01 < (choice ?? TITLE_LEAST);
+    return room + 0.01 < Math.min(NAME_LEAST, name) + choice;
 }
 
 /**
@@ -200,7 +202,7 @@ export function ScreenShell({ title, back, navigation, search, searching, more =
     const withFilter = filter !== undefined && filter.options.length >= 2;
     const [narrow, setNarrow] = useState(false);
     const inMore = withFilter && withMore && narrow;
-    const shellKey = JSON.stringify([withFilter, withMore, inMore, search !== undefined, searching !== undefined, back !== undefined, choiceText]);
+    const shellKey = JSON.stringify([withFilter, withMore, inMore, search !== undefined, searching !== undefined, back !== undefined, title, choiceText]);
     const fit = useCallback(() => {
         const header = bar.current;
         const icons = trailing.current;
@@ -211,6 +213,7 @@ export function ScreenShell({ title, back, navigation, search, searching, more =
         const width = header.getBoundingClientRect().width;
         // Not laid out: nothing to decide by.
         if (width === 0) return null;
+        const ruled = (what: string) => header.querySelector(`.cms-screen__ruler > [data-ruler="${what}"]`)?.getBoundingClientRect().width ?? 0;
         const lead = header.querySelector<HTMLElement>('.cms-screen__leading');
         const own = (search !== undefined ? 1 : 0) + (inMore ? 0 : 1) + 1;
         return filterGoesIntoMore({
@@ -222,7 +225,8 @@ export function ScreenShell({ title, back, navigation, search, searching, more =
             search: search !== undefined,
             more: true,
             globals: Array.from(icons.children).slice(own).map(e => e.getBoundingClientRect().width),
-            choice: header.querySelector('.cms-screen__ruler > span')?.getBoundingClientRect().width ?? null,
+            name: ruled('name'),
+            choice: ruled('choice'),
         });
         // The measuring reads the bar as drawn now; `shellKey` names what changes it.
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -241,8 +245,8 @@ export function ScreenShell({ title, back, navigation, search, searching, more =
             const next = fit();
             if (next !== null) setNarrow(next);
         });
-        // The bar's width; the icons', the host's own among them; and the choice's name, as its font comes.
-        for (const e of [bar.current, trailing.current, bar.current.querySelector('.cms-screen__ruler > span')]) if (e !== null) watch.observe(e);
+        // The bar's width; the icons', the host's own among them; and the place's and the choice's names, as their font comes.
+        for (const e of [bar.current, trailing.current, ...bar.current.querySelectorAll('.cms-screen__ruler > span')]) if (e !== null) watch.observe(e);
         return () => watch.disconnect();
     }, [fit]);
     // The filter moved: an open More closes, and the focus goes where the filter is when a choice moved it, or when the
@@ -312,7 +316,12 @@ export function ScreenShell({ title, back, navigation, search, searching, more =
                         <span className="cms-screen__title-choice">{choiceText}</span>
                     </h1>
                 )}
-                {choice !== null ? <span className="cms-screen__ruler" aria-hidden="true"><span>{choiceText}</span></span> : null}
+                {withFilter && withMore ? (
+                    <span className="cms-screen__ruler" aria-hidden="true">
+                        <span data-ruler="name">{title}</span>
+                        {choice !== null ? <span data-ruler="choice">{choiceText}</span> : null}
+                    </span>
+                ) : null}
                 <div ref={trailing} className="cms-screen__trailing">
                     {search !== undefined ? (
                         <button type="button" className="cms-icon-button cms-screen__icon" aria-label={search.label} title={search.label} onClick={search.onOpen}>

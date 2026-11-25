@@ -8,30 +8,38 @@ import { filterGoesIntoMore, type BarWidths } from '../src/components/ScreenShel
 
 const WIDTHS = Array.from({ length: 221 }, (_, i) => 300 + i);
 /** The fullest bar on a phone: the folders, the search, the filter, More, the bell and the avatar. */
-const FULLEST: Omit<BarWidths, 'bar'> = { leading: 44, gap: 8, icon: 44, iconGap: 4, search: true, more: true, globals: [44, 32], choice: 78.2 };
+const FULLEST: Omit<BarWidths, 'bar'> = { leading: 44, gap: 8, icon: 44, iconGap: 4, search: true, more: true, globals: [44, 32], name: 48, choice: 78.2 };
 /** What the fullest bar takes beside the title: its padding left out of `bar`. */
 const REST = 44 + 8 + 8 + 4 * 44 + 32 + 4 * 4;
 
 describe('the decision', () => {
-    it('filtered: into More once the choice\'s name is not whole; its own width is enough to stay', () => {
-        const at = (bar: number, choice: number) => filterGoesIntoMore({ ...FULLEST, bar, choice });
-        expect(at(REST + 78.2, 78.2)).toBe(false);
-        expect(at(REST + 78.1, 78.2)).toBe(true);
-        expect(at(REST + 125, 126)).toBe(true);
-        expect(at(REST + 126, 126)).toBe(false);
-        // A phone of 390, the bar's padding of 16 out: Unread fits beside it, Attachments does not.
-        expect(at(374, 78.2)).toBe(false);
-        expect(at(374, 126)).toBe(true);
-        expect(at(344, 78.2)).toBe(true);
+    // The room a phone of 390 leaves the title in the fullest bar: 90px.
+    const in390 = (name: number, choice: number) => filterGoesIntoMore({ ...FULLEST, bar: 374, name, choice });
+
+    it('not filtered: into More once 64px of a long name, or all of a shorter one, would not show', () => {
+        const at = (name: number, room: number) => filterGoesIntoMore({ ...FULLEST, bar: REST + room, name, choice: 0 });
+        // Long, then Drafts, Inbox and Sent, and one of exactly the least.
+        for (const [name, least] of [[334, 64], [65, 64], [64, 64], [56, 56], [48, 48], [38, 38]] as const) {
+            expect([at(name, least), at(name, least - 0.1), at(name, least - 1)], String(name)).toEqual([false, true, true]);
+        }
+        expect(in390(48, 0)).toBe(false);
+        expect(in390(334, 0)).toBe(false);
     });
 
-    it('not filtered: into More once the title has less than 48px', () => {
-        expect(filterGoesIntoMore({ ...FULLEST, bar: REST + 48, choice: null })).toBe(false);
-        expect(filterGoesIntoMore({ ...FULLEST, bar: REST + 47, choice: null })).toBe(true);
+    it('filtered: the choice\'s name whole beside it', () => {
+        const at = (name: number, choice: number, room: number) => filterGoesIntoMore({ ...FULLEST, bar: REST + room, name, choice });
+        for (const [name, choice, least] of [[334, 78.2, 142.2], [48, 78.2, 126.2], [38, 78.2, 116.2], [48, 126, 174], [334, 126, 190]] as const) {
+            expect([at(name, choice, least), at(name, choice, least - 0.1)], `${String(name)} ${String(choice)}`).toEqual([false, true]);
+        }
+        expect(in390(48, 78.2)).toBe(true);
+        expect(in390(48, 126)).toBe(true);
+        expect(in390(334, 78.2)).toBe(true);
+        // Short enough together, it stays.
+        expect(in390(38, 50)).toBe(false);
     });
 
     it('each icon the bar has, and what leads, counts with its gap', () => {
-        const at = (over: Partial<BarWidths>, less: number) => [filterGoesIntoMore({ ...FULLEST, ...over, bar: REST - less + 78.2 }), filterGoesIntoMore({ ...FULLEST, ...over, bar: REST - less + 77 })];
+        const at = (over: Partial<BarWidths>, less: number) => [filterGoesIntoMore({ ...FULLEST, ...over, bar: REST - less + 126.2 }), filterGoesIntoMore({ ...FULLEST, ...over, bar: REST - less + 126 })];
         expect(at({}, 0)).toEqual([false, true]);
         expect(at({ search: false }, 48)).toEqual([false, true]);
         expect(at({ globals: [32] }, 48)).toEqual([false, true]);
@@ -43,16 +51,19 @@ describe('the decision', () => {
     });
 
     it('from 300 to 520 it changes once, from More to the bar', () => {
-        for (const choice of [null, 78.2, 126]) {
-            const answers = WIDTHS.map((w) => filterGoesIntoMore({ ...FULLEST, bar: w - 16, choice }));
-            expect(answers.filter((a, i) => i > 0 && a !== answers[i - 1]), String(choice)).toHaveLength(1);
-            expect([answers[0], answers[answers.length - 1]]).toEqual([true, false]);
+        for (const name of [38, 48, 56, 64, 334]) {
+            for (const choice of [0, 78.2, 126]) {
+                const answers = WIDTHS.map((w) => filterGoesIntoMore({ ...FULLEST, bar: w - 16, name, choice }));
+                expect(answers.filter((a, i) => i > 0 && a !== answers[i - 1]), `${String(name)} ${String(choice)}`).toHaveLength(1);
+                expect([answers[0], answers[answers.length - 1]]).toEqual([true, false]);
+                expect(WIDTHS[answers.indexOf(false)]).toBe(Math.ceil(16 + REST + Math.min(64, name) + choice));
+            }
         }
     });
 });
 
 // jsdom lays nothing out: the bar's parts are given their widths, and a ResizeObserver that the test fires.
-let barWidth = 390;
+let barWidth = 430;
 let textWidth = (text: string) => text.length * 9;
 let observers: { fire: () => void; targets: Element[] }[] = [];
 const realRect = HTMLElement.prototype.getBoundingClientRect;
@@ -60,7 +71,7 @@ const style = document.createElement('style');
 style.textContent = '.cms-screen__bar { padding-left: 8px; padding-right: 8px; column-gap: 8px; } .cms-screen__trailing { column-gap: 4px; } .cms-screen__leading { min-width: 44px; }';
 
 beforeEach(() => {
-    barWidth = 390;
+    barWidth = 430;
     textWidth = (text) => text.length * 9;
     observers = [];
     document.head.append(style);
@@ -90,11 +101,11 @@ afterEach(() => {
 
 const settings: MenuItem = { id: 'settings', label: 'Mail settings', offer: { offered: true, locked: false }, onSelect: () => undefined };
 const OPTIONS = [{ id: 'all', label: 'All' }, { id: 'unread', label: 'Unread' }, { id: 'files', label: 'Attachments' }];
-interface Setup { readonly start?: string; readonly more?: readonly MenuItem[]; readonly options?: typeof OPTIONS; readonly onChange?: (id: string) => void; readonly searching?: boolean }
-function Shell({ start = 'all', more = [settings], options = OPTIONS, onChange, searching = false }: Setup) {
+interface Setup { readonly title?: string; readonly start?: string; readonly more?: readonly MenuItem[]; readonly options?: typeof OPTIONS; readonly onChange?: (id: string) => void; readonly searching?: boolean }
+function Shell({ title = 'Inbox', start = 'all', more = [settings], options = OPTIONS, onChange, searching = false }: Setup) {
     const [value, setValue] = useState(start);
     return (
-        <ScreenShell title="Inbox" navigation={<button type="button">Folders</button>} search={{ label: 'Search mail', onOpen: () => undefined }} more={more}
+        <ScreenShell title={title} navigation={<button type="button">Folders</button>} search={{ label: 'Search mail', onOpen: () => undefined }} more={more}
             {...(searching ? { searching: { field: <input aria-label="Search" />, closeLabel: 'Close', onClose: () => undefined } } : {})}
             filter={{ label: 'Show', options, value, defaultValue: 'all', onChange: (id) => { onChange?.(id); setValue(id); } }}
             globals={<><button type="button" className="cms-screen__icon">Notifications</button><span className="avatar">SA</span></>}>
@@ -107,18 +118,19 @@ const resize = (width: number) => {
     act(() => { for (const o of [...observers]) o.fire(); });
 };
 const icons = () => Array.from(document.querySelectorAll('.cms-screen__trailing > *')).map((b) => b.getAttribute('aria-label') ?? b.textContent);
-// Attachments and its dot are 14 characters, 126px: at 390 the bar leaves 90. Unread is 9, 81px. All is the default.
+// A character is 9px. Beside the title the bar takes 300, its padding in it: at 430 it leaves 130. Inbox is 45, the dot
+// and Unread 81 (126 together), the dot and Attachments 126 (171). All is the default.
 const inMore = () => document.querySelector('.cms-filter-menu') === null;
 
 describe('the filter in More', () => {
-    it('at the first draw already, where the choice\'s name is not whole; the title gives way and no other icon drops', () => {
+    it('at the first draw already, where the names do not fit; the title gives way and no other icon drops', () => {
         render(<Shell start="files" />);
         expect(icons()).toEqual(['Search mail', 'More actions, Show: Attachments', 'Notifications', 'SA']);
         expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Inbox · Attachments');
         expect(screen.getByRole('button', { name: 'Folders' })).toBeInTheDocument();
     });
 
-    it('in the bar where the choice\'s name is whole, More as it was', () => {
+    it('in the bar where the names fit, More as it was', () => {
         render(<Shell start="unread" />);
         expect(icons()).toEqual(['Search mail', 'Show: Unread', 'More actions', 'Notifications', 'SA']);
         expect(screen.getByRole('button', { name: 'More actions' })).not.toHaveClass('cms-screen__icon--active');
@@ -175,34 +187,47 @@ describe('the filter in More', () => {
         expect(icons()).toEqual(['Search mail', 'More actions, Show: Attachments', 'Notifications', 'SA']);
     });
 
-    it('from 300 to 520 and back no icon drops, the filter is in one place, and a width has one answer either way', () => {
-        render(<Shell start="files" />);
+    it.each([
+        ['Inbox', 'files', 471], ['Inbox', 'unread', 426], ['Inbox', 'all', 345], ['Sent', 'unread', 417], ['Drafts', 'all', 354],
+        ['Contracts and letters of suppliers', 'all', 364], ['Contracts and letters of suppliers', 'unread', 445], ['Contracts and letters of suppliers', 'files', 490],
+    ])('%s, %s: from 300 to 520 and back no icon drops, the filter is in one place, and a width has one answer either way', (title, start, first) => {
+        const label = OPTIONS.find((o) => o.id === start)!.label;
+        const more = start === 'all' ? 'More actions' : `More actions, Show: ${label}`;
+        render(<Shell title={title} start={start} />);
         const sweep = (widths: readonly number[]) => widths.map((w) => {
             resize(w);
-            const first = inMore();
+            const there = inMore();
             resize(w);
-            expect(inMore(), String(w)).toBe(first);
-            expect(icons(), String(w)).toEqual(first
-                ? ['Search mail', 'More actions, Show: Attachments', 'Notifications', 'SA']
-                : ['Search mail', 'Show: Attachments', 'More actions', 'Notifications', 'SA']);
+            expect(inMore(), String(w)).toBe(there);
+            expect(icons(), String(w)).toEqual(there
+                ? ['Search mail', more, 'Notifications', 'SA']
+                : ['Search mail', `Show: ${label}`, 'More actions', 'Notifications', 'SA']);
             expect(screen.getByRole('button', { name: 'Folders' })).toBeInTheDocument();
-            return first;
+            return there;
         });
         const up = sweep(WIDTHS);
         const down = sweep([...WIDTHS].reverse()).reverse();
         expect(down).toEqual(up);
-        // 284 beside the title, 16 of padding, 126 of the choice's name.
-        expect(WIDTHS[up.indexOf(false)]).toBe(426);
+        expect(WIDTHS[up.indexOf(false)]).toBe(first);
         expect(up.lastIndexOf(true)).toBe(up.indexOf(false) - 1);
     });
 
-    it('it is measured again when the choice\'s font comes, and watches the bar, the icons and the choice\'s name', () => {
+    it('it is measured again when the names\' font comes, and watches the bar, the icons and both names', () => {
         render(<Shell start="unread" />);
         expect(inMore()).toBe(false);
-        expect(observers.flatMap((o) => o.targets).map((t) => t.parentElement?.className === 'cms-screen__ruler' ? 'ruler' : t.className)).toEqual(['cms-screen__bar', 'cms-screen__trailing', 'ruler']);
+        expect(observers.flatMap((o) => o.targets).map((t) => t.parentElement?.className === 'cms-screen__ruler' ? t.textContent : t.className)).toEqual(['cms-screen__bar', 'cms-screen__trailing', 'Inbox', ' \u00b7 Unread']);
         textWidth = (text) => text.length * 12;
-        resize(390);
+        resize(430);
         expect(inMore()).toBe(true);
+    });
+
+    it('a place renamed across the threshold moves it, and back, with no change of width', () => {
+        const { rerender } = render(<Shell start="unread" />);
+        expect(inMore()).toBe(false);
+        rerender(<Shell title="Drafts" start="unread" />);
+        expect(inMore()).toBe(true);
+        rerender(<Shell title="Sent" start="unread" />);
+        expect(inMore()).toBe(false);
     });
 
     it('with fewer than two choices, or none known yet, nothing of it is drawn anywhere', async () => {
@@ -246,11 +271,11 @@ describe('the filter in More', () => {
         resize(340);
         expect(inMore()).toBe(true);
         expect(screen.getByRole('button', { name: 'Folders' })).toHaveFocus();
-        resize(390);
+        resize(430);
         act(() => screen.getByRole('button', { name: 'Show: Unread' }).focus());
         resize(340);
         expect(screen.getByRole('button', { name: 'More actions, Show: Unread' })).toHaveFocus();
-        resize(390);
+        resize(430);
         expect(screen.getByRole('button', { name: 'More actions' })).toHaveFocus();
     });
 
@@ -260,7 +285,7 @@ describe('the filter in More', () => {
         resize(500);
         expect(screen.queryByRole('menu')).toBeNull();
         await userEvent.click(screen.getByRole('button', { name: 'Show: Attachments' }));
-        resize(390);
+        resize(430);
         expect(screen.queryByRole('menu')).toBeNull();
         resize(500);
         expect(screen.queryByRole('menu')).toBeNull();
