@@ -297,7 +297,7 @@ describe('ListHead', () => {
     it('the header row\'s height on one line: the name is cut with an ellipsis, the filter never', () => {
         expect(rule('.cms-list-head')).toMatch(/display: flex; align-items: center;[^}]*height: var\(--cms-pane-header-height\); min-height: var\(--cms-pane-header-height\);/);
         expect(rule('.cms-list-head')).not.toMatch(/wrap/);
-        expect(rule('.cms-list-head__name')).toMatch(/font-size: var\(--cms-font-size-title-lg\); font-weight: var\(--cms-font-weight-bold\);/);
+        expect(rule('.cms-list-head__name')).toMatch(/font-size: var\(--cms-font-size-title-sm\); font-weight: var\(--cms-font-weight-semibold\);/);
         expect(rule('.cms-list-head__name')).toMatch(/flex: 1 1 auto; min-width: 0;[^}]*overflow: hidden;[^}]*text-overflow: ellipsis; white-space: nowrap;/);
     });
 });

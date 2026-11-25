@@ -476,7 +476,7 @@
 /* A list's second row: the name gives way, the filter keeps its place and its whole width. */
 .cms-list-head { display: flex; align-items: center; gap: var(--cms-space-2); box-sizing: border-box; width: 100%; min-width: 0; height: var(--cms-pane-header-height); min-height: var(--cms-pane-header-height); }
 .cms-list-head__leading { display: inline-flex; flex: none; align-items: center; }
-.cms-list-head__name { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; color: var(--cms-text); font-size: var(--cms-font-size-title-lg); font-weight: var(--cms-font-weight-bold); text-overflow: ellipsis; white-space: nowrap; }
+.cms-list-head__name { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; color: var(--cms-text); font-size: var(--cms-font-size-title-sm); font-weight: var(--cms-font-weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
 
 /* Panes */
 .cms-panes { display: grid; height: 100%; min-height: 0; }
