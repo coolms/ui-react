@@ -2,7 +2,9 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-alpha.33 (2026-11-25)
+
+A list's filter is one menu button, the second row's label one step under the section's title, and design tokens v0.32.0.
 
 **Breaking.** `FilterChips` and `ScreenShell`'s `filters` are gone, with `FilterChipsProps`: a list's filter is one menu button now. Draw `ListHead` (or `FilterMenu`) where `FilterChips` was, and give `ScreenShell` `filter` in place of `filters` (`value` for `selected`, `onChange` for `onSelect`, and `defaultValue`, the choice that shows every row).
 
