@@ -486,7 +486,16 @@
 .cms-panes { display: grid; height: 100%; min-height: 0; }
 .cms-panes--two { grid-template-columns: 340px 1fr; }
 .cms-panes--three { grid-template-columns: 240px 380px 1fr; }
-.cms-panes__pane { min-width: 0; min-height: 0; overflow: auto; border-right: 1px solid var(--cms-border); background: var(--cms-surface); }
+.cms-panes__pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: auto; border-right: 1px solid var(--cms-border); background: var(--cms-surface); }
+/* A column (contract split-panes, grid: each pane has exactly one scroll region): its head stays at the top and its body
+   scrolls on its own, filling the rest of the pane, the screen shell or any box of a definite height. */
+.cms-column { display: flex; flex-direction: column; flex: 1 1 auto; height: 100%; min-width: 0; min-height: 0; }
+.cms-column__head { flex: none; }
+.cms-column__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+/* In a screen shell (a phone) the shell's bar is the head that stays and its content the one scroll region, which pull
+   to refresh reads: a column there grows with its list and does not scroll on its own. */
+.cms-screen__content .cms-column { flex: none; height: auto; }
+.cms-screen__content .cms-column__body { overflow-y: visible; }
 .cms-panes--sized { position: relative; }
 .cms-panes--sized.cms-panes--two { grid-template-columns: var(--split-pane-0) minmax(0, 1fr); }
 .cms-panes--sized.cms-panes--three { grid-template-columns: var(--split-pane-0) var(--split-pane-1) minmax(0, 1fr); }
@@ -501,7 +510,7 @@
 .cms-panes.is-resizing { cursor: col-resize; user-select: none; }
 .cms-panes__pane:first-child { background: var(--cms-bg); }
 .cms-panes__pane:last-child { border-right: 0; }
-.cms-panes__back { display: none; align-items: center; gap: var(--cms-space-1); padding: var(--cms-space-3) var(--cms-space-4); border-bottom: 1px solid var(--cms-border); color: var(--cms-text); font-weight: var(--cms-font-weight-semibold); text-decoration: none; }
+.cms-panes__back { display: none; flex: none; align-items: center; gap: var(--cms-space-1); padding: var(--cms-space-3) var(--cms-space-4); border-bottom: 1px solid var(--cms-border); color: var(--cms-text); font-weight: var(--cms-font-weight-semibold); text-decoration: none; }
 
 /* Mail row */
 .cms-mail-row {
@@ -729,7 +738,7 @@
     .cms-panes__pane { display: none; }
     .cms-panes__pane[data-offset='0'],
     .cms-panes__pane[data-offset='1'],
-    .cms-panes[data-active='0'] .cms-panes__pane[data-offset='-1'] { display: block; }
+    .cms-panes[data-active='0'] .cms-panes__pane[data-offset='-1'] { display: flex; }
     .cms-panes--three[data-active='2'] .cms-panes__back { display: flex; }
     .cms-signin__brand { padding: var(--cms-space-8); }
     .cms-signin__features { grid-template-columns: minmax(0, 1fr); }

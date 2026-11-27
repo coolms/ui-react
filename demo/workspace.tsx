@@ -9,6 +9,7 @@ import {
     Avatar,
     Badge,
     Button,
+    Column,
     PaneToolbar,
     CallBar,
     CallPanel,
@@ -211,12 +212,13 @@ function ChatPage({ sub }: { readonly sub: string }): ReactNode {
                 {
                     label: 'Conversations',
                     content: (
-                        <>
+                        <Column head={<>
                             <div className="ws-listhead">
                                 <h1>Chat</h1>
                                 <button type="button" className="cms-button cms-button--chrome" aria-label="New conversation"><Icon name="plus" /></button>
                             </div>
                             <ListHead name="Conversations with people and groups of every project" filter={{ ...CHAT_FILTER, value: filter, onChange: setFilter }} />
+                        </>}>
                             <div className="ws-chatlist">
                                 {CHATS.map((c, i) => (
                                     <button key={c.name} type="button" className="ws-chatrow" aria-current={i === opened ? 'true' : undefined} onClick={() => { location.hash = `chat/${String(i)}`; }}>
@@ -228,7 +230,7 @@ function ChatPage({ sub }: { readonly sub: string }): ReactNode {
                                     </button>
                                 ))}
                             </div>
-                        </>
+                        </Column>
                     ),
                 },
                 {
@@ -533,16 +535,48 @@ function probeLayout(): void {
             if (r.width < min - 0.5 || r.height < min - 0.5) small.push(`${name(el)} ${Math.round(r.width)}x${Math.round(r.height)}`);
         }
     }
+    // A column's head stays while its list scrolls: its list, and every box around it that scrolls, taken to its end,
+    // its head's top must not move (a column taller than its pane would let the pane scroll the head away).
+    const heads: string[] = [];
+    for (const column of Array.from(document.querySelectorAll<HTMLElement>('.cms-column'))) {
+        const head = column.querySelector<HTMLElement>(':scope > .cms-column__head');
+        const body = column.querySelector<HTMLElement>(':scope > .cms-column__body');
+        if (head === null || body === null || !visible(column)) continue;
+        // A list taller than any screen, for the measuring only: the rule holds whatever the list holds.
+        const spacer = document.createElement('div');
+        spacer.style.height = '4000px';
+        body.appendChild(spacer);
+        const before = head.getBoundingClientRect().top;
+        const scrollers: HTMLElement[] = [body];
+        for (let up = column.parentElement; up !== null && up !== document.body; up = up.parentElement) {
+            if (/(auto|scroll)/.test(getComputedStyle(up).overflowY) && up.scrollHeight > up.clientHeight) scrollers.push(up);
+        }
+        for (const box of scrollers) box.scrollTop = box.scrollHeight;
+        const after = head.getBoundingClientRect().top;
+        for (const box of scrollers) box.scrollTop = 0;
+        spacer.remove();
+        if (Math.abs(after - before) > 0.5) heads.push(`${name(head)} ${Math.round(before)} -> ${Math.round(after)}`);
+    }
     const host = window.top !== null && window.top !== window ? window.top.document : document;
     const out = host.createElement('pre');
     out.id = 'layout-probe';
-    out.textContent = JSON.stringify({ width, scrollWidth: document.documentElement.scrollWidth, overflow, scrolls, small });
+    out.textContent = JSON.stringify({ width, styled: stylesIn(), scrollWidth: document.documentElement.scrollWidth, overflow, scrolls, small, heads });
     host.body.appendChild(out);
 }
 
 createRoot(document.getElementById('root')!).render(<StrictMode><Demo /></StrictMode>);
 
+/** Every stylesheet of the page is in: each <link rel="stylesheet"> has its sheet. A reading taken before is no reading. */
+function stylesIn(): boolean {
+    const links = Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
+    return links.every((link) => link.sheet !== null);
+}
+
 if (new URLSearchParams(location.search).get('probe') === 'layout') {
-    // A timer, not an animation frame: a headless browser's virtual time runs timers, and the fonts are in by then.
-    void document.fonts.ready.then(() => setTimeout(probeLayout, 500));
+    // After the window's load (every stylesheet in), then the fonts, then a timer, not an animation frame: a headless
+    // browser's virtual time runs timers. Under virtual time a timer alone could run before a stylesheet was in, and
+    // the page was then measured unstyled; the answer says whether the styles were in.
+    const start = () => void document.fonts.ready.then(() => setTimeout(probeLayout, 500));
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
 }

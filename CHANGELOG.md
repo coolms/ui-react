@@ -2,6 +2,16 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.35 (2026-11-27)
+
+A column's head stays at the top while its list scrolls.
+
+- `Column` is new: a head that stays at the top (a section header, a pane toolbar, a list's head) and a body that is the column's one scroll region, filling the rest of its height, as the components contract's grid asks. The host gets the scroll region itself: `scrollRef`, `onScroll` and `bodyProps`, for a list that reads more as the person nears its end. (#135)
+- A pane of `SplitPanes` lays its content out as a column at every width, so a `Column` in it fills its height; content that is not a `Column` scrolls with the pane as before. (#135)
+- In a screen shell (a phone) the shell's bar is the head that stays and its content the one scroll region, which pull to refresh reads, so a `Column` there grows with its list. (#135)
+
+Not in the package: the kit's checks find a dash used as a separator in its words (`check:ui-text`, a list of grandfathered texts that may only shrink, empty today) (#136); the layout check measures a page only once its stylesheets are in, and finds a `Column` whose head moves when its list scrolls (#135).
+
 ## 0.1.0-alpha.34 (2026-11-27)
 
 An avatar with no letter to show says "?", and its tint can come from a stable id.

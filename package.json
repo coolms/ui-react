@@ -1,6 +1,6 @@
 {
   "name": "@coolms/ui-react",
-  "version": "0.1.0-alpha.34",
+  "version": "0.1.0-alpha.35",
   "description": "The CoolMS UI kit for React: the components of the CoolMS UI contract, styled by the CoolMS design tokens",
   "license": "MIT",
   "type": "module",
@@ -42,7 +42,8 @@
     "demo": "vite --config demo/vite.config.ts",
     "demo:build": "vite build --config demo/vite.config.ts",
     "check:layout": "node tools/check-layout.mjs",
-    "verify": "npm run tokens:check && npm run check && npm run typecheck && npm test && npm run build && npm run check:built && npm run check:types-resolution && npm run check:package && npm run demo:build && npm run check:layout",
+    "check:ui-text": "node tools/check-ui-text.mjs",
+    "verify": "npm run tokens:check && npm run check && npm run check:ui-text && npm run typecheck && npm test && npm run build && npm run check:built && npm run check:types-resolution && npm run check:package && npm run demo:build && npm run check:layout",
     "build": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json",
     "check:built": "node tools/check-built.mjs",
     "check:types-resolution": "node tools/check-types-resolution.mjs",
