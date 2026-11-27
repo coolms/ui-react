@@ -25,6 +25,9 @@ jobs:
       - run: npm ci
       # The pinned files, the contract coverage, the types, the tests, the published build and the demo.
       - run: npm run verify
+      # No dash as a separator in the text a person reads: the grandfathered list may only shrink against develop.
+      - run: git fetch --depth=1 origin develop
+      - run: node tools/check-ui-text.mjs --base origin/develop
 
   # The lock says which files came from coolms/design-tokens, at which tag and commit. The copies are checked by
   # `verify`; this checks the lock against the source: the tag names the lock's commit, and each file there hashes
