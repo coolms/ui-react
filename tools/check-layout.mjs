@@ -2,8 +2,11 @@
 //
 // Serves the built demo (demo/dist) on a free local port and opens each screen of demo/workspace.html in headless
 // Chrome at each width of the layout: 1440 (desktop), 1024 and 768 (tablet), 390 (phone), in light and dark. The
-// page's own probe (`?probe=layout`) reports what passes the viewport's edge, what scrolls sideways, and, below the
-// desktop width, every control smaller than the 44px touch target. Any of those is FOUND. Below the desktop width the
+// page's own probe (`?probe=layout`) reports what passes the viewport's edge, what scrolls sideways, below the desktop
+// width every control smaller than the 44px touch target, and each Column whose head moves when its list (and any
+// box around it that scrolls) is taken to its end. Any of those is FOUND. The probe measures after the window's load,
+// the fonts and a timer, and says whether every stylesheet was in; a reading taken before is taken again, once, and
+// then UNEVALUABLE, never read as sizes (2026-11-27: one reading under memory pressure measured the page unstyled). Below the desktop width the
 // browser is a touch screen's (a coarse pointer, no hover), as a phone or a tablet is.
 //
 // A browser window has a smallest width (about 500px for Chrome on Windows), narrower than a phone. So each screen is
@@ -246,14 +249,18 @@ async function main() {
             for (const width of widths) {
                 for (const screen of screens) {
                     // One retry: a browser started through WSL's interop now and then fails to start at all.
-                    const answer = (await probe(chrome, profile, port, screen, width, dark)) ?? (await probe(chrome, profile, port, screen, width, dark));
+                    let answer = (await probe(chrome, profile, port, screen, width, dark)) ?? (await probe(chrome, profile, port, screen, width, dark));
+                    // A page measured before its stylesheets were in is measured again, once; never read as sizes.
+                    if (answer !== null && answer.styled !== true) answer = await probe(chrome, profile, port, screen, width, dark);
                     const where = `#${screen} at ${String(width)}px${dark ? ', dark' : ''}`;
                     if (answer === null) unevaluable(`no probe answer for ${where}`);
+                    if (answer.styled !== true) unevaluable(`${where} was measured before its stylesheets were in, twice`);
                     read += 1;
                     if (answer.scrollWidth > width) problems.push(`${where}: the page is ${String(answer.scrollWidth)}px wide`);
                     for (const o of answer.overflow) problems.push(`${where}: past the edge: ${o}`);
                     for (const s of answer.scrolls) problems.push(`${where}: scrolls sideways: ${s}`);
                     for (const s of answer.small) problems.push(`${where}: under 44px: ${s}`);
+                    for (const h of answer.heads) problems.push(`${where}: a column's head moved when its list scrolled to its end: ${h}`);
                     if (shots !== null && !(await shoot(chrome, profile, port, screen, width, dark, shots)) && !(await shoot(chrome, profile, port, screen, width, dark, shots))) unevaluable(`no screenshot for ${where}`);
                 }
             }
@@ -267,7 +274,7 @@ async function main() {
         for (const p of problems) console.log(`  ${p}`);
         process.exit(1);
     }
-    console.log(`CLEAR: ${String(read)} screen reading(s) (${String(screens.length)} screens, ${widths.join('/')}px, light and dark): nothing passes the edge or scrolls sideways (but a row that declares it does), and every control at touch widths is at least 44px`);
+    console.log(`CLEAR: ${String(read)} screen reading(s) (${String(screens.length)} screens, ${widths.join('/')}px, light and dark): nothing passes the edge or scrolls sideways (but a row that declares it does), every control at touch widths is at least 44px, and every column's head stays while its list scrolls`);
 }
 
 await main();
