@@ -121,6 +121,8 @@ export interface AvatarProps {
     /** Their account is gone: a neutral person icon, never initials of the name stored for them. */
     readonly deleted?: boolean;
     readonly size?: number;
+    /** What the tint is chosen from: an id that stays the same (a user's, a conversation's). The name when left out. */
+    readonly tintSeed?: string;
 }
 
 export type AvatarPresence = 'online' | 'away' | 'busy' | 'offline';
@@ -149,13 +151,16 @@ export function tintOf(name: string): number {
 }
 
 /** A person or an account, by picture or initials (contract component `avatar`: picture, initials, presence). */
-export function Avatar({ name, pictureUrl, presence, connection, deleted = false, size = 32 }: AvatarProps): ReactNode {
+export function Avatar({ name, pictureUrl, presence, connection, deleted = false, size = 32, tintSeed }: AvatarProps): ReactNode {
+    // No letter to show (no name, or one of signs only) is "?": never a letter of an id passed for a name.
+    const initials = initialsOf(name) || '?';
+    const named = name.trim() === '' ? '?' : name;
     // The dot: the live connection on one's own avatar, else presence; busy is drawn as away.
     const dot = connection !== undefined ? `is-${connection.state === 'offline' ? 'disconnected' : connection.state}` : presence === undefined ? null : `is-${presence === 'busy' ? 'away' : presence}`;
-    const said = connection !== undefined ? `${name}, ${connection.label}` : presence ? `${name}, ${presence}` : name;
+    const said = connection !== undefined ? `${named}, ${connection.label}` : presence ? `${named}, ${presence}` : named;
     return (
         <span
-            className={cx('cms-avatar', deleted ? 'cms-avatar--deleted' : `cms-avatar--tint-${tintOf(name)}`)}
+            className={cx('cms-avatar', deleted ? 'cms-avatar--deleted' : `cms-avatar--tint-${tintOf(tintSeed ?? name)}`)}
             style={{ width: size, height: size, fontSize: Math.round(size * 0.4) }}
             role="img"
             aria-label={said}
@@ -163,7 +168,7 @@ export function Avatar({ name, pictureUrl, presence, connection, deleted = false
         >
             {deleted ? <Icon name="user" size={Math.round(size * 0.6)} />
                 : pictureUrl ? <img src={pictureUrl} alt="" className="cms-avatar__picture" />
-                : <span aria-hidden="true">{initialsOf(name)}</span>}
+                : <span aria-hidden="true">{initials}</span>}
             {dot === null ? null : <span className={cx('cms-avatar__presence', dot)} aria-hidden="true" />}
         </span>
     );
