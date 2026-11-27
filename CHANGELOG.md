@@ -2,6 +2,13 @@
 
 All notable changes to `@coolms/ui-react` are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## 0.1.0-alpha.34 (2026-11-27)
+
+An avatar with no letter to show says "?", and its tint can come from a stable id.
+
+- `Avatar` shows "?" when its name gives no letter (no name, a blank one, or one of signs only), never a letter of an identifier passed for a name. With no name, or a blank one, its accessible name is "?" too, with the presence or connection after it as before. (#132)
+- `Avatar` has `tintSeed`: what its tint is chosen from, an id that stays the same (a user's, a conversation's). Left out, the name, as before. (#132)
+
 ## 0.1.0-alpha.33 (2026-11-25)
 
 A list's filter is one menu button, the second row's label one step under the section's title, and design tokens v0.32.0.
