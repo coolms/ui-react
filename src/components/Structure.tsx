@@ -120,6 +120,11 @@ export interface AvatarProps {
     readonly connection?: { readonly state: AvatarConnection; readonly label: string };
     /** Their account is gone: a neutral person icon, never initials of the name stored for them. */
     readonly deleted?: boolean;
+    /**
+     * The host's words for a person with no name to show (no name given, or one the viewer may not read), the same label
+     * its lists use ("No name"): the accessible name when `name` is blank. "?" when left out. The avatar still shows "?".
+     */
+    readonly unnamedLabel?: string;
     readonly size?: number;
     /** What the tint is chosen from: an id that stays the same (a user's, a conversation's). The name when left out. */
     readonly tintSeed?: string;
@@ -151,10 +156,10 @@ export function tintOf(name: string): number {
 }
 
 /** A person or an account, by picture or initials (contract component `avatar`: picture, initials, presence). */
-export function Avatar({ name, pictureUrl, presence, connection, deleted = false, size = 32, tintSeed }: AvatarProps): ReactNode {
+export function Avatar({ name, pictureUrl, presence, connection, deleted = false, size = 32, tintSeed, unnamedLabel }: AvatarProps): ReactNode {
     // No letter to show (no name, or one of signs only) is "?": never a letter of an id passed for a name.
     const initials = initialsOf(name) || '?';
-    const named = name.trim() === '' ? '?' : name;
+    const named = name.trim() === '' ? (unnamedLabel?.trim() || '?') : name;
     // The dot: the live connection on one's own avatar, else presence; busy is drawn as away.
     const dot = connection !== undefined ? `is-${connection.state === 'offline' ? 'disconnected' : connection.state}` : presence === undefined ? null : `is-${presence === 'busy' ? 'away' : presence}`;
     const said = connection !== undefined ? `${named}, ${connection.label}` : presence ? `${named}, ${presence}` : named;

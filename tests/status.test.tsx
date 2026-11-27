@@ -102,6 +102,19 @@ describe('Avatar', () => {
         expect(tint(marks[3]!)).toBe(`cms-avatar--tint-${String(tintOf('u-1'))}`);
     });
 
+    it("a person with no name is named by the host's label: it shows \"?\", and says the label with any state; a deleted account the same", () => {
+        render(<><Avatar name="" unnamedLabel="No name" /><Avatar name="  " unnamedLabel="No name" presence="away" /><Avatar name="" unnamedLabel="No name" deleted /><Avatar name="Ada" unnamedLabel="No name" /><Avatar name="" unnamedLabel="  " /></>);
+        const marks = screen.getAllByRole('img');
+        expect(marks[0]).toHaveAccessibleName('No name');
+        expect(marks[0]).toHaveTextContent('?');
+        expect(marks[1]).toHaveAccessibleName('No name, away');
+        expect(marks[2]).toHaveAccessibleName('No name');
+        expect(marks[2]).toHaveClass('cms-avatar--deleted');
+        // A name given is said as it is; a blank label is no label.
+        expect(marks[3]).toHaveAccessibleName('Ada');
+        expect(marks[4]).toHaveAccessibleName('?');
+    });
+
     it('picture, initials, presence', () => {
         render(<><Avatar name="Ada Lovelace" pictureUrl="data:image/gif;base64,R0lGODlhAQABAAAAACw=" /><Avatar name="Bo Ek" presence="away" /></>);
         expect(screen.getByRole('img', { name: 'Ada Lovelace' }).querySelector('img')).not.toBeNull();
