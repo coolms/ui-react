@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { Avatar, EmptyState, ErrorBanner, Loading, PageHeader, TabStrip, Toast, initialsOf } from '../src';
+import { Avatar, EmptyState, ErrorBanner, Loading, PageHeader, TabStrip, Toast, initialsOf, tintOf } from '../src';
 
 describe('Toast', () => {
     it('an error is an alert; success and info are polite', () => {
@@ -89,6 +89,17 @@ describe('Avatar', () => {
         expect(initialsOf('Maria Via Rossi')).toBe('MR');
         expect(initialsOf('Via Rossi')).toBe('VR');
         expect(initialsOf('Olga via')).toBe('OV');
+    });
+
+    it('with no letter to show, "?": no name, a blank one, or signs only; its tint from the seed when given', () => {
+        render(<><Avatar name="" /><Avatar name="   " presence="online" /><Avatar name="--" /><Avatar name="Ada" tintSeed="u-1" /><Avatar name="Bo" tintSeed="u-1" /></>);
+        const marks = screen.getAllByRole('img');
+        expect(marks.slice(0, 3).map((mark) => mark.textContent)).toEqual(['?', '?', '?']);
+        expect(marks[0]).toHaveAccessibleName('?');
+        expect(marks[1]).toHaveAccessibleName('?, online');
+        const tint = (mark: HTMLElement) => [...mark.classList].find((name) => name.startsWith('cms-avatar--tint-'));
+        expect(tint(marks[3]!)).toBe(tint(marks[4]!));
+        expect(tint(marks[3]!)).toBe(`cms-avatar--tint-${String(tintOf('u-1'))}`);
     });
 
     it('picture, initials, presence', () => {
