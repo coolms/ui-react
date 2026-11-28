@@ -11,6 +11,8 @@ import {
     Button,
     Column,
     PaneToolbar,
+    SectionHeader,
+    type SectionAction,
     CallBar,
     CallPanel,
     ChatBubble,
@@ -38,7 +40,7 @@ import {
 } from '../src';
 
 /** The demo's pages, one per mockup, by the address's hash; the theme by `?theme=dark`. */
-type Page = 'mail' | 'chat' | 'calls' | 'signin' | 'viewer' | 'state' | 'picker' | 'notifications' | 'shell';
+type Page = 'mail' | 'chat' | 'calls' | 'signin' | 'viewer' | 'state' | 'picker' | 'notifications' | 'shell' | 'headers';
 
 const RAIL: readonly RailItem[] = [
     { id: 'mail', label: 'Mail', icon: 'mail', href: '#mail', badge: { count: 12, label: '12 unread' } },
@@ -292,7 +294,35 @@ function SignInPage(): ReactNode {
 /** The page and the place within it, from the address: `#mail/2` is Mail with its third message open. */
 function routeOf(hash: string): { readonly page: Page; readonly sub: string } {
     const [h = '', sub = ''] = hash.replace('#', '').split('/');
-    return { page: h === 'chat' || h === 'calls' || h === 'signin' || h === 'viewer' || h === 'state' || h === 'picker' || h === 'notifications' || h === 'shell' ? h : 'mail', sub };
+    return { page: h === 'chat' || h === 'calls' || h === 'signin' || h === 'viewer' || h === 'state' || h === 'picker' || h === 'notifications' || h === 'shell' || h === 'headers' ? h : 'mail', sub };
+}
+
+/**
+ * Section headers giving way (contract `section-header`, width): the same declared head at a wide, a medium and a
+ * narrow column, and a chat head with a single other action, a button at the row's end.
+ */
+function HeadersPage(): ReactNode {
+    const none = () => undefined;
+    const secondary: SectionAction[] = [
+        { id: 'add', label: 'Add mailbox', icon: 'folder-plus', overflow: 1, onPress: none },
+        { id: 'settings', label: 'Mail settings', icon: 'gear', overflow: 2, onPress: none },
+        { id: 'import', label: 'Import', icon: 'download', onPress: none },
+    ];
+    const head = (width: number) => (
+        <div key={width} data-header-width={width} style={{ width, maxWidth: '100%', border: '1px solid var(--cms-border)' }}>
+            <SectionHeader title="Mail" icon="mail" moreLabel="More actions" description="Your mailboxes"
+                primary={{ label: 'Compose', icon: 'pencil', onPress: none }} secondary={secondary} />
+        </div>
+    );
+    return (
+        <main style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
+            {[880, 520, 300, 180].map(head)}
+            <div style={{ width: 360, maxWidth: '100%', border: '1px solid var(--cms-border)' }}>
+                <SectionHeader title="Chat" icon="chat" moreLabel="More actions" primary={{ label: 'New chat', icon: 'plus', onPress: none }}
+                    secondary={[{ id: 'browse', label: 'Browse channels', icon: 'hash', overflow: 0, onPress: none }]} />
+            </div>
+        </main>
+    );
 }
 
 /** The one state component: each kind at a page's size, or all of them in a card and beside text. */
@@ -488,8 +518,9 @@ function Demo(): ReactNode {
             {route.page === 'state' ? <StatePage sub={route.sub} /> : null}
             {route.page === 'notifications' ? <NotificationsPage /> : null}
             {route.page === 'shell' ? <ShellPage sub={route.sub} /> : null}
+            {route.page === 'headers' ? <HeadersPage /> : null}
             {route.page === 'picker' ? <PickerPage sub={route.sub} /> : null}
-            {route.page === 'viewer' || route.page === 'state' || route.page === 'picker' || route.page === 'notifications' || route.page === 'shell' ? null : route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
+            {route.page === 'viewer' || route.page === 'state' || route.page === 'picker' || route.page === 'notifications' || route.page === 'shell' || route.page === 'headers' ? null : route.page === 'mail' ? <MailPage sub={route.sub} /> : route.page === 'chat' ? <ChatPage sub={route.sub} /> : route.page === 'calls' ? <CallsPage /> : <SignInPage />}
             <button type="button" className="cms-button ws-theme" aria-pressed={dark} onClick={() => setDark(d => !d)}>Dark</button>
         </>
     );

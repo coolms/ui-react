@@ -17,7 +17,8 @@ describe('SectionHeader', () => {
         expect(within(row).getByRole('heading', { level: 1 })).toHaveTextContent('Mail');
         const primary = within(row).getByRole('button', { name: 'Compose' });
         expect(primary).toHaveClass('cms-button--primary');
-        expect([...row.querySelectorAll('[data-action]')].map(e => e.getAttribute('data-action'))).toEqual(['primary', 'more']);
+        // A single other action is never a More of one: it is a button at the end of the row.
+        expect([...row.querySelectorAll('[data-action]')].map(e => e.getAttribute('data-action'))).toEqual(['primary', 'add-mailbox']);
         expect(container.querySelector('[data-row="2"]')).toBeNull();
         primary.click();
         expect(compose).toHaveBeenCalledTimes(1);

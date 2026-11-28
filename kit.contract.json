@@ -13,7 +13,7 @@
     "state": { "implementedBy": "State", "states": ["loading", "empty", "error", "denied", "page", "block", "inline", "with-action", "delayed"] },
     "error-banner": { "implementedBy": "ErrorBanner", "states": ["default", "with-retry"] },
     "page-header": { "implementedBy": "PageHeader", "states": ["default", "with-actions", "with-back-link"] },
-    "section-header": { "implementedBy": "SectionHeader", "states": ["default", "with-primary", "with-primary-menu", "with-more", "action-disabled", "with-context", "full-width"] },
+    "section-header": { "implementedBy": "SectionHeader", "states": ["default", "with-primary", "with-primary-menu", "with-more", "with-secondary", "secondary-icon", "secondary-in-more", "lone-menu-only", "action-disabled", "with-context", "with-description", "meta-hidden", "meta-cut", "primary-icon", "primary-in-more", "full-width"] },
     "tab-strip": { "implementedBy": "TabStrip", "states": ["default", "active", "with-count"] },
     "list": { "implementedBy": "List", "states": ["loading", "empty", "populated", "selected", "error", "pulled"] },
     "avatar": { "implementedBy": "Avatar", "states": ["picture", "initials", "presence", "connection", "deleted"] },
@@ -23,7 +23,7 @@
     "file-viewer": { "implementedBy": "FileViewer", "states": ["loading", "error", "no-preview", "editing", "editing-closing", "editing-conflict", "with-edit", "with-siblings", "with-thumbnails", "with-attachment-strip", "phone"] },
     "file-picker": { "implementedBy": "FilePicker", "states": ["loading", "empty", "error", "denied", "with-selection", "with-budget", "over-budget", "disabled-entry", "paging", "phone"] },
     "notification": { "implementedBy": "Notification", "states": ["unread", "read", "collapsed", "expanded", "with-action", "row-action"] },
-    "pane-toolbar": { "implementedBy": "PaneToolbar", "states": ["default", "labels-partly-hidden", "labels-hidden", "overflowing", "menu-open", "with-status", "action-disabled", "action-busy", "phone"] },
+    "pane-toolbar": { "implementedBy": "PaneToolbar", "states": ["default", "labels-partly-hidden", "labels-hidden", "overflowing", "menu-open", "with-status", "action-disabled", "action-busy", "phone", "lone-menu-only"] },
     "splitter": { "implementedBy": "Splitter", "states": ["default", "hover", "dragging", "focused", "at-min", "at-max"] }
   },
   "serverStates": {

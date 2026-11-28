@@ -31,9 +31,15 @@ export interface PaneToolbarAction {
     /**
      * When it goes behind ... as the row narrows: lower first; actions of the same priority go together (a toggle's
      * pair). Without one it is pinned: it goes behind ... only in a row too narrow to hold it with the rest, the last in
-     * the row first, so that nothing is cut off. 0: menu only, behind ... at every width and never in the row.
+     * the row first, so that nothing is cut off. 0: menu only, behind ... at every width and never in the row, unless it
+     * is the only action behind ...: then it is a button at the end of the row.
      */
     readonly overflow?: number;
+    /**
+     * The row's declared primary (a folder's Upload): it keeps its label longest and goes behind ... last, first in its
+     * menu. One per row: where more than one says so, the first is.
+     */
+    readonly primary?: boolean;
     /** Shown, kept in the focus order, and doing nothing when chosen; `reason` is its tooltip. */
     readonly disabled?: boolean;
     readonly reason?: string;
@@ -87,18 +93,18 @@ function unitsOf(actions: readonly PaneToolbarAction[]): readonly (readonly stri
 
 /**
  * The one row of actions at the top of a pane (contract component `pane-toolbar`: default, labels-partly-hidden,
- * labels-hidden, overflowing, menu-open, with-status, action-disabled, action-busy, phone). It is measured on its own
- * width as its pane resizes:
- * every label shows while all fit; then labels hide one by one in the overflow order (lower first, a priority's actions
- * together), the pinned last, from the end of the row; only once every label is hidden do actions go behind ..., in
- * the same order, the fewest that let the rest and ... fit, never one alone while another can go with it. Where the
- * pinned and ... still do not fit, the pinned go behind ... too, from the end of the row: no action is ever cut off,
- * and ... is always reached. They come back in the reverse order. One Tab stop; Left and Right, Home and End move
- * inside it.
+ * labels-hidden, overflowing, menu-open, with-status, action-disabled, action-busy, phone, lone-menu-only). It is
+ * measured on its own width as its pane resizes, and gives way in this order:
+ * every label shows while all fit; then the labels of the actions that are not the primary hide one by one in the
+ * giving-way order (by overflow, lower first, a priority's actions together; then the pinned, from the end of the row
+ * back); then the primary's label; only once every label is hidden do actions go behind ..., in the same order, the
+ * fewest that let the rest and ... fit, and the primary last. No action is ever cut off, and ... is always reached.
+ * They come back in the reverse order. One Tab stop; Left and Right, Home and End move inside it.
  *
- * Menu-only actions (overflow 0) are behind ... at every width, first in its menu, and take no part in the giving way:
- * their labels are not counted, and "never one alone" counts only the actions that could have stayed in the row. ...
- * is drawn for them even when one is alone.
+ * ... never holds one action: the first move into it takes two, or one beside a menu-only action, and where only one
+ * could go, it stays in the row at its icon width. Its menu lists the primary first, then those that gave way, in their
+ * order, then the menu-only actions (overflow 0) last. Menu-only actions are behind ... at every width, except a single
+ * one with nothing else behind ...: that one is a button at the end of the row, giving way first.
  *
  * An action with `entries` is a menu button: its chevron after it, it opens the kit's context menu with its entries,
  * each disabled with its own reason as the server says, and it gives way as any other action does (behind ..., choosing
@@ -117,12 +123,20 @@ export function PaneToolbar({ label, actions: given, onAction, status, moreLabel
     const [current, setCurrent] = useState<string | null>(null);
     const [tipOff, setTipOff] = useState<string | null>(null);
     const groups = groupsOf(actions);
-    const units = unitsOf(actions);
     const all = groups.flat();
-    // Behind ... at every width, and never in the row.
+    // The row's primary: the first that says so, never a menu-only one.
+    const primaryId = all.find(a => a.primary === true && a.overflow !== 0)?.id ?? null;
+    const units = unitsOf(actions.filter(a => a.id !== primaryId));
+    // Behind ... at every width, and never in the row, unless one is alone (`lone`).
     const menuOnly = all.filter(a => a.overflow === 0);
     const inRow = all.filter(a => a.overflow !== 0);
-    const key = JSON.stringify([actions.map(a => [a.id, a.label, a.icon, a.group, a.overflow ?? null, a.entries !== undefined]), status ?? '', leading !== undefined]);
+    // A single menu-only action: a button at the end of the row while nothing else is behind ....
+    const lone = menuOnly.length === 1 ? menuOnly[0] ?? null : null;
+    const key = JSON.stringify([actions.map(a => [a.id, a.label, a.icon, a.group, a.overflow ?? null, a.primary === true, a.entries !== undefined]), status ?? '', leading !== undefined]);
+
+    // Behind ... for a set the width sent there: the menu-only actions too, a lone one only once another is there.
+    const behindOf = (gone: ReadonlySet<string>): ReadonlySet<string> =>
+        new Set([...menuOnly.filter(a => a !== lone || gone.size > 0).map(a => a.id), ...gone]);
 
     const fit = useCallback(() => {
         const box = row.current;
@@ -137,16 +151,20 @@ export function PaneToolbar({ label, actions: given, onAction, status, moreLabel
         const more = width('[data-measure="more"]');
         const sizeOf = (id: string, labels: boolean) => width(`[data-measure="${labels ? 'full' : 'icon'}"][data-measure-action="${CSS.escape(id)}"]`);
         const needed = (bare: ReadonlySet<string>, gone: ReadonlySet<string>) => {
-            const hidden = new Set([...menuOnly.map(a => a.id), ...gone]);
-            const shownGroups = groups.map(g => g.filter(a => !hidden.has(a.id))).filter(g => g.length > 0);
-            const items = shownGroups.flat();
+            const hidden = behindOf(gone);
+            // A lone menu-only action in the row stands after the last group, outside it.
+            const loneIn = lone !== null && !hidden.has(lone.id) ? lone : null;
+            const shownGroups = groups.map(g => g.filter(a => !hidden.has(a.id) && a !== loneIn)).filter(g => g.length > 0);
+            const items = [...shownGroups.flat(), ...(loneIn !== null ? [loneIn] : [])];
             const parts = items.length + (shownGroups.length - 1) + (hidden.size > 0 ? 1 : 0) + (lead > 0 ? 1 : 0);
             return lead + items.reduce((sum, a) => sum + sizeOf(a.id, !bare.has(a.id)), 0) + separator * Math.max(0, shownGroups.length - 1)
                 + (hidden.size > 0 ? more : 0) + gap * Math.max(0, parts - 1);
         };
-        // The order labels hide in: the overflow's, then the pinned, the last in the row first.
-        const pinnedIds = inRow.filter(a => !units.some(u => u.includes(a.id))).map(a => a.id);
-        const labelOrder = [...units, ...[...pinnedIds].reverse().map(id => [id])];
+        // The giving-way order: the overflow's, then the pinned, the last in the row first, then the primary.
+        const pinnedIds = inRow.filter(a => a.id !== primaryId && !units.some(u => u.includes(a.id))).map(a => a.id);
+        const goOrder = [...units, ...[...pinnedIds].reverse().map(id => [id]), ...(primaryId !== null ? [[primaryId]] : [])];
+        // Labels hide in it too, a lone menu-only action's first: it is the lowest of all.
+        const labelOrder = [...(lone !== null ? [[lone.id]] : []), ...goOrder];
         let next: Layout | null = null;
         if (needed(new Set(), new Set()) <= room) next = FULL;
         else {
@@ -160,20 +178,16 @@ export function PaneToolbar({ label, actions: given, onAction, status, moreLabel
             }
         }
         if (next === null) {
-            const bare = new Set(inRow.map(a => a.id));
+            const bare = new Set(labelOrder.flat());
             const hidden = new Set<string>();
-            for (const unit of units) {
-                for (const id of unit) if (inRow.some(a => a.id === id)) hidden.add(id);
-                // ... takes an icon's width itself, so a menu of one saves nothing: never one alone behind it.
-                if (hidden.size >= 2 && needed(bare, hidden) <= room) break;
+            // ... never holds one action: the first move takes two, or one beside a menu-only action already there.
+            const enough = () => hidden.size + menuOnly.length >= 2;
+            for (const unit of goOrder) {
+                for (const id of unit) hidden.add(id);
+                if (enough() && needed(bare, hidden) <= room) break;
             }
-            // Still wider than the row: the pinned go too, from the end, so that nothing is cut off and ... is reached.
-            if (needed(bare, hidden) > room) {
-                for (const id of [...pinnedIds].reverse()) {
-                    hidden.add(id);
-                    if (needed(bare, hidden) <= room) break;
-                }
-            }
+            // Only one could go: it stays in the row, at its icon width.
+            if (!enough()) hidden.clear();
             next = { bare, hidden };
         }
         const chosen = next;
@@ -191,16 +205,21 @@ export function PaneToolbar({ label, actions: given, onAction, status, moreLabel
         return () => watch.disconnect();
     }, [fit]);
 
-    // What is behind ... now: the menu-only actions always, then those the width sent there.
-    const hiddenNow = new Set([...menuOnly.map(a => a.id), ...layout.hidden]);
-    const shownGroups = groups.map(g => g.filter(a => !hiddenNow.has(a.id))).filter(g => g.length > 0);
-    const shown = shownGroups.flat();
+    // What is behind ... now: the menu-only actions (a lone one only once another is there), then those the width sent.
+    const hiddenNow = behindOf(layout.hidden);
+    // A lone menu-only action in the row: at its end, after the last group.
+    const loneShown = lone !== null && !hiddenNow.has(lone.id) ? lone : null;
+    const outOfGroups = (a: PaneToolbarAction) => hiddenNow.has(a.id) || a === loneShown;
+    const shownGroups = groups.map(g => g.filter(a => !outOfGroups(a))).filter(g => g.length > 0);
+    const shown = [...shownGroups.flat(), ...(loneShown !== null ? [loneShown] : [])];
+    const byId = (id: string) => all.find(a => a.id === id);
+    const gaveWay = [...units.flat(), ...inRow.filter(a => a.id !== primaryId && !units.some(u => u.includes(a.id))).map(a => a.id).reverse()];
+    // ...'s menu: the primary first, then those that gave way in their order, then the menu-only last.
     const behind = [
-        ...menuOnly,
-        ...units.flat().map(id => all.find(a => a.id === id)).filter((a): a is PaneToolbarAction => a !== undefined && layout.hidden.has(a.id)),
-        // The pinned that a row too narrow for them sent behind ..., in the row's order.
-        ...inRow.filter(a => layout.hidden.has(a.id) && !units.some(u => u.includes(a.id))),
-    ];
+        ...(primaryId !== null && layout.hidden.has(primaryId) ? [byId(primaryId)] : []),
+        ...gaveWay.filter(id => layout.hidden.has(id)).map(byId),
+        ...(hiddenNow.size > 0 ? menuOnly : []),
+    ].filter((a): a is PaneToolbarAction => a !== undefined && hiddenNow.has(a.id));
     const pinned = new Set(inRow.filter(a => !units.some(u => u.includes(a.id))).map(a => a.id));
     const stops = [...shown.map(a => a.id), ...(behind.length > 0 ? ['more'] : [])];
     const focusable = current !== null && stops.includes(current) ? current : stops[0] ?? null;
@@ -262,6 +281,30 @@ export function PaneToolbar({ label, actions: given, onAction, status, moreLabel
         setMenu({ which, x: r.left, y: r.bottom });
     };
 
+    // The actions whose labels take part in the giving way: those in the row, and a lone menu-only one.
+    const labelled = inRow.length + (lone !== null ? 1 : 0);
+    const drawn = (a: PaneToolbarAction) => (
+        <ToolbarAction
+            key={a.id}
+            action={a}
+            labels={!layout.bare.has(a.id)}
+            overflowed={hiddenNow.has(a.id)}
+            pinned={pinned.has(a.id)}
+            tabbable={focusable === a.id}
+            tipOff={tipOff === a.id}
+            menuOpen={menu?.which === a.id}
+            onChoose={(target, focus) => {
+                if (a.entries === undefined) onAction(a.id);
+                else if (menu?.which === a.id && focus === null) setMenu(null);
+                else openAt(a.id, target, focus ?? 'first');
+            }}
+            onFocus={() => {
+                setCurrent(a.id);
+                setTipOff(null);
+            }}
+        />
+    );
+
     return (
         <div
             ref={row}
@@ -269,44 +312,25 @@ export function PaneToolbar({ label, actions: given, onAction, status, moreLabel
             aria-label={label}
             className={cx(
                 'cms-pane-toolbar',
-                inRow.length > 0 && layout.bare.size >= inRow.length && 'cms-pane-toolbar--labels-hidden',
-                layout.bare.size > 0 && layout.bare.size < inRow.length && 'cms-pane-toolbar--labels-partly-hidden',
+                labelled > 0 && layout.bare.size >= labelled && 'cms-pane-toolbar--labels-hidden',
+                layout.bare.size > 0 && layout.bare.size < labelled && 'cms-pane-toolbar--labels-partly-hidden',
             )}
             onKeyDown={move}
         >
             {leading !== undefined ? <div className="cms-pane-toolbar__leading">{leading}</div> : null}
             {groups.map((group, g) => {
-                const visible = group.filter(a => !hiddenNow.has(a.id));
-                const earlier = groups.slice(0, g).some(gr => gr.some(a => !hiddenNow.has(a.id)));
+                const visible = group.filter(a => !outOfGroups(a));
+                const earlier = groups.slice(0, g).some(gr => gr.some(a => !outOfGroups(a)));
                 return (
                     <div key={g} className="cms-pane-toolbar__group-wrap">
                         {visible.length > 0 && earlier ? <span className="cms-pane-toolbar__separator" role="separator" aria-orientation="vertical" /> : null}
                         <div className="cms-pane-toolbar__group" hidden={visible.length === 0}>
-                            {group.map(a => (
-                                <ToolbarAction
-                                    key={a.id}
-                                    action={a}
-                                    labels={!layout.bare.has(a.id)}
-                                    overflowed={hiddenNow.has(a.id)}
-                                    pinned={pinned.has(a.id)}
-                                    tabbable={focusable === a.id}
-                                    tipOff={tipOff === a.id}
-                                    menuOpen={menu?.which === a.id}
-                                    onChoose={(target, focus) => {
-                                        if (a.entries === undefined) onAction(a.id);
-                                        else if (menu?.which === a.id && focus === null) setMenu(null);
-                                        else openAt(a.id, target, focus ?? 'first');
-                                    }}
-                                    onFocus={() => {
-                                        setCurrent(a.id);
-                                        setTipOff(null);
-                                    }}
-                                />
-                            ))}
+                            {group.filter(a => a !== loneShown).map(a => drawn(a))}
                         </div>
                     </div>
                 );
             })}
+            {loneShown !== null ? <div className="cms-pane-toolbar__group cms-pane-toolbar__lone">{drawn(loneShown)}</div> : null}
             {behind.length > 0 ? (
                 <button
                     ref={moreButton}
