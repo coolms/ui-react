@@ -218,8 +218,23 @@
 .cms-section-header--full { padding-inline: var(--cms-space-5); }
 .cms-section-header__row { display: flex; align-items: center; gap: var(--cms-space-2); height: var(--cms-pane-toolbar-height); min-width: 0; white-space: nowrap; }
 .cms-section-header__row > .cms-icon { flex: none; color: var(--cms-text-secondary); }
-.cms-section-header__title { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; font-size: var(--cms-font-size-title-md); font-weight: 600; color: var(--cms-text); }
-.cms-section-header__actions { display: flex; align-items: center; gap: var(--cms-space-1); flex: none; }
+.cms-section-header__row { position: relative; }
+.cms-section-header__title { flex: 0 1 auto; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; font-size: var(--cms-font-size-title-md); font-weight: 600; color: var(--cms-text); }
+.cms-section-header__description { flex: none; color: var(--cms-text-muted); font-size: var(--cms-font-size-meta); }
+.cms-section-header__meta { display: inline-flex; flex: none; align-items: center; min-width: 0; }
+/* The last step: the chips that are the only place their fact appears are cut, the last first, each its whole text kept. */
+.cms-section-header__row--chips-cut .cms-section-header__meta { overflow: hidden; text-overflow: ellipsis; }
+.cms-section-header__actions { display: flex; align-items: center; gap: var(--cms-space-1); flex: none; margin-inline-start: auto; }
+.cms-section-header__secondary { gap: var(--cms-space-1); }
+.cms-section-header__secondary--bare, .cms-section-header__primary--bare { padding-inline: var(--cms-space-2); }
+.cms-section-header__secondary[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+/* The parts measured out of sight, in a box of no size: each keeps its own width, and the page none of it. */
+.cms-section-header__measure { position: absolute; top: 0; left: 0; display: flex; width: 0; height: 0; overflow: hidden; visibility: hidden; pointer-events: none; }
+.cms-section-header__measure > span { flex: none; display: inline-flex; }
+/* At tablet and phone widths an action shown as its icon is at least a touch target. */
+@media (max-width: 1199.98px) {
+    .cms-section-header__secondary--bare, .cms-section-header__primary--bare, .cms-section-header__more { min-width: var(--cms-touch-target-min, 44px); min-height: var(--cms-touch-target-min, 44px); }
+}
 .cms-section-header__primary { display: inline-flex; align-items: center; }
 .cms-section-header__primary .cms-button[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
 .cms-section-header__primary--split > .cms-button:first-child { border-start-end-radius: 0; border-end-end-radius: 0; }

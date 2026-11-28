@@ -7,7 +7,7 @@ const offered = { offered: true, locked: false };
 const item = (id: string, label: string, extra: Partial<MenuItem> = {}): MenuItem => ({ id, label, offer: offered, onSelect: vi.fn(), ...extra });
 
 describe('SectionHeader', () => {
-    it('row 1 holds the title, then the primary with its icon and label, then More; no row 2 without a context', () => {
+    it('row 1 holds the title, then the other actions, then the primary with its icon and label; no row 2 without a context', () => {
         const compose = vi.fn();
         const { container } = render(
             <SectionHeader title="Mail" icon="mail" moreLabel="More actions" primary={{ label: 'Compose', icon: 'plus', onPress: compose }}
@@ -17,23 +17,23 @@ describe('SectionHeader', () => {
         expect(within(row).getByRole('heading', { level: 1 })).toHaveTextContent('Mail');
         const primary = within(row).getByRole('button', { name: 'Compose' });
         expect(primary).toHaveClass('cms-button--primary');
-        expect([...row.querySelectorAll('[data-action]')].map(e => e.getAttribute('data-action'))).toEqual(['primary', 'more']);
+        // An old menu item is read as a secondary action: a button before the primary while it fits.
+        expect([...row.querySelectorAll('[data-action]')].map(e => e.getAttribute('data-action'))).toEqual(['add-mailbox', 'primary']);
         expect(container.querySelector('[data-row="2"]')).toBeNull();
         primary.click();
         expect(compose).toHaveBeenCalledTimes(1);
     });
 
-    it('More lists the other actions; a refused one stays, with the server\'s reason, and choosing one runs it', async () => {
+    it('the other actions are buttons; a refused one stays, with the server\'s reason, and choosing one runs it', async () => {
         const add = item('add-mailbox', 'Add mailbox');
         render(
             <SectionHeader title="Mail" moreLabel="More actions" primary={{ label: 'Compose', icon: 'plus', onPress: vi.fn() }}
                 more={[add, item('import', 'Import', { offer: { offered: true, locked: false, refusal: 'An import is running.' } })]} />,
         );
-        await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
-        const menu = screen.getByRole('menu');
-        expect(within(menu).getAllByRole('menuitem').map(m => m.textContent)).toEqual(['Add mailbox', expect.stringContaining('Import')]);
-        expect(within(menu).getByText('An import is running.')).toBeInTheDocument();
-        await userEvent.click(within(menu).getByRole('menuitem', { name: /Add mailbox/ }));
+        const refused = screen.getByRole('button', { name: /Import/ });
+        expect(refused).toHaveAttribute('aria-disabled', 'true');
+        expect(refused).toHaveAccessibleDescription('An import is running.');
+        await userEvent.click(screen.getByRole('button', { name: 'Add mailbox' }));
         expect(add.onSelect).toHaveBeenCalledTimes(1);
     });
 

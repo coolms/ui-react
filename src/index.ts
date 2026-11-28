@@ -5,7 +5,7 @@ export { Toast, ToastRegion, Loading, EmptyState, ErrorBanner, type ToastProps, 
 export { State, STATE_DELAY_MS, type StateKind, type StatePlacement, type StateProps } from './components/State.js';
 export { FileViewer, type FileViewerAction, type FileViewerConflict, type FileViewerEditing, type FileViewerProps, type FileViewerSiblings, type FileViewerState } from './components/FileViewer.js';
 export { FilePicker, FilePickerDenied, FilePickerRestart, type FilePickerBudget, type FilePickerChoice, type FilePickerEntry, type FilePickerLabels, type FilePickerPage, type FilePickerProps, type FilePickerSpace } from './components/FilePicker.js';
-export { SectionHeader, type SectionHeaderProps, type SectionPrimary } from './components/SectionHeader.js';
+export { SectionHeader, type SectionAction, type SectionHeaderProps, type SectionMeta, type SectionPrimary } from './components/SectionHeader.js';
 export { Column, type ColumnProps } from './components/Column.js';
 export { PageHeader, TabStrip, Avatar, initialsOf, tintOf, type PageHeaderProps, type Tab, type TabStripProps, type AvatarProps, type AvatarPresence, type AvatarConnection } from './components/Structure.js';
 export { Icon, ICON_NAMES, BOOTSTRAP_ICONS, NamedIcon, iconForName, type IconName, type IconProps } from './components/Icon.js';

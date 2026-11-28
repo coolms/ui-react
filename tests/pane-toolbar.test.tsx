@@ -124,44 +124,56 @@ describe('PaneToolbar', () => {
             return within(screen.getByRole('menu', { name: 'More actions' })).getAllByRole('menuitem');
         };
 
-        it('is never in the row, at any width: always behind More, first', async () => {
-            // The row without it, all labelled, and More: 7 x 100 + 2 separators + 36 = 754.
-            for (const width of [1000, 754, 753, 300, 250, 120]) {
-                room = width;
-                const { unmount } = draw(withOriginal());
-                expect(shown().map((b) => b.dataset['action'])).not.toContain('original');
-                expect(behind()).toContain('original');
-                expect((await menu())[0]).toHaveTextContent('Show original');
-                unmount();
-            }
-            room = 754;
-            draw(withOriginal());
-            // Its label takes no part in the giving way: at 754 every label of the row still shows.
-            expect(bar().className).not.toContain('labels-partly-hidden');
-            expect(behind()).toEqual(['original']);
-            const items = await menu();
-            expect(items.map((m) => m.textContent)).toEqual(['Show original']);
-            expect(items[0]!.querySelector('svg')).not.toBeNull();
-            await userEvent.click(items[0]!);
+        it('alone, it is a button at the end of the row while nothing else is behind More, its label going first', async () => {
+            // The row with it, all labelled: 8 x 100 + 2 separators = 818 (its group holds nothing else: no separator).
+            room = 1000;
+            const first = draw(withOriginal());
+            expect(shown().map((b) => b.dataset['action'])).toEqual(['reply', 'forward', 'archive', 'delete', 'unread', 'star', 'move', 'original']);
+            expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+            await userEvent.click(screen.getByRole('button', { name: 'Show original' }));
             expect(chosen).toEqual(['original']);
+            first.unmount();
+            // At 790 one label hides: its own, the lowest of all.
+            room = 790;
+            const second = draw(withOriginal());
+            const labelled = shown().filter((b) => b.querySelector('.cms-pane-toolbar__label') !== null).map((b) => b.dataset['action']);
+            expect(labelled).toEqual(['reply', 'forward', 'archive', 'delete', 'unread', 'star', 'move']);
+            second.unmount();
+            // At 300 the icons do not fit (8 x 36 + 18 = 306): Star goes, and Show original goes with it, last in More.
+            room = 300;
+            draw(withOriginal());
+            expect(behind()).toEqual(['original', 'star']);
+            expect((await menu()).map((m) => m.textContent)).toEqual(['Star', 'Show original']);
         });
 
-        it('draws More for it even alone, and is not a Tab stop of its own', () => {
+        it('alone beside one action, it is a button too, and not a Tab stop of its own', () => {
             draw([{ id: 'reply', icon: 'reply', label: 'Reply', group: 'answer' }, { id: 'original', icon: 'file-earmark-code', label: 'Show original', group: 'view', overflow: 0 }]);
-            expect(shown().map((b) => b.getAttribute('aria-label'))).toEqual(['Reply', 'More actions']);
+            expect(shown().map((b) => b.getAttribute('aria-label'))).toEqual(['Reply', 'Show original']);
             expect(shown().filter((b) => b.tabIndex === 0).map((b) => b.getAttribute('aria-label'))).toEqual(['Reply']);
+            expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
             // A group with nothing left in the row draws no separator.
             expect(within(bar()).queryAllByRole('separator')).toHaveLength(0);
         });
 
-        it('leaves "never one alone" to the actions that could stay: it does not make one into two', async () => {
-            // The row's icons and More, Star alone behind it: 6 x 36 + 2 separators + 36 = 270. Star could go alone,
-            // but never does; with Show original behind, Star and Move still go together.
-            room = 270;
-            draw(withOriginal());
-            expect(behind()).toEqual(['move', 'original', 'star']);
-            expect(bar().className).toContain('cms-pane-toolbar--labels-hidden');
-            expect((await menu()).map((m) => m.textContent)).toEqual(['Show original', 'Star', 'Move']);
+        it('two or more are behind More at every width, last in its menu', async () => {
+            const two = (): PaneToolbarAction[] => [...withOriginal(), { id: 'source', icon: 'download', label: 'Download source', group: 'view', overflow: 0 }];
+            for (const width of [1000, 300]) {
+                room = width;
+                const { unmount } = draw(two());
+                expect(shown().map((b) => b.dataset['action'])).not.toContain('original');
+                expect(behind()).toEqual(expect.arrayContaining(['original', 'source']));
+                const items = (await menu()).map((m) => m.textContent);
+                expect(items.slice(-2)).toEqual(['Show original', 'Download source']);
+                unmount();
+            }
+        });
+
+        it('with one behind More already, one action may go alone beside it', async () => {
+            // The two menu-only and More: 7 x 36 + 18 + 36 = 306 with everything bare; at 280 Star alone goes.
+            room = 280;
+            draw([...withOriginal(), { id: 'source', icon: 'download', label: 'Download source', group: 'view', overflow: 0 }]);
+            expect(behind()).toEqual(['original', 'source', 'star']);
+            expect((await menu()).map((m) => m.textContent)).toEqual(['Star', 'Show original', 'Download source']);
         });
     });
 
@@ -286,7 +298,8 @@ describe('PaneToolbar', () => {
         expect([...bar().querySelectorAll<HTMLElement>('[data-overflowed]')].map((b) => b.dataset['action'])).toEqual(['unread', 'star', 'move']);
         await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
         const menu = screen.getByRole('menu', { name: 'More actions' });
-        expect(within(menu).getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Star', 'Mark unread', 'Move']);
+        // In the giving-way order: Star, then the pinned from the end of the row back.
+        expect(within(menu).getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Star', 'Move', 'Mark unread']);
     });
 
     it('a pinned action that keeps its label, wider than the row allows, does not push More out of the row', () => {
@@ -300,12 +313,52 @@ describe('PaneToolbar', () => {
         expect(bar().querySelector<HTMLElement>('[data-action="message"]')?.hidden).toBe(true);
     });
 
-    it('one action alone goes behind More where that alone saves room: it keeps its label', () => {
-        // Star keeps its label (no icon): bare row 270 - 36 + 100 = 334. Alone behind More it saves 64, and 270 fits.
+    it('one action never goes behind More alone, even where that alone would save room: the next goes with it', () => {
+        // Star keeps its label (no icon): with every other label hidden the actions need 270 - 36 + 100 = 334. Alone behind More it would save 64, and 270
+        // would fit; More never holds one, so Move, the next in the order (the pinned from the end), goes with it.
         room = 300;
         view({ star: { icon: 'no-such-icon' }, unread: { overflow: undefined }, move: { overflow: undefined } });
-        expect([...bar().querySelectorAll<HTMLElement>('[data-overflowed]')].map((b) => b.dataset['action'])).toEqual(['star']);
+        expect([...bar().querySelectorAll<HTMLElement>('[data-overflowed]')].map((b) => b.dataset['action'])).toEqual(['star', 'move']);
         expect(screen.getByRole('button', { name: 'More actions' })).toBeVisible();
+    });
+
+    it('where only one action could go, it stays in the row at its icon width, and no More is drawn', () => {
+        // Reply alone in the row, wider than the row: it may not go behind More alone, so it stays, as its icon.
+        room = 20;
+        chosen = [];
+        render(<PaneToolbar label="Message actions" moreLabel="More actions" onAction={(id) => chosen.push(id)}
+            actions={[{ id: 'reply', icon: 'reply', label: 'Reply', group: 'answer' }]} />);
+        expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+        expect(bar().querySelectorAll('[data-overflowed]')).toHaveLength(0);
+        expect(bar().className).toContain('cms-pane-toolbar--labels-hidden');
+    });
+
+    describe('the primary', () => {
+        const withPrimary = () => view({ delete: { primary: true } });
+        const labelled = () => shown().filter((b) => b.querySelector('.cms-pane-toolbar__label') !== null).map((b) => b.dataset['action']);
+        const menuItems = async () => {
+            await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+            return within(screen.getByRole('menu', { name: 'More actions' })).getAllByRole('menuitem').map((m) => m.textContent);
+        };
+
+        it('keeps its label longest', () => {
+            // 718 all labelled; at 340 six labels hide: every one but the primary's, wherever it stands.
+            room = 340;
+            withPrimary();
+            expect(labelled()).toEqual(['delete']);
+        });
+
+        it('goes behind More last, and is first in its menu', async () => {
+            // All bare 270; at 200 three go (270 - 3 x 36 + 36 = 198), in the order Star, Move, Mark unread.
+            room = 200;
+            const first = withPrimary();
+            expect(await menuItems()).toEqual(['Star', 'Move', 'Mark unread']);
+            first.unmount();
+            // At 60 only More fits: everything goes, the primary first in the menu.
+            room = 60;
+            withPrimary();
+            expect(await menuItems()).toEqual(['Delete', 'Star', 'Move', 'Mark unread', 'Archive', 'Forward', 'Reply']);
+        });
     });
 
     it('each action is found by its data-action alone: the measuring copies carry another name', () => {
