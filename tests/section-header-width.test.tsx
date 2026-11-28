@@ -184,13 +184,23 @@ describe('SectionHeader, giving way (contract section-header, width)', () => {
         expect(screen.getByRole('button', { name: 'Add mailbox' })).toHaveFocus();
     });
 
-    it('an old menu item (more) is read as a menu-only action', async () => {
+    it('an old menu item (more) is read as a secondary action: a button with its label while it fits, then into More from the end back', async () => {
         const run = vi.fn();
-        header({ secondary: undefined, more: [
+        const old = () => header({ secondary: undefined, more: [
             { id: 'add', label: 'Add mailbox', offer: { offered: true, locked: false }, onSelect: run },
             { id: 'imp', label: 'Import', offer: { offered: true, locked: false }, onSelect: vi.fn() },
+            { id: 'set', label: 'Settings', offer: { offered: true, locked: false }, onSelect: vi.fn() },
         ] });
-        expect(inRow()).toEqual(['primary', 'more']);
-        expect(await moreItems()).toEqual(['Add mailbox', 'Import']);
+        room = 1000;
+        const first = old();
+        expect(inRow()).toEqual(['add', 'imp', 'set', 'primary']);
+        await userEvent.click(screen.getByRole('button', { name: 'Add mailbox' }));
+        expect(run).toHaveBeenCalledTimes(1);
+        first.unmount();
+        // No icon: each keeps its label (100) until it moves. 64 + 300 + 44 = 408 with the primary bare; at 380 two go.
+        room = 380;
+        old();
+        expect(inRow()).toEqual(['add', 'primary', 'more']);
+        expect(await moreItems()).toEqual(['Settings', 'Import']);
     });
 });

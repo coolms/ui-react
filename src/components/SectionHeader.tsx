@@ -60,8 +60,8 @@ export interface SectionHeaderProps {
     /** The section's other declared actions, in the tree's order: buttons while they fit, then in More. */
     readonly secondary?: readonly SectionAction[];
     /**
-     * Deprecated, read for one release: other actions as menu items. They have no icon or priority of their own, so
-     * they are menu only, in More (a single one alone is a button at the row's end).
+     * Deprecated, read as `secondary` for one release: other actions as menu items. They have no icon or priority of
+     * their own, so each keeps its label until it moves into More, from the end of the row back.
      */
     readonly more?: readonly MenuItem[];
     /** More's accessible name and tooltip, from the host's catalogue. */
@@ -150,7 +150,7 @@ export function SectionHeader({ title, icon, description, meta = [], primary, se
             danger: a.danger === true, offer: a.offer ?? { offered: true, locked: false }, run: a.onPress,
         })),
         ...more.map((m): RowAction => ({
-            id: m.id, label: m.label, name: typeof m.label === 'string' ? m.label : m.id, icon: null, overflow: 0,
+            id: m.id, label: m.label, name: typeof m.label === 'string' ? m.label : m.id, icon: null, overflow: undefined,
             danger: m.danger === true, offer: m.offer, run: m.onSelect,
         })),
     ].filter(a => a.offer.offered);
