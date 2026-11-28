@@ -317,6 +317,13 @@ function HeadersPage(): ReactNode {
     return (
         <main style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
             {[880, 520, 300, 180].map(head)}
+            {/* A long title: the actions give way before it, and it is cut only once they have. */}
+            {[640, 420, 260].map(width => (
+                <div key={`long-${width}`} data-header-width={width} style={{ width, maxWidth: '100%', border: '1px solid var(--cms-border)' }}>
+                    <SectionHeader title="Lead: Northwind Traders, renewal for 2027" icon="user-check" moreLabel="More actions"
+                        primary={{ label: 'Convert', icon: 'check', onPress: none }} secondary={secondary} />
+                </div>
+            ))}
             <div style={{ width: 360, maxWidth: '100%', border: '1px solid var(--cms-border)' }}>
                 <SectionHeader title="Chat" icon="chat" moreLabel="More actions" primary={{ label: 'New chat', icon: 'plus', onPress: none }}
                     secondary={[{ id: 'browse', label: 'Browse channels', icon: 'hash', overflow: 0, onPress: none }]} />

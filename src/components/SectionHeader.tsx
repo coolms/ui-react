@@ -91,16 +91,16 @@ interface Layout {
     readonly descriptionHidden: boolean;
     /** Step 2. */
     readonly elsewhereHidden: boolean;
-    /** Step 3: the title may be cut to its floor, in px (64, or all of it where it is shorter). */
+    /** Step 7, once the actions have given way: the title may be cut to its floor, in px (64, or all of it if shorter). */
     readonly titleCut: boolean;
     readonly titleFloor: number;
-    /** Step 4. */
+    /** Step 3. */
     readonly bare: ReadonlySet<string>;
-    /** Step 5. */
+    /** Step 4. */
     readonly primaryBare: boolean;
-    /** Step 6. */
+    /** Step 5. */
     readonly hidden: ReadonlySet<string>;
-    /** Step 7. */
+    /** Step 6. */
     readonly primaryHidden: boolean;
     /** Step 8. */
     readonly chipsCut: boolean;
@@ -123,10 +123,11 @@ const PRIMARY = 'primary';
  *
  * Row 1, on one line at every width: the title, its description and chips, then the secondary actions as quiet
  * buttons, the primary, and More. It is measured on its own width and gives way in this order: the description hides;
- * the chips the page says elsewhere hide; the title is cut down to 64px; the secondary actions drop their labels one by
- * one (lower overflow first, then those with none from the end back); the primary drops its label, keeping its colour;
- * the secondary actions move into More in the same order; the primary moves into More last; and only then the chips
- * that are the only place their fact appears are cut, the last first. More never holds one action: the first move
+ * the chips the page says elsewhere hide; the secondary actions drop their labels one by one (lower overflow first, then
+ * those with none from the end back); the primary drops its label, keeping its colour; the secondary actions move into
+ * More in the same order; the primary moves into More last; only then is the title cut, down to 64px (the actions give
+ * way before the title, never the title before them); and last the chips that are the only place their fact appears
+ * are cut, the last first. More never holds one action: the first move
  * takes two, or one beside a menu-only action, and where only one could go it stays, at its icon width. More lists the
  * primary first, then those that gave way, then the menu-only last.
  *
@@ -214,7 +215,7 @@ export function SectionHeader({ title, icon, description, meta = [], primary, se
             l = { ...l, descriptionHidden: true };
             if (elsewhere.length > 0 && fits({ ...l, elsewhereHidden: true })) return l;
             l = { ...l, elsewhereHidden: true };
-            if (fits({ ...l, titleCut: true })) return l;
+            // The actions give way before the title, never the title before them.
             const bare = new Set<string>();
             for (const unit of labelOrder) {
                 for (const id of unit) bare.add(id);
@@ -234,8 +235,10 @@ export function SectionHeader({ title, icon, description, meta = [], primary, se
                 l = base;
             }
             // Only one could go: it stays in the row, at its icon width.
-            const last = enough() ? at(hidden) : base;
-            return { ...last, chipsCut: true };
+            const given = enough() ? at(hidden) : base;
+            // Only once the actions have given way is the title cut, down to its floor; last, the chips said only here.
+            if (fits({ ...given, titleCut: true })) return l;
+            return { ...given, titleCut: true, chipsCut: true };
         })();
         setLayout(was => (sameLayout(was, chosen) ? was : chosen));
         // The measuring reads the parts as drawn now; `key` names what changes them.

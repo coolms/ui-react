@@ -58,7 +58,7 @@ describe('SectionHeader, giving way (contract section-header, width)', () => {
         expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
     });
 
-    it('the description hides first, then the chips the page says elsewhere, then the title is cut to its floor', () => {
+    it('the description hides first, then the chips the page says elsewhere; the title stays whole while actions give way', () => {
         // All of it: 200 + 150 + 2 x 60 + 300 + 110 = 880.
         room = 760;
         const one = header({ description: 'Your mailboxes', meta });
@@ -75,25 +75,26 @@ describe('SectionHeader, giving way (contract section-header, width)', () => {
         expect(document.querySelector('[data-meta="state"]')).not.toHaveAttribute('hidden');
         expect(screen.getByRole('heading')).toHaveStyle({ minWidth: 'max-content' });
         two.unmount();
-        // The title at its floor: 670 - 136 = 534; every label still shows.
+        // At 600 two labels drop (670 - 2 x 64 = 542), and the title stays whole.
         room = 600;
         header({ description: 'Your mailboxes', meta });
-        expect(screen.getByRole('heading')).toHaveStyle({ minWidth: '64px' });
-        expect(labelled()).toEqual(['a', 'b', 'c', 'primary']);
+        expect(screen.getByRole('heading')).toHaveStyle({ minWidth: 'max-content' });
+        expect(labelled()).toEqual(['c', 'primary']);
     });
 
     it('then the secondary actions drop their labels one by one, lowest first, each keeping its name', () => {
-        // Title cut: 200 - 136 + ... = 64 + 300 + 110 = 474 with labels; each bare saves 64.
-        room = 420;
+        // All labelled 610; each label hidden saves 64: at 560 one goes, the lowest.
+        room = 560;
         header();
         expect(labelled()).toEqual(['b', 'c', 'primary']);
+        expect(screen.getByRole('heading')).toHaveStyle({ minWidth: 'max-content' });
         expect(screen.getByRole('button', { name: 'Add mailbox' })).toHaveAttribute('title', 'Add mailbox');
         expect(document.querySelector('[data-row="1"]')).not.toHaveClass('cms-section-header__row--chips-cut');
     });
 
     it('then the primary drops its label and keeps its colour', () => {
-        // Every secondary bare: 64 + 108 + 110 = 282; the primary bare: 216.
-        room = 250;
+        // Every secondary bare: 200 + 108 + 110 = 418; the primary bare: 352.
+        room = 400;
         header();
         expect(labelled()).toEqual([]);
         const compose = screen.getByRole('button', { name: 'Compose' });
@@ -103,21 +104,35 @@ describe('SectionHeader, giving way (contract section-header, width)', () => {
     });
 
     it('then the secondary actions move into More, two at the first move, never one alone', async () => {
-        // 216 - 2 x 36 + 36 = 180; one alone (216 - 36 + 36 = 216) is never tried.
-        room = 200;
+        // 352 - 2 x 36 + 36 = 316; one alone (352 - 36 + 36 = 352) is never tried.
+        room = 340;
         header();
         expect(inRow()).toEqual(['c', 'primary', 'more']);
         expect(await moreItems()).toEqual(['Add mailbox', 'Settings']);
     });
 
     it('the primary moves into More last, first in its menu, and choosing it runs it', async () => {
-        // Every secondary behind More: 64 + 44 + 36 = 144; the primary too: 100.
-        room = 120;
+        // Every secondary behind More: 200 + 44 + 36 = 280; the primary too: 236, the title still whole.
+        room = 250;
         header();
         expect(inRow()).toEqual(['more']);
+        expect(screen.getByRole('heading')).toHaveStyle({ minWidth: 'max-content' });
         expect(await moreItems()).toEqual(['Compose', 'Add mailbox', 'Settings', 'Import']);
         await userEvent.click(screen.getByRole('menuitem', { name: 'Compose' }));
         expect(pressed).toEqual(['compose']);
+    });
+
+    it('the title is cut, down to its floor, only once every action has given way: never before them', () => {
+        // Everything in More and the title whole: 200 + 36 = 236; at 120 the title is cut to 64 (64 + 36 = 100).
+        room = 300;
+        const whole = header();
+        expect(inRow()).toEqual(['primary', 'more']);
+        expect(screen.getByRole('heading')).toHaveStyle({ minWidth: 'max-content' });
+        whole.unmount();
+        room = 120;
+        header();
+        expect(inRow()).toEqual(['more']);
+        expect(screen.getByRole('heading')).toHaveStyle({ minWidth: '64px' });
     });
 
     it('only where nothing else may give way are the chips that are the only place of their fact cut, keeping their text', () => {
@@ -143,8 +158,8 @@ describe('SectionHeader, giving way (contract section-header, width)', () => {
         const one = header({ secondary: withMenuOnly() });
         expect(inRow()).toEqual(['a', 'b', 'c', 'primary', 'delete']);
         one.unmount();
-        // Everything bare: 64 + 4 x 36 + 44 = 252; at 240 one goes, A, beside the menu-only one: 252 - 36 - 36 + 36 = 216.
-        room = 240;
+        // Everything bare: 200 + 4 x 36 + 44 = 388; at 360 one goes, A, beside the menu-only one: 388 - 36 - 36 + 36 = 352.
+        room = 360;
         header({ secondary: withMenuOnly() });
         expect(inRow()).toEqual(['b', 'c', 'primary', 'more']);
         expect(await moreItems()).toEqual(['Add mailbox', 'Delete mailbox']);
